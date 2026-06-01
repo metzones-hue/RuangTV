@@ -152,6 +152,25 @@
   }
   #player:hover .player-theme-btn { opacity: 1; }
   .player-theme-btn svg { width: 14px; height: 14px; fill: #fff; }
+
+  /* ── FULLSCREEN BUTTON ── */
+  .fullscreen-btn {
+    position: absolute; bottom: 80px; right: 20px; z-index: 60;
+    width: 36px; height: 36px; border-radius: 8px;
+    background: rgba(0,0,0,.5); border: 1px solid rgba(255,255,255,.2);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; opacity: 0; transition: all .2s; backdrop-filter: blur(8px);
+  }
+  #player:hover .fullscreen-btn { opacity: 1; }
+  .fullscreen-btn:hover { background: rgba(255,179,0,.2); border-color: rgba(255,179,0,.4); }
+  .fullscreen-btn svg { width: 16px; height: 16px; fill: #fff; }
+
+  /* True fullscreen styles */
+  #player:fullscreen, #player:-webkit-full-screen,
+  #player:-moz-full-screen, #player:-ms-fullscreen {
+    width: 100vw !important; height: 100vh !important;
+  }
+
 </style>
 </head>
 <body>
@@ -209,6 +228,11 @@
   <!-- THEME TOGGLE -->
   <div class="player-theme-btn" onclick="toggleTheme()">
     <svg id="theme-icon" viewBox="0 0 24 24"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+  </div>
+
+  <!-- FULLSCREEN BUTTON -->
+  <div class="fullscreen-btn" onclick="toggleFullscreen()" id="fs-btn" title="Fullscreen">
+    <svg id="fs-icon" viewBox="0 0 24 24"><path d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
   </div>
 
   <!-- BOTTOM BAR -->
@@ -462,6 +486,54 @@
     }
     this.removeEventListener('click', onFirstClick);
   }, { once: true });
+
+
+  // ── FULLSCREEN ───────────────────────────────────────────
+  function toggleFullscreen() {
+    const el = document.getElementById('player');
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+      // Enter fullscreen
+      if (el.requestFullscreen) el.requestFullscreen();
+      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+      else if (el.mozRequestFullScreen) el.mozRequestFullScreen();
+      else if (el.msRequestFullscreen) el.msRequestFullscreen();
+    } else {
+      // Exit fullscreen
+      if (document.exitFullscreen) document.exitFullscreen();
+      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+      else if (document.msExitFullscreen) document.msExitFullscreen();
+    }
+  }
+
+  // Update fullscreen icon
+  function onFullscreenChange() {
+    const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
+    const icon = document.getElementById('fs-icon');
+    if (icon) {
+      icon.innerHTML = isFs
+        ? '<path d="M8 3v3a2 2 0 01-2 2H3m18 0h-3a2 2 0 01-2-2V3m0 18v-3a2 2 0 012-2h3M3 16h3a2 2 0 012 2v3"/>'
+        : '<path d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>';
+    }
+  }
+  document.addEventListener('fullscreenchange', onFullscreenChange);
+  document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+
+  // Double-click to toggle fullscreen
+  document.getElementById('player').addEventListener('dblclick', toggleFullscreen);
+
+  // Auto fullscreen on load (works on Smart TV browser)
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      // Only auto-fullscreen if no user interaction needed (Smart TV)
+      if (navigator.userAgent.includes('TV') || 
+          navigator.userAgent.includes('SmartTV') ||
+          navigator.userAgent.includes('Tizen') ||
+          navigator.userAgent.includes('WebOS')) {
+        toggleFullscreen();
+      }
+    }, 1000);
+  });
 
   // ── INIT ─────────────────────────────────────────────────
   fetchPlaylist();

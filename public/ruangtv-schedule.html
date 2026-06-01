@@ -4,18 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RuangTV — Jadwal Siaran</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --yellow:#FFCB05;--yellow-dim:rgba(255,203,5,.12);--yellow-mid:rgba(255,203,5,.22);
-    --yellow-glow:rgba(255,203,5,.06);--black:#000;--bg:#0A0A0A;--bg2:#111;--bg3:#181818;
-    --bg4:#222;--border:rgba(255,255,255,.07);--border-y:rgba(255,203,5,.28);
+    --yellow:#FFB300;--yellow-dim:rgba(255,179,0,.12);--yellow-mid:rgba(255,179,0,.22);
+    --yellow-glow:rgba(255,179,0,.06);--black:#000;--bg:#0A0A0A;--bg2:#111;--bg3:#181818;
+    --bg4:#222;--border:rgba(255,255,255,.07);--border-y:rgba(255,179,0,.28);
     --text:#FFF;--text2:rgba(255,255,255,.55);--text3:rgba(255,255,255,.28);
     --green:#22C55E;--red:#EF4444;--orange:#F59E0B;--purple:#8B5CF6;--blue:#3B82F6;
     --radius:12px;--radius-sm:8px;
   }
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 
   /* SIDEBAR */
   .sidebar{position:fixed;left:0;top:0;bottom:0;width:64px;background:var(--black);
@@ -40,18 +40,18 @@
   /* TOPBAR */
   .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;
     border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:50;}
-  .topbar-title{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;font-size:20px;font-weight:700;
+  .topbar-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;font-weight:700;
     letter-spacing:-.02em;display:flex;align-items:center;gap:8px;}
   .topbar-title span{color:var(--yellow);}
   .topbar-sub{font-size:12px;color:var(--text2);margin-top:2px;}
   .btn{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--radius-sm);
     font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .2s;
-    font-family:'Barlow',sans-serif;}
+    font-family:'Inter',sans-serif;}
   .btn svg{width:15px;height:15px;}
   .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text2);}
   .btn-outline:hover{border-color:var(--yellow);color:var(--yellow);background:var(--yellow-glow);}
   .btn-yellow{background:var(--yellow);color:var(--black);font-weight:600;}
-  .btn-yellow:hover{background:#FFD633;transform:translateY(-1px);box-shadow:0 4px 20px rgba(255,203,5,.3);}
+  .btn-yellow:hover{background:#FFC107;transform:translateY(-1px);box-shadow:0 4px 20px rgba(255,179,0,.3);}
 
   .content{padding:24px 28px;flex:1;}
 
@@ -62,7 +62,7 @@
   .branch-chip{
     padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;
     cursor:pointer;border:1px solid var(--border);color:var(--text2);
-    background:transparent;transition:all .2s;font-family:'Barlow',sans-serif;
+    background:transparent;transition:all .2s;font-family:'Inter',sans-serif;
     letter-spacing:.02em;
   }
   .branch-chip:hover{border-color:var(--border-y);color:var(--yellow);}
@@ -76,7 +76,7 @@
     cursor:pointer;transition:all .15s;color:var(--text2);}
   .date-btn:hover{border-color:var(--border-y);color:var(--yellow);}
   .date-btn svg{width:14px;height:14px;}
-  .date-display{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;font-size:13px;font-weight:700;
+  .date-display{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;font-weight:700;
     color:var(--yellow);min-width:160px;text-align:center;}
 
   /* WEEK STRIP */
@@ -86,7 +86,7 @@
   .day-cell:hover{border-color:var(--border-y);}
   .day-cell.today{background:var(--yellow-dim);border-color:var(--border-y);}
   .day-name{font-size:10px;color:var(--text3);font-weight:600;letter-spacing:.05em;text-transform:uppercase;margin-bottom:4px;}
-  .day-num{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;font-size:18px;font-weight:700;color:var(--text2);}
+  .day-num{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;font-weight:700;color:var(--text2);}
   .day-cell.today .day-num{color:var(--yellow);}
   .day-dot{width:4px;height:4px;border-radius:50%;background:var(--yellow);margin:4px auto 0;opacity:0;}
   .day-cell.has-content .day-dot{opacity:1;}
@@ -109,7 +109,7 @@
   .branch-header{height:44px;border-bottom:1px solid var(--border);
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
     background:var(--bg3);}
-  .bh-code{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;font-size:11px;font-weight:700;
+  .bh-code{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;font-weight:700;
     letter-spacing:.06em;color:var(--yellow);}
   .bh-status{font-size:9px;font-weight:600;padding:1px 6px;border-radius:10px;}
   .bh-on{background:rgba(34,197,94,.1);color:var(--green);}
@@ -126,15 +126,15 @@
   .sb-title{font-size:9px;font-weight:600;line-height:1.2;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
   .sb-dur{font-size:8px;opacity:.7;margin-top:1px;}
-  .sc-promo{background:rgba(255,203,5,.18);border:1px solid rgba(255,203,5,.3);color:var(--yellow);}
+  .sc-promo{background:rgba(255,179,0,.18);border:1px solid rgba(255,179,0,.3);color:var(--yellow);}
   .sc-disc{background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.2);color:var(--orange);}
   .sc-menu{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.18);color:var(--green);}
   .sc-info{background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.18);color:#818cf8;}
   .sc-empty{background:transparent;border:1px dashed rgba(255,255,255,.06);}
-  .sc-now{background:rgba(255,203,5,.05);border:1px solid rgba(255,203,5,.2);}
+  .sc-now{background:rgba(255,179,0,.05);border:1px solid rgba(255,179,0,.2);}
   .add-icon{font-size:16px;color:var(--text3);line-height:1;}
   .now-line{position:absolute;left:0;right:0;height:2px;background:var(--yellow);
-    box-shadow:0 0 8px rgba(255,203,5,.6);z-index:10;}
+    box-shadow:0 0 8px rgba(255,179,0,.6);z-index:10;}
 
   /* LEGEND */
   .legend{display:flex;align-items:center;gap:20px;padding:12px 16px;
@@ -151,7 +151,7 @@
   .side-panel.open{right:0;}
   .sp-head{display:flex;align-items:center;justify-content:space-between;
     padding:20px 24px;border-bottom:1px solid var(--border);}
-  .sp-title{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;font-size:15px;font-weight:700;}
+  .sp-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;font-weight:700;}
   .sp-close{width:28px;height:28px;border-radius:6px;background:var(--bg3);
     border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
     cursor:pointer;color:var(--text2);transition:all .15s;}
@@ -163,11 +163,11 @@
   .form-label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;display:block;letter-spacing:.03em;}
   .form-input{width:100%;background:var(--bg3);border:1px solid var(--border);
     border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--text);
-    font-family:'Barlow',sans-serif;transition:border-color .15s;outline:none;}
+    font-family:'Inter',sans-serif;transition:border-color .15s;outline:none;}
   .form-input:focus{border-color:var(--border-y);}
   .form-select{width:100%;background:var(--bg3);border:1px solid var(--border);
     border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--text);
-    font-family:'Barlow',sans-serif;transition:border-color .15s;outline:none;cursor:pointer;}
+    font-family:'Inter',sans-serif;transition:border-color .15s;outline:none;cursor:pointer;}
   .form-select:focus{border-color:var(--border-y);}
   .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
   .checkbox-group{display:flex;flex-direction:column;gap:8px;}
@@ -185,7 +185,7 @@
   .ms-icon{width:32px;height:32px;border-radius:8px;background:var(--yellow-dim);
     display:flex;align-items:center;justify-content:center;flex-shrink:0;}
   .ms-icon svg{width:16px;height:16px;fill:var(--yellow);}
-  .ms-val{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;font-size:18px;font-weight:700;color:var(--text);}
+  .ms-val{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;font-weight:700;color:var(--text);}
   .ms-label{font-size:11px;color:var(--text3);}
 
   ::-webkit-scrollbar{width:4px;}
@@ -218,8 +218,8 @@
   }
   [data-theme="light"] .sidebar { background: #111111; }
   [data-theme="light"] .sidebar .nav-item { color: rgba(255,255,255,.55); }
-  [data-theme="light"] .sidebar .nav-item:hover { color: #FFCB05; background: rgba(255,203,5,.08); }
-  [data-theme="light"] .sidebar .nav-item.active { color: #FFCB05; border-left-color: #FFCB05; background: rgba(255,203,5,.12); }
+  [data-theme="light"] .sidebar .nav-item:hover { color: #FFB300; background: rgba(255,179,0,.08); }
+  [data-theme="light"] .sidebar .nav-item.active { color: #FFB300; border-left-color: #FFB300; background: rgba(255,179,0,.12); }
   [data-theme="light"] .sidebar .live-dot { background: #22C55E; }
   [data-theme="light"] .sidebar .live-text { color: #22C55E; }
   [data-theme="light"] .topbar { background: rgba(244,244,245,0.96); }
@@ -271,6 +271,70 @@
   .theme-toggle svg { width: 17px; height: 17px; fill: currentColor; transition: transform .4s cubic-bezier(.34,1.56,.64,1); }
   .theme-toggle:hover svg { transform: rotate(25deg) scale(1.1); }
 
+
+  /* ── GLOBAL TYPOGRAPHY FIXES ── */
+  body {
+    font-size: 14px;
+    line-height: 1.6;
+    letter-spacing: 0.01em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  p, span, div, a, label, td, th, li {
+    letter-spacing: 0.01em;
+  }
+  /* Nav items */
+  .nav-label { letter-spacing: 0.02em; font-size: 13px; font-weight: 500; }
+  /* Topbar */
+  .topbar-sub { font-size: 12px; letter-spacing: 0.03em; line-height: 1.5; }
+  .topbar-title { letter-spacing: -0.01em; }
+  /* Stat cards */
+  .stat-label { font-size: 12px; letter-spacing: 0.02em; line-height: 1.5; font-weight: 500; }
+  .stat-num { letter-spacing: -0.02em; line-height: 1; }
+  /* Branch items */
+  .branch-name { font-size: 13px; font-weight: 600; letter-spacing: 0.01em; line-height: 1.4; }
+  .branch-sub { font-size: 11px; letter-spacing: 0.02em; line-height: 1.5; margin-top: 3px; }
+  .branch-code { font-size: 10px; letter-spacing: 0.1em; font-weight: 700; }
+  /* Content rows */
+  .content-name-txt { font-size: 13px; font-weight: 600; letter-spacing: 0.01em; line-height: 1.4; }
+  .content-meta-txt { font-size: 11px; letter-spacing: 0.02em; line-height: 1.5; margin-top: 3px; }
+  /* Panel titles */
+  .panel-title { font-size: 11px; letter-spacing: 0.08em; line-height: 1.4; }
+  /* Section titles */
+  .sec-title { font-size: 15px; letter-spacing: 0.01em; line-height: 1.3; }
+  /* Buttons */
+  .btn { font-size: 13px; letter-spacing: 0.02em; font-weight: 500; }
+  .btn-yellow { letter-spacing: 0.03em; font-weight: 600; }
+  /* Status badges */
+  .status-badge { font-size: 10px; letter-spacing: 0.06em; line-height: 1; }
+  .target-pill { font-size: 9px; letter-spacing: 0.06em; }
+  /* TV cards */
+  .tv-name { font-size: 12px; font-weight: 600; letter-spacing: 0.01em; line-height: 1.4; }
+  .tv-content-name { font-size: 11px; letter-spacing: 0.01em; line-height: 1.4; margin-top: 2px; }
+  /* Quick actions */
+  .qa-label { font-size: 13px; font-weight: 600; letter-spacing: 0.01em; line-height: 1.4; }
+  .qa-sub { font-size: 11px; letter-spacing: 0.02em; line-height: 1.5; margin-top: 2px; }
+  /* Alert */
+  .alert-msg { font-size: 13px; letter-spacing: 0.01em; line-height: 1.5; }
+  /* Footer */
+  .footer-left, .footer-right { font-size: 12px; letter-spacing: 0.02em; }
+  /* Tabs */
+  .tab { font-size: 12px; letter-spacing: 0.03em; font-weight: 500; }
+  /* Schedule */
+  .sch-time { font-size: 11px; letter-spacing: 0.02em; line-height: 1.4; }
+  .sch-block { font-size: 10px; letter-spacing: 0.02em; font-weight: 600; }
+  .sch-label { font-size: 10px; letter-spacing: 0.02em; }
+  /* Form elements */
+  .form-input, .form-select, .form-textarea {
+    font-size: 14px; letter-spacing: 0.01em; line-height: 1.5;
+  }
+  .form-label { font-size: 11px; letter-spacing: 0.06em; line-height: 1.5; font-weight: 600; }
+  /* Badges */
+  .badge-broadcast { font-size: 12px; letter-spacing: 0.03em; }
+  /* Barlow Condensed headings */
+  [style*="Barlow"], .topbar-title,
+  .stat-num, .sec-title, .panel-title { }
+
 </style>
 <script src="ruangtv-api.js"></script>
 </head>
@@ -286,7 +350,7 @@
       <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
       <span class="nav-label">Dashboard</span>
     </a>
-    <a class="nav-item" href="#">
+    <a class="nav-item" href="ruangtv-dashboard.html">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M21 6H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1z"/></svg>
       <span class="nav-label">Status TV</span>
     </a>
@@ -294,13 +358,17 @@
       <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
       <span class="nav-label">Konten</span>
     </a>
-    <a class="nav-item active" href="#">
+    <a class="nav-item active" href="ruangtv-schedule.html">
       <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg>
       <span class="nav-label">Jadwal</span>
     </a>
-    <a class="nav-item" href="#">
-      <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+    <a class="nav-item" href="ruangtv-dashboard.html">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
       <span class="nav-label">Cabang</span>
+    </a>
+    <a class="nav-item" href="ruangtv-template-maker.html">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+      <span class="nav-label">Template</span>
     </a>
   </nav>
 </aside>
@@ -517,7 +585,7 @@
     <!-- LEGEND -->
     <div class="legend fade-in" style="border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius);margin-top:-1px;">
       <span style="font-size:11px;color:var(--text3);margin-right:4px;">Tipe Konten:</span>
-      <div class="legend-item"><div class="legend-dot" style="background:rgba(255,203,5,.3);border:1px solid rgba(255,203,5,.4)"></div><span class="legend-txt">Promo / Iklan</span></div>
+      <div class="legend-item"><div class="legend-dot" style="background:rgba(255,179,0,.3);border:1px solid rgba(255,179,0,.4)"></div><span class="legend-txt">Promo / Iklan</span></div>
       <div class="legend-item"><div class="legend-dot" style="background:rgba(245,158,11,.3);border:1px solid rgba(245,158,11,.4)"></div><span class="legend-txt">Diskon</span></div>
       <div class="legend-item"><div class="legend-dot" style="background:rgba(34,197,94,.2);border:1px solid rgba(34,197,94,.3)"></div><span class="legend-txt">Menu / Layanan</span></div>
       <div class="legend-item"><div class="legend-dot" style="background:rgba(99,102,241,.2);border:1px solid rgba(99,102,241,.3)"></div><span class="legend-txt">Info / Edukasi</span></div>
