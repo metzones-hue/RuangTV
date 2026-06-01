@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RuangTV — Upload Konten</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --yellow:#FFB300;--yellow-dim:rgba(255,179,0,.12);--yellow-mid:rgba(255,179,0,.22);
@@ -35,7 +35,7 @@
   .main{margin-left:64px;min-height:100vh;display:flex;flex-direction:column;}
   .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;
     border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:50;}
-  .topbar-title{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;font-size:20px;font-weight:700;letter-spacing:-.02em;display:flex;align-items:center;gap:8px;}
+  .topbar-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;font-weight:700;letter-spacing:-.02em;display:flex;align-items:center;gap:8px;}
   .topbar-title span{color:var(--yellow);}
   .topbar-sub{font-size:12px;color:var(--text2);margin-top:2px;}
   .btn{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--radius-sm);
@@ -58,18 +58,18 @@
   .upload-icon{width:56px;height:56px;background:var(--yellow-dim);border-radius:16px;
     display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
   .upload-icon svg{width:28px;height:28px;fill:var(--yellow);}
-  .upload-title{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;font-size:16px;font-weight:700;margin-bottom:8px;}
+  .upload-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;font-weight:700;margin-bottom:8px;}
   .upload-sub{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:16px;}
   .upload-formats{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;}
-  .fmt-badge{font-size:10px;font-weight:700;letter-spacing:.04em;padding:3px 8px;
+  .fmt-badge{font-size:10px;font-weight:700;letter-spacing:0.02em;padding:3px 8px;
     border-radius:4px;background:var(--bg3);border:1px solid var(--border);color:var(--text3);}
   #file-input{display:none;}
 
   /* FORM PANEL */
   .form-panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
   .fp-head{padding:16px 20px;border-bottom:1px solid var(--border);
-    font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;font-size:13px;font-weight:700;
-    letter-spacing:.04em;text-transform:uppercase;color:var(--text2);
+    font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;font-weight:700;
+    letter-spacing:0.02em;text-transform:uppercase;color:var(--text2);
     display:flex;align-items:center;gap:8px;}
   .fp-head svg{width:14px;height:14px;fill:var(--yellow);}
   .fp-body{padding:20px;}
@@ -96,7 +96,7 @@
   .checkbox-label{font-size:12px;color:var(--text2);}
   .range-wrap{display:flex;align-items:center;gap:10px;}
   .form-range{flex:1;accent-color:var(--yellow);}
-  .range-val{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;font-size:13px;font-weight:700;
+  .range-val{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;font-weight:700;
     color:var(--yellow);min-width:36px;text-align:right;}
 
   /* LIBRARY */
@@ -145,7 +145,7 @@
 
   /* SECTION HEAD */
   .sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-  .sec-title{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;font-size:15px;font-weight:700;
+  .sec-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;font-weight:700;
     display:flex;align-items:center;gap:8px;}
   .sec-title::before{content:'';width:3px;height:16px;background:var(--yellow);border-radius:2px;}
 
@@ -257,7 +257,7 @@
   .topbar-sub { font-size: 12px; letter-spacing: 0.03em; line-height: 1.5; }
   .topbar-title { letter-spacing: -0.01em; }
   /* Stat cards */
-  .stat-label { font-size: 12px; letter-spacing: 0.04em; line-height: 1.5; font-weight: 500; }
+  .stat-label { font-size: 12px; letter-spacing: 0.02em; line-height: 1.5; font-weight: 500; }
   .stat-num { letter-spacing: -0.02em; line-height: 1; }
   /* Branch items */
   .branch-name { font-size: 13px; font-weight: 600; letter-spacing: 0.01em; line-height: 1.4; }
@@ -290,8 +290,8 @@
   .tab { font-size: 12px; letter-spacing: 0.03em; font-weight: 500; }
   /* Schedule */
   .sch-time { font-size: 11px; letter-spacing: 0.02em; line-height: 1.4; }
-  .sch-block { font-size: 10px; letter-spacing: 0.04em; font-weight: 600; }
-  .sch-label { font-size: 10px; letter-spacing: 0.04em; }
+  .sch-block { font-size: 10px; letter-spacing: 0.02em; font-weight: 600; }
+  .sch-label { font-size: 10px; letter-spacing: 0.02em; }
   /* Form elements */
   .form-input, .form-select, .form-textarea {
     font-size: 14px; letter-spacing: 0.01em; line-height: 1.5;
@@ -299,8 +299,8 @@
   .form-label { font-size: 11px; letter-spacing: 0.06em; line-height: 1.5; font-weight: 600; }
   /* Badges */
   .badge-broadcast { font-size: 12px; letter-spacing: 0.03em; }
-  /* Bebas Neue headings — always need letter spacing */
-  [style*="Bebas"], .topbar-title,
+  /* Barlow Condensed headings */
+  [style*="Barlow"], .topbar-title,
   .stat-num, .sec-title, .panel-title { }
 
 </style>
@@ -320,7 +320,7 @@
     <a class="nav-item" href="#"><svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M21 6H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1z"/></svg><span class="nav-label">Status TV</span></a>
     <a class="nav-item active" href="#"><svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg><span class="nav-label">Konten</span></a>
     <a class="nav-item" href="ruangtv-schedule.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg><span class="nav-label">Jadwal</span></a>
-    <a class="nav-item" href="#"><svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg><span class="nav-label">Cabang</span></a>
+    <a class="nav-item" href="ruangtv-dashboard.html#branches"><svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg><span class="nav-label">Cabang</span></a>
   </nav>
 </aside>
 
@@ -372,7 +372,7 @@
 
         <!-- PROGRESS (hidden by default) -->
         <div class="upload-progress" id="upload-progress">
-          <div style="font-size:12px;font-weight:600;color:var(--text2);letter-spacing:.04em;text-transform:uppercase;margin-bottom:12px;">Mengupload...</div>
+          <div style="font-size:12px;font-weight:600;color:var(--text2);letter-spacing:0.02em;text-transform:uppercase;margin-bottom:12px;">Mengupload...</div>
           <div class="up-row">
             <div class="up-icon"><svg viewBox="0 0 24 24"><path d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.9L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg></div>
             <div class="up-info">
@@ -695,46 +695,79 @@
     if (!grid) return;
 
     const filtered = filterStatus === 'all' ? list : list.filter(c => c.status === filterStatus);
+    const SERVER = 'https://ruangtv-production.up.railway.app';
 
-    const catClass = { promo:'lt-promo', discount:'lt-disc', menu:'lt-menu', info:'lt-info' };
-    const catIcon = {
-      promo: `<svg viewBox="0 0 24 24" fill="rgba(255,179,0,.6)"><path d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>`,
-      discount: `<svg viewBox="0 0 24 24" fill="rgba(245,158,11,.6)"><path d="M7 7h.01M17 17h.01M7 3H5a2 2 0 00-2 2v2m16-4h2a2 2 0 012 2v2M7 21H5a2 2 0 01-2-2v-2m16 4h2a2 2 0 002-2v-2M9 12a3 3 0 116 0 3 3 0 01-6 0z"/></svg>`,
-      menu: `<svg viewBox="0 0 24 24" fill="rgba(34,197,94,.6)"><path d="M4 6h16M4 10h16M4 14h10M4 18h6"/></svg>`,
-      info: `<svg viewBox="0 0 24 24" fill="rgba(99,102,241,.6)"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
+    const catColor = {
+      promo:'rgba(255,179,0,.5)',
+      discount:'rgba(245,158,11,.5)',
+      menu:'rgba(34,197,94,.5)',
+      info:'rgba(99,102,241,.5)'
     };
+
+    const getThumb = (c) => {
+      if (c.file_url) {
+        const url = SERVER + c.file_url;
+        const ext = (c.file_url.split('.').pop() || '').toLowerCase();
+        if (['jpg','jpeg','png','gif','webp'].includes(ext)) {
+          return `<img src="${url}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentNode.style.background='var(--bg3)'">`;
+        }
+        if (['mp4','mov','webm'].includes(ext)) {
+          return `<video src="${url}" style="width:100%;height:100%;object-fit:cover" muted preload="metadata"></video>`;
+        }
+      }
+      const col = catColor[c.category] || 'rgba(99,102,241,.5)';
+      return `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center">
+        <svg viewBox="0 0 24 24" width="36" height="36" fill="${col}">
+          <path d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.9L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>
+        </svg>
+      </div>`;
+    };
+
     const statusBadge = {
       live: `<span class="lib-status ls-live">Live</span>`,
       scheduled: `<span class="lib-status ls-sched">Terjadwal</span>`,
       draft: `<span class="lib-status ls-draft">Draft</span>`,
     };
 
-    grid.innerHTML = filtered.length === 0
-      ? `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text3)">Belum ada konten</div>`
-      : filtered.map(c => `
-        <div class="lib-card" data-status="${c.status}" data-id="${c.id}">
-          <div class="lib-thumb ${catClass[c.category]||'lt-info'}">
-            ${catIcon[c.category]||catIcon.info}
-            ${c.status==='live' ? '<div style="position:absolute;top:6px;right:6px;background:rgba(34,197,94,.85);border-radius:4px;padding:2px 6px;font-size:9px;font-weight:700;color:#fff">● LIVE</div>' : ''}
-          </div>
-          <div class="lib-body">
-            <div class="lib-name">${c.name}</div>
-            <div class="lib-meta">${API.fmt.category(c.category)} · ${c.duration} dtk · ${c.file_size ? API.fmt.fileSize(c.file_size) : 'No file'}</div>
-            <div class="lib-foot">
-              ${statusBadge[c.status]||statusBadge.draft}
-              <div class="lib-actions">
-                ${c.status !== 'live'
-                  ? `<div class="lib-btn" title="Publish" onclick="publishContent('${c.id}')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 13l4 4L19 7"/></svg></div>`
-                  : `<div class="lib-btn" title="Unpublish" onclick="unpublishContent('${c.id}')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>`
-                }
-                <div class="lib-btn" title="Hapus" onclick="deleteContent('${c.id}','${c.name}')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></div>
+    if (filtered.length === 0) {
+      grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text3)">Belum ada konten</div>`;
+      return;
+    }
+
+    grid.innerHTML = filtered.map(c => `
+      <div class="lib-card" data-status="${c.status}" data-id="${c.id}">
+        <div style="position:relative;height:130px;overflow:hidden;background:var(--bg3);border-radius:8px 8px 0 0">
+          ${getThumb(c)}
+          ${c.status === 'live'
+            ? `<div style="position:absolute;top:8px;right:8px;background:rgba(34,197,94,.92);border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700;color:#fff;z-index:2">● LIVE</div>`
+            : c.status === 'scheduled'
+            ? `<div style="position:absolute;top:8px;right:8px;background:rgba(99,102,241,.92);border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700;color:#fff;z-index:2">SCHED</div>`
+            : ''}
+        </div>
+        <div class="lib-body">
+          <div class="lib-name">${c.name}</div>
+          <div class="lib-meta">${API.fmt.category(c.category)} · ${c.duration} dtk · ${c.file_size ? API.fmt.fileSize(c.file_size) : 'No file'}</div>
+          <div class="lib-foot">
+            ${statusBadge[c.status] || statusBadge.draft}
+            <div class="lib-actions">
+              ${c.status !== 'live'
+                ? `<div class="lib-btn" title="Publish" onclick="publishContent('${c.id}')">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 13l4 4L19 7"/></svg>
+                   </div>`
+                : `<div class="lib-btn" title="Unpublish" onclick="unpublishContent('${c.id}')">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                   </div>`
+              }
+              <div class="lib-btn" title="Hapus" onclick="deleteContent('${c.id}','${c.name.replace(/'/g,\`'\`)}')">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
               </div>
             </div>
           </div>
-        </div>`).join('');
+        </div>
+      </div>`).join('');
   }
 
-  async function publishContent(id) {
+    async function publishContent(id) {
     try {
       const r = await API.contents.publish(id);
       API.toast(`${r.content.name} dipublish & dikirim ke TV!`, 'success');
