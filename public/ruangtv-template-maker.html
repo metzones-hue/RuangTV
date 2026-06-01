@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RuangTV — Template Konten Ruangprint</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --y: #FFB300;
+    --yd: rgba(255,179,0,0.12);
+    --yb: rgba(255,179,0,0.25);
+    --bg: #0A0A0A;
+    --bg2: #111;
+    --b: rgba(255,255,255,0.07);
+    --t: #fff;
+    --t2: rgba(255,255,255,0.55);
+    --t3: rgba(255,255,255,0.28);
+    --g: #22C55E;
+    --r: #EF4444;
+    --o: #F59E0B;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0A0A0A;
+    color: #fff;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── EDITOR UI ── */
+  .editor-wrap {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .sidebar {
+    background: #0D0D0D;
+    border-right: 1px solid var(--b);
+    display: flex; flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .sb-head {
+    padding: 20px;
+    border-bottom: 1px solid var(--b);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .sb-logo {
+    width: 34px; height: 34px; background: var(--y);
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  }
+  .sb-logo svg { width: 18px; height: 18px; fill: #000; }
+  .sb-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px; letter-spacing: 0.04em; line-height: 1;
+  }
+  .sb-title span { color: var(--y); }
+
+  .sb-section { padding: 16px 20px; border-bottom: 1px solid var(--b); }
+  .sb-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--t3); margin-bottom: 10px;
+  }
+
+  /* Template picker */
+  .tpl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .tpl-btn {
+    background: #181818; border: 1px solid var(--b);
+    border-radius: 8px; padding: 10px 8px; cursor: pointer;
+    transition: all .15s; text-align: center;
+    font-family: 'Inter', sans-serif;
+  }
+  .tpl-btn:hover { border-color: var(--yb); background: var(--yd); }
+  .tpl-btn.active { border-color: var(--y); background: var(--yd); }
+  .tpl-icon { font-size: 20px; margin-bottom: 4px; }
+  .tpl-name { font-size: 11px; font-weight: 600; color: var(--t2); letter-spacing: 0.02em; line-height: 1.3; }
+
+  /* Form controls */
+  .ctrl-group { margin-bottom: 12px; }
+  .ctrl-label {
+    font-size: 11px; font-weight: 600; color: var(--t2);
+    letter-spacing: 0.05em; display: block; margin-bottom: 5px;
+  }
+  .ctrl-input {
+    width: 100%; background: #181818; border: 1px solid var(--b);
+    border-radius: 7px; padding: 8px 11px; font-size: 13px;
+    color: #fff; font-family: 'Inter', sans-serif;
+    letter-spacing: 0.01em; line-height: 1.5;
+    transition: border-color .15s; outline: none;
+  }
+  .ctrl-input:focus { border-color: var(--yb); }
+  .ctrl-textarea {
+    width: 100%; background: #181818; border: 1px solid var(--b);
+    border-radius: 7px; padding: 8px 11px; font-size: 13px;
+    color: #fff; font-family: 'Inter', sans-serif;
+    letter-spacing: 0.01em; line-height: 1.6;
+    transition: border-color .15s; outline: none;
+    resize: vertical; min-height: 64px;
+  }
+  .ctrl-textarea:focus { border-color: var(--yb); }
+
+  /* Color swatches */
+  .swatch-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .swatch {
+    width: 28px; height: 28px; border-radius: 6px;
+    cursor: pointer; border: 2px solid transparent;
+    transition: all .15s; flex-shrink: 0;
+  }
+  .swatch.active { border-color: #fff; transform: scale(1.1); }
+
+  /* Action buttons */
+  .btn-row { display: flex; gap: 8px; padding: 16px 20px; margin-top: auto; border-top: 1px solid var(--b); }
+  .btn-dl {
+    flex: 1; background: var(--y); color: #000;
+    border: none; border-radius: 8px; padding: 10px;
+    font-size: 13px; font-weight: 700; letter-spacing: 0.04em;
+    cursor: pointer; font-family: 'Inter', sans-serif;
+    transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .btn-dl:hover { background: #FFC107; transform: translateY(-1px); }
+  .btn-dl svg { width: 15px; height: 15px; fill: #000; }
+  .btn-sec {
+    background: transparent; color: var(--t2);
+    border: 1px solid var(--b); border-radius: 8px; padding: 10px 14px;
+    font-size: 13px; font-weight: 500; letter-spacing: 0.02em;
+    cursor: pointer; font-family: 'Inter', sans-serif;
+    transition: all .2s;
+  }
+  .btn-sec:hover { border-color: var(--yb); color: var(--y); }
+
+  /* ── CANVAS PREVIEW ── */
+  .canvas-wrap {
+    display: flex; flex-direction: column;
+    background: #060606; overflow: hidden;
+  }
+  .canvas-toolbar {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 20px; border-bottom: 1px solid var(--b);
+    background: #0D0D0D;
+  }
+  .canvas-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+    color: var(--t3); text-transform: uppercase;
+  }
+  .canvas-size {
+    font-size: 11px; color: var(--t3); margin-left: auto;
+    letter-spacing: 0.03em;
+  }
+
+  .canvas-area {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    padding: 32px;
+  }
+
+  /* The actual 16:9 slide */
+  .slide-frame {
+    width: 100%;
+    max-width: 960px;
+    aspect-ratio: 16/9;
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 32px 80px rgba(0,0,0,.7);
+  }
+
+  /* ══════════════════════════════════════════════
+     TEMPLATE STYLES — all 1920×1080 proportional
+  ══════════════════════════════════════════════ */
+
+  /* Template base */
+  .slide { position: absolute; inset: 0; display: none; }
+  .slide.active { display: flex; }
+
+  /* DOT GRID decoration */
+  .dot-bg {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image: radial-gradient(circle, rgba(255,255,255,.06) 1px, transparent 1px);
+    background-size: 3% 5%;
+  }
+
+  /* ── TEMPLATE 1: PROMO BESAR ── */
+  #tpl-promo {
+    background: #050505;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 7%;
+  }
+  #tpl-promo .accent-bar {
+    width: 4px; height: 12%;
+    background: var(--y);
+    border-radius: 2px;
+    margin-bottom: 4%;
+  }
+  #tpl-promo .eyebrow {
+    font-size: 1.2vw; font-weight: 600; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--y);
+    margin-bottom: 2%;
+    line-height: 1.4;
+  }
+  #tpl-promo .headline {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 9vw; line-height: 0.9;
+    letter-spacing: 0.02em; color: #fff;
+    margin-bottom: 4%;
+  }
+  #tpl-promo .headline .hl { color: var(--y); }
+  #tpl-promo .subtext {
+    font-size: 1.4vw; color: rgba(255,255,255,.6);
+    line-height: 1.6; letter-spacing: 0.02em;
+    max-width: 55%;
+    margin-bottom: 5%;
+  }
+  #tpl-promo .cta {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--y); color: #000;
+    padding: 1.5% 3%; border-radius: 50px;
+    font-size: 1.2vw; font-weight: 700; letter-spacing: 0.05em;
+  }
+  #tpl-promo .deco-num {
+    position: absolute; right: 5%; top: 50%; transform: translateY(-50%);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28vw; line-height: 0.8; letter-spacing: -0.02em;
+    color: rgba(255,179,0,.07); pointer-events: none;
+    user-select: none;
+  }
+
+  /* ── TEMPLATE 2: DISKON SPLIT ── */
+  #tpl-diskon {
+    background: #050505;
+    flex-direction: row;
+  }
+  #tpl-diskon .left-panel {
+    width: 50%; height: 100%;
+    background: var(--y);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 8%;
+  }
+  #tpl-diskon .disc-label {
+    font-size: 1.4vw; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: rgba(0,0,0,.6);
+    margin-bottom: 3%;
+  }
+  #tpl-diskon .disc-pct {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22vw; line-height: 0.85; letter-spacing: -0.02em; color: #000;
+  }
+  #tpl-diskon .disc-off {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 5vw; letter-spacing: 0.06em; color: rgba(0,0,0,.5);
+  }
+  #tpl-diskon .right-panel {
+    width: 50%; height: 100%;
+    display: flex; flex-direction: column;
+    align-items: flex-start; justify-content: center;
+    padding: 7%;
+  }
+  #tpl-diskon .disc-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 5.5vw; letter-spacing: 0.02em; line-height: 1.1; color: #fff;
+    margin-bottom: 4%;
+  }
+  #tpl-diskon .disc-desc {
+    font-size: 1.3vw; color: rgba(255,255,255,.55);
+    line-height: 1.7; letter-spacing: 0.02em;
+    margin-bottom: 5%;
+  }
+  #tpl-diskon .disc-cta {
+    background: #fff; color: #000;
+    padding: 1.5% 3%; border-radius: 50px;
+    font-size: 1.2vw; font-weight: 700; letter-spacing: 0.05em;
+  }
+
+  /* ── TEMPLATE 3: MENU GRID ── */
+  #tpl-menu {
+    background: #060606;
+    flex-direction: column;
+    padding: 5%;
+    gap: 4%;
+  }
+  #tpl-menu .menu-header {
+    display: flex; align-items: center; gap: 2%;
+  }
+  #tpl-menu .menu-logo-box {
+    width: 5%; aspect-ratio: 1;
+    background: var(--y); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #tpl-menu .menu-logo-box svg { width: 55%; height: 55%; fill: #000; }
+  #tpl-menu .menu-title-wrap {}
+  #tpl-menu .menu-eyebrow {
+    font-size: 1vw; letter-spacing: 0.12em; font-weight: 600;
+    text-transform: uppercase; color: var(--y); line-height: 1.4;
+  }
+  #tpl-menu .menu-heading {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3.5vw; letter-spacing: 0.04em; line-height: 1; color: #fff;
+  }
+  #tpl-menu .menu-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 2%;
+    flex: 1;
+  }
+  #tpl-menu .menu-item {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 10px; padding: 5%;
+    display: flex; flex-direction: column; gap: 6%;
+  }
+  #tpl-menu .item-icon {
+    width: 18%; aspect-ratio: 1;
+    background: rgba(255,179,0,.1);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #tpl-menu .item-icon svg { width: 55%; height: 55%; fill: var(--y); }
+  #tpl-menu .item-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2vw; letter-spacing: 0.03em; line-height: 1.1; color: #fff;
+  }
+  #tpl-menu .item-desc {
+    font-size: 1.1vw; color: rgba(255,255,255,.5);
+    line-height: 1.5; letter-spacing: 0.02em; flex: 1;
+  }
+  #tpl-menu .item-price {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2vw; letter-spacing: 0.04em; color: var(--y);
+  }
+
+  /* ── TEMPLATE 4: INFO CLEAN ── */
+  #tpl-info {
+    background: #050505;
+    align-items: center; justify-content: center;
+    text-align: center; flex-direction: column;
+    padding: 6%;
+  }
+  #tpl-info .info-badge {
+    background: rgba(255,179,0,.12);
+    border: 1px solid rgba(255,179,0,.25);
+    color: var(--y);
+    font-size: 1.1vw; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.8% 2.5%; border-radius: 50px;
+    margin-bottom: 4%;
+  }
+  #tpl-info .info-heading {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 8vw; letter-spacing: 0.03em; line-height: 0.95; color: #fff;
+    margin-bottom: 4%;
+  }
+  #tpl-info .info-heading .hl { color: var(--y); }
+  #tpl-info .info-body {
+    font-size: 1.5vw; color: rgba(255,255,255,.6);
+    line-height: 1.7; letter-spacing: 0.02em;
+    max-width: 65%; margin-bottom: 6%;
+  }
+  #tpl-info .info-cards {
+    display: flex; gap: 2%; width: 80%;
+  }
+  #tpl-info .info-card {
+    flex: 1; background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 10px; padding: 3%;
+  }
+  #tpl-info .ic-label {
+    font-size: 0.9vw; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--y); margin-bottom: 6%;
+  }
+  #tpl-info .ic-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2vw; letter-spacing: 0.03em; color: #fff;
+  }
+
+  /* ── BOTTOM BAR (all templates) ── */
+  .slide-footer {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 8%;
+    background: linear-gradient(to top, rgba(0,0,0,.85), transparent);
+    display: flex; align-items: flex-end;
+    padding: 0 3% 1.5%;
+    justify-content: space-between;
+  }
+  .sf-brand {
+    display: flex; align-items: center; gap: 1.5%;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4vw; letter-spacing: 0.06em; color: rgba(255,255,255,.7);
+  }
+  .sf-brand .dot { width: 0.5%; aspect-ratio: 1; background: var(--y); border-radius: 50%; }
+  .sf-right {
+    font-size: 1vw; color: rgba(255,255,255,.4);
+    letter-spacing: 0.05em; font-weight: 500;
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div class="editor-wrap">
+
+  <!-- ── SIDEBAR CONTROLS ── -->
+  <div class="sidebar">
+    <div class="sb-head">
+      <div class="sb-logo">
+        <svg viewBox="0 0 24 24"><path d="M21 6H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1zm-1 10H4V8h16v8z"/></svg>
+      </div>
+      <div class="sb-title">Ruang<span>TV</span></div>
+    </div>
+
+    <!-- Template Select -->
+    <div class="sb-section">
+      <div class="sb-label">Pilih Template</div>
+      <div class="tpl-grid">
+        <div class="tpl-btn active" onclick="switchTemplate('promo')">
+          <div class="tpl-icon">📢</div>
+          <div class="tpl-name">Promo Besar</div>
+        </div>
+        <div class="tpl-btn" onclick="switchTemplate('diskon')">
+          <div class="tpl-icon">🏷️</div>
+          <div class="tpl-name">Diskon Split</div>
+        </div>
+        <div class="tpl-btn" onclick="switchTemplate('menu')">
+          <div class="tpl-icon">📋</div>
+          <div class="tpl-name">Menu Layanan</div>
+        </div>
+        <div class="tpl-btn" onclick="switchTemplate('info')">
+          <div class="tpl-icon">ℹ️</div>
+          <div class="tpl-name">Info Clean</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Fields -->
+    <div class="sb-section" id="fields-promo">
+      <div class="sb-label">Edit Konten</div>
+      <div class="ctrl-group">
+        <label class="ctrl-label">Eyebrow (teks kecil atas)</label>
+        <input class="ctrl-input" id="p-eyebrow" value="⭐ Penawaran Spesial Ruangprint" oninput="updatePromo()">
+      </div>
+      <div class="ctrl-group">
+        <label class="ctrl-label">Headline Baris 1</label>
+        <input class="ctrl-input" id="p-h1" value="Promo" oninput="updatePromo()">
+      </div>
+      <div class="ctrl-group">
+        <label class="ctrl-label">Headline Baris 2 (warna kuning)</label>
+        <input class="ctrl-input" id="p-h2" value="Lebaran" oninput="updatePromo()">
+      </div>
+      <div class="ctrl-group">
+        <label class="ctrl-label">Headline Baris 3</label>
+        <input class="ctrl-input" id="p-h3" value="2026" oninput="updatePromo()">
+      </div>
+      <div class="ctrl-group">
+        <label class="ctrl-label">Deskripsi</label>
+        <textarea class="ctrl-textarea" id="p-sub" oninput="updatePromo()">Cetak kebutuhan Lebaran kamu dengan harga terbaik. Kunjungi counter kami sekarang!</textarea>
+      </div>
+      <div class="ctrl-group">
+        <label class="ctrl-label">Teks Tombol CTA</label>
+        <input class="ctrl-input" id="p-cta" value="Kunjungi Counter Sekarang" oninput="updatePromo()">
+      </div>
+      <div class="ctrl-group">
+        <label class="ctrl-label">Angka Besar (dekorasi)</label>
+        <input class="ctrl-input" id="p-deco" value="50%" oninput="updatePromo()">
+      </div>
+    </div>
+
+    <div class="sb-section" id="fields-diskon" style="display:none">
+      <div class="sb-label">Edit Konten</div>
+      <div class="ctrl-group">
+        <label class="ctrl-label">Persentase Diskon</label>
+        <input class="ctrl-input" id="d-pct" value="20" oninput="updateDiskon()">
+      </div>
+      <div class="ctrl-group">
+        <label class="ctrl-label">Judul</label>
+        <input class="ctrl-input" id="d-title" value="Diskon Eksklusif Member" oninput="updateDiskon()">
+      </div>
+      <div class="ctrl-group">
+        <label class="ctrl-label">Deskripsi</label>
+        <textarea class="ctrl-textarea" id="d-desc" oninput="updateDiskon()">Daftar kartu member Ruangprint dan nikmati diskon spesial untuk setiap transaksi cetak.</textarea>
+      </div>
+      <div class="ctrl-group">
+        <label class="ctrl-label">Teks CTA</label>
+        <input class="ctrl-input" id="d-cta" value="Daftar Member Sekarang" oninput="updateDiskon()">
+      </div>
+    </div>
+
+    <div class="sb-section" id="fields-menu" style="display:none">
+      <div class="sb-label">Edit Konten</div>
+      <div class="ctrl-group">
+        <label class="ctrl-label">Judul Menu</label>
+        <input class="ctrl-input" id="m-title" value="Menu Layanan" oninput="updateMenu()">
+      </div>
+      <div class="ctrl-group">
+        <label class="ctrl-label">Item 1 — Nama</label>
+        <input class="ctrl-input" id="m1-name" value="Banner & Spanduk" oninput="updateMenu()">
+      </div>
+      <div class="ctrl-group">
+        <label class="ctrl-label">Item 1 — Harga</label>
+        <input class="ctrl-input" id="m1-price" value="Mulai Rp 15.000/m²" oninput="updateMenu()">
+      </div>
+      <div class="ctrl-group">
+        <label class="ctrl-label">Item 2 — Nama</label>
+        <input class="ctrl-input" id="m2-name" value="Cetak Dokumen" oninput="updateMenu()">
+      </div>
+      <div class="ctrl-group">
+        <label class="ctrl-label">Item 2 — Harga</label>
+        <input class="ctrl-input" id="m2-price" value="Mulai Rp 500/lembar" oninput="updateMenu()">
+      </div>
+      <div class="ctrl-group">
+        <label class="ctrl-label">Item 3 — Nama</label>
+        <input class="ctrl-input" id="m3-name" value="Foto & Poster" oninput="updateMenu()">
+      </div>
+      <div class="ctrl-group">
+        <label class="ctrl-label">Item 3 — Harga</label>
+        <input class="ctrl-input" id="m3-price" value="Mulai Rp 5.000" oninput="updateMenu()">
+      </div>
+    </div>
+
+    <div class="sb-section" id="fields-info" style="display:none">
+      <div class="sb-label">Edit Konten</div>
+      <div class="ctrl-group">
+        <label class="ctrl-label">Badge atas</label>
+        <input class="ctrl-input" id="i-badge" value="ℹ️ Informasi Penting" oninput="updateInfo()">
+      </div>
+      <div class="ctrl-group">
+        <label class="ctrl-label">Heading Baris 1</label>
+        <input class="ctrl-input" id="i-h1" value="Sekarang" oninput="updateInfo()">
+      </div>
+      <div class="ctrl-group">
+        <label class="ctrl-label">Heading Baris 2 (kuning)</label>
+        <input class="ctrl-input" id="i-h2" value="Buka 7" oninput="updateInfo()">
+      </div>
+      <div class="ctrl-group">
+        <label class="ctrl-label">Heading Baris 3</label>
+        <input class="ctrl-input" id="i-h3" value="Hari!" oninput="updateInfo()">
+      </div>
+      <div class="ctrl-group">
+        <label class="ctrl-label">Deskripsi</label>
+        <textarea class="ctrl-textarea" id="i-body" oninput="updateInfo()">Kami kini melayani setiap hari termasuk hari libur. Cetak kebutuhanmu kapan saja!</textarea>
+      </div>
+      <div class="ctrl-group">
+        <label class="ctrl-label">Info Card 1 (label | nilai)</label>
+        <input class="ctrl-input" id="i-c1l" value="Jam Buka" oninput="updateInfo()" style="margin-bottom:4px">
+        <input class="ctrl-input" id="i-c1v" value="08:00 – 22:00" oninput="updateInfo()">
+      </div>
+      <div class="ctrl-group">
+        <label class="ctrl-label">Info Card 2 (label | nilai)</label>
+        <input class="ctrl-input" id="i-c2l" value="Estimasi" oninput="updateInfo()" style="margin-bottom:4px">
+        <input class="ctrl-input" id="i-c2v" value="1–3 Jam" oninput="updateInfo()">
+      </div>
+      <div class="ctrl-group">
+        <label class="ctrl-label">Info Card 3 (label | nilai)</label>
+        <input class="ctrl-input" id="i-c3l" value="WhatsApp" oninput="updateInfo()" style="margin-bottom:4px">
+        <input class="ctrl-input" id="i-c3v" value="0812-XXXX-XXXX" oninput="updateInfo()">
+      </div>
+    </div>
+
+    <!-- Footer brand -->
+    <div class="sb-section">
+      <div class="sb-label">Brand Footer</div>
+      <div class="ctrl-group">
+        <input class="ctrl-input" id="brand-name" value="Ruangprint" oninput="updateBrand()">
+      </div>
+      <div class="ctrl-group">
+        <input class="ctrl-input" id="brand-tagline" value="Solusi Cetak Profesional" oninput="updateBrand()">
+      </div>
+    </div>
+
+    <!-- Download -->
+    <div class="btn-row">
+      <button class="btn-sec" onclick="printSlide()">🖨️ Print</button>
+      <button class="btn-dl" onclick="downloadSlide()">
+        <svg viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        Download PNG
+      </button>
+    </div>
+  </div>
+
+  <!-- ── PREVIEW CANVAS ── -->
+  <div class="canvas-wrap">
+    <div class="canvas-toolbar">
+      <div class="canvas-label">Preview Live — 1920 × 1080</div>
+      <div style="display:flex;gap:6px;margin-left:auto;align-items:center">
+        <div style="width:10px;height:10px;border-radius:50%;background:rgba(255,179,0,.3)"></div>
+        <div style="width:10px;height:10px;border-radius:50%;background:rgba(34,197,94,.3)"></div>
+        <div class="canvas-size">16 : 9</div>
+      </div>
+    </div>
+    <div class="canvas-area">
+      <div class="slide-frame" id="slide-frame">
+
+        <!-- TEMPLATE 1: PROMO -->
+        <div class="slide active" id="tpl-promo">
+          <div class="dot-bg"></div>
+          <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 80% 50%, rgba(255,179,0,.05), transparent 60%)"></div>
+          <div class="accent-bar"></div>
+          <div style="flex:1">
+            <div class="eyebrow" id="v-eyebrow">⭐ Penawaran Spesial Ruangprint</div>
+            <div class="headline">
+              <span id="v-h1">Promo</span><br>
+              <span class="hl" id="v-h2">Lebaran</span><br>
+              <span id="v-h3">2026</span>
+            </div>
+            <div class="subtext" id="v-sub">Cetak kebutuhan Lebaran kamu dengan harga terbaik. Kunjungi counter kami sekarang!</div>
+            <div class="cta">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="#000"><path d="M5 13l4 4L19 7"/></svg>
+              <span id="v-cta">Kunjungi Counter Sekarang</span>
+            </div>
+          </div>
+          <div class="deco-num" id="v-deco">50%</div>
+          <div class="slide-footer">
+            <div class="sf-brand"><div class="dot"></div><span id="sf1">Ruangprint</span></div>
+            <div class="sf-right" id="sf2">Solusi Cetak Profesional</div>
+          </div>
+        </div>
+
+        <!-- TEMPLATE 2: DISKON -->
+        <div class="slide" id="tpl-diskon">
+          <div class="left-panel">
+            <div class="disc-label">DISKON SPESIAL</div>
+            <div class="disc-pct" id="v-dpct">20</div>
+            <div class="disc-off">% OFF</div>
+          </div>
+          <div class="right-panel">
+            <div style="background:rgba(255,179,0,.1);border:1px solid rgba(255,179,0,.2);color:var(--y);font-size:1vw;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.6% 1.8%;border-radius:50px;margin-bottom:4%">MEMBER EKSKLUSIF</div>
+            <div class="disc-title" id="v-dtitle">Diskon Eksklusif Member</div>
+            <div class="disc-desc" id="v-ddesc">Daftar kartu member Ruangprint dan nikmati diskon spesial untuk setiap transaksi cetak.</div>
+            <div class="disc-cta" id="v-dcta">Daftar Member Sekarang</div>
+          </div>
+          <div class="slide-footer">
+            <div class="sf-brand"><div class="dot"></div><span id="sf3">Ruangprint</span></div>
+            <div class="sf-right" id="sf4">Solusi Cetak Profesional</div>
+          </div>
+        </div>
+
+        <!-- TEMPLATE 3: MENU -->
+        <div class="slide" id="tpl-menu">
+          <div class="dot-bg" style="opacity:.5"></div>
+          <div class="menu-header">
+            <div class="menu-logo-box">
+              <svg viewBox="0 0 24 24"><path d="M21 6H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1z"/></svg>
+            </div>
+            <div class="menu-title-wrap">
+              <div class="menu-eyebrow">Ruangprint · Layanan Kami</div>
+              <div class="menu-heading" id="v-mtitle">Menu Layanan</div>
+            </div>
+          </div>
+          <div class="menu-grid">
+            <div class="menu-item">
+              <div class="item-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 21h10M12 3v18M3 9l9-6 9 6"/></svg></div>
+              <div class="item-name" id="v-m1n">Banner & Spanduk</div>
+              <div class="item-desc">Flexi, vinyl, kain. Berbagai ukuran tersedia</div>
+              <div class="item-price" id="v-m1p">Mulai Rp 15.000/m²</div>
+            </div>
+            <div class="menu-item">
+              <div class="item-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
+              <div class="item-name" id="v-m2n">Cetak Dokumen</div>
+              <div class="item-desc">A4, A3, F4. Hitam putih & full color</div>
+              <div class="item-price" id="v-m2p">Mulai Rp 500/lembar</div>
+            </div>
+            <div class="menu-item">
+              <div class="item-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
+              <div class="item-name" id="v-m3n">Foto & Poster</div>
+              <div class="item-desc">Glossy, matte, kanvas. Resolusi tinggi</div>
+              <div class="item-price" id="v-m3p">Mulai Rp 5.000</div>
+            </div>
+          </div>
+          <div class="slide-footer">
+            <div class="sf-brand"><div class="dot"></div><span id="sf5">Ruangprint</span></div>
+            <div class="sf-right" id="sf6">Solusi Cetak Profesional</div>
+          </div>
+        </div>
+
+        <!-- TEMPLATE 4: INFO -->
+        <div class="slide" id="tpl-info">
+          <div class="dot-bg"></div>
+          <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%, rgba(255,179,0,.04), transparent 60%)"></div>
+          <div class="info-badge" id="v-ibadge">ℹ️ Informasi Penting</div>
+          <div class="info-heading">
+            <span id="v-ih1">Sekarang</span><br>
+            <span class="hl" id="v-ih2">Buka 7</span><br>
+            <span id="v-ih3">Hari!</span>
+          </div>
+          <div class="info-body" id="v-ibody">Kami kini melayani setiap hari termasuk hari libur. Cetak kebutuhanmu kapan saja!</div>
+          <div class="info-cards">
+            <div class="info-card"><div class="ic-label" id="v-ic1l">Jam Buka</div><div class="ic-val" id="v-ic1v">08:00 – 22:00</div></div>
+            <div class="info-card"><div class="ic-label" id="v-ic2l">Estimasi</div><div class="ic-val" id="v-ic2v">1–3 Jam</div></div>
+            <div class="info-card"><div class="ic-label" id="v-ic3l">WhatsApp</div><div class="ic-val" id="v-ic3v">0812-XXXX-XXXX</div></div>
+          </div>
+          <div class="slide-footer">
+            <div class="sf-brand"><div class="dot"></div><span id="sf7">Ruangprint</span></div>
+            <div class="sf-right" id="sf8">Solusi Cetak Profesional</div>
+          </div>
+        </div>
+
+      </div><!-- /slide-frame -->
+    </div>
+  </div>
+
+</div><!-- /editor-wrap -->
+
+<script>
+  let currentTpl = 'promo';
+
+  function switchTemplate(name) {
+    currentTpl = name;
+    document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+    document.getElementById('tpl-' + name).classList.add('active');
+    document.querySelectorAll('.tpl-btn').forEach(b => b.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    document.querySelectorAll('[id^="fields-"]').forEach(f => f.style.display = 'none');
+    document.getElementById('fields-' + name).style.display = 'block';
+  }
+
+  const g = id => document.getElementById(id)?.value || '';
+  const s = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+  function updatePromo() {
+    s('v-eyebrow', g('p-eyebrow'));
+    s('v-h1', g('p-h1'));
+    s('v-h2', g('p-h2'));
+    s('v-h3', g('p-h3'));
+    s('v-sub', g('p-sub'));
+    s('v-cta', g('p-cta'));
+    s('v-deco', g('p-deco'));
+  }
+
+  function updateDiskon() {
+    s('v-dpct', g('d-pct'));
+    s('v-dtitle', g('d-title'));
+    s('v-ddesc', g('d-desc'));
+    s('v-dcta', g('d-cta'));
+  }
+
+  function updateMenu() {
+    s('v-mtitle', g('m-title'));
+    s('v-m1n', g('m1-name')); s('v-m1p', g('m1-price'));
+    s('v-m2n', g('m2-name')); s('v-m2p', g('m2-price'));
+    s('v-m3n', g('m3-name')); s('v-m3p', g('m3-price'));
+  }
+
+  function updateInfo() {
+    s('v-ibadge', g('i-badge'));
+    s('v-ih1', g('i-h1'));
+    s('v-ih2', g('i-h2'));
+    s('v-ih3', g('i-h3'));
+    s('v-ibody', g('i-body'));
+    s('v-ic1l', g('i-c1l')); s('v-ic1v', g('i-c1v'));
+    s('v-ic2l', g('i-c2l')); s('v-ic2v', g('i-c2v'));
+    s('v-ic3l', g('i-c3l')); s('v-ic3v', g('i-c3v'));
+  }
+
+  function updateBrand() {
+    const brand = g('brand-name');
+    const tag = g('brand-tagline');
+    ['sf1','sf3','sf5','sf7'].forEach(id => s(id, brand));
+    ['sf2','sf4','sf6','sf8'].forEach(id => s(id, tag));
+  }
+
+  function downloadSlide() {
+    const frame = document.getElementById('slide-frame');
+    // Open the current slide in a new printable window at full 1920x1080
+    const activeSlide = frame.querySelector('.slide.active');
+    if (!activeSlide) return;
+
+    const styles = Array.from(document.styleSheets)
+      .map(ss => { try { return Array.from(ss.cssRules).map(r => r.cssText).join('\n'); } catch { return ''; } })
+      .join('\n');
+
+    const win = window.open('', '_blank', 'width=1920,height=1080');
+    win.document.write(`<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{width:1920px;height:1080px;overflow:hidden;background:#050505;font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;}
+  ${styles}
+  .slide{display:flex!important;position:relative;width:1920px;height:1080px;}
+  .slide-frame{width:1920px;height:1080px;border-radius:0;}
+  .dot-bg{background-size:40px 80px;}
+</style>
+</head><body>
+<div class="slide-frame">${activeSlide.outerHTML}</div>
+</body></html>`);
+    win.document.close();
+    setTimeout(() => { win.focus(); win.print(); }, 1000);
+  }
+
+  function printSlide() { downloadSlide(); }
+</script>
+</body>
+</html>

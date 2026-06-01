@@ -4,17 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RuangTV — Upload Konten</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --yellow:#FFCB05;--yellow-dim:rgba(255,203,5,.12);--yellow-mid:rgba(255,203,5,.22);
-    --yellow-glow:rgba(255,203,5,.06);--black:#000;--bg:#0A0A0A;--bg2:#111;--bg3:#181818;
-    --bg4:#222;--border:rgba(255,255,255,.07);--border-y:rgba(255,203,5,.28);
+    --yellow:#FFB300;--yellow-dim:rgba(255,179,0,.12);--yellow-mid:rgba(255,179,0,.22);
+    --yellow-glow:rgba(255,179,0,.06);--black:#000;--bg:#0A0A0A;--bg2:#111;--bg3:#181818;
+    --bg4:#222;--border:rgba(255,255,255,.07);--border-y:rgba(255,179,0,.28);
     --text:#FFF;--text2:rgba(255,255,255,.55);--text3:rgba(255,255,255,.28);
     --green:#22C55E;--red:#EF4444;--orange:#F59E0B;--radius:12px;--radius-sm:8px;
   }
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 
   .sidebar{position:fixed;left:0;top:0;bottom:0;width:64px;background:var(--black);
     border-right:1px solid var(--border);display:flex;flex-direction:column;
@@ -39,22 +39,22 @@
   .topbar-title span{color:var(--yellow);}
   .topbar-sub{font-size:12px;color:var(--text2);margin-top:2px;}
   .btn{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--radius-sm);
-    font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .2s;font-family:'Barlow',sans-serif;}
+    font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .2s;font-family:'Inter',sans-serif;}
   .btn svg{width:15px;height:15px;}
   .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text2);}
   .btn-outline:hover{border-color:var(--yellow);color:var(--yellow);background:var(--yellow-glow);}
   .btn-yellow{background:var(--yellow);color:var(--black);font-weight:600;}
-  .btn-yellow:hover{background:#FFD633;transform:translateY(-1px);box-shadow:0 4px 20px rgba(255,203,5,.3);}
+  .btn-yellow:hover{background:#FFC107;transform:translateY(-1px);box-shadow:0 4px 20px rgba(255,179,0,.3);}
   .btn-sm{padding:6px 12px;font-size:12px;}
 
   .content{padding:24px 28px;flex:1;}
   .page-grid{display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:start;}
 
   /* UPLOAD ZONE */
-  .upload-zone{background:var(--bg2);border:2px dashed rgba(255,203,5,.25);
+  .upload-zone{background:var(--bg2);border:2px dashed rgba(255,179,0,.25);
     border-radius:var(--radius);padding:48px 24px;text-align:center;
     cursor:pointer;transition:all .2s;margin-bottom:20px;position:relative;}
-  .upload-zone:hover,.upload-zone.drag{background:var(--yellow-glow);border-color:rgba(255,203,5,.5);}
+  .upload-zone:hover,.upload-zone.drag{background:var(--yellow-glow);border-color:rgba(255,179,0,.5);}
   .upload-icon{width:56px;height:56px;background:var(--yellow-dim);border-radius:16px;
     display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
   .upload-icon svg{width:28px;height:28px;fill:var(--yellow);}
@@ -78,15 +78,15 @@
     display:block;letter-spacing:.03em;}
   .form-input{width:100%;background:var(--bg3);border:1px solid var(--border);
     border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--text);
-    font-family:'Barlow',sans-serif;transition:border-color .15s;outline:none;}
+    font-family:'Inter',sans-serif;transition:border-color .15s;outline:none;}
   .form-input:focus{border-color:var(--border-y);}
   .form-select{width:100%;background:var(--bg3);border:1px solid var(--border);
     border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--text);
-    font-family:'Barlow',sans-serif;transition:border-color .15s;outline:none;cursor:pointer;}
+    font-family:'Inter',sans-serif;transition:border-color .15s;outline:none;cursor:pointer;}
   .form-select:focus{border-color:var(--border-y);}
   .form-textarea{width:100%;background:var(--bg3);border:1px solid var(--border);
     border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--text);
-    font-family:'Barlow',sans-serif;transition:border-color .15s;outline:none;
+    font-family:'Inter',sans-serif;transition:border-color .15s;outline:none;
     resize:vertical;min-height:72px;line-height:1.5;}
   .form-textarea:focus{border-color:var(--border-y);}
   .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
@@ -106,7 +106,7 @@
   .lib-card:hover{border-color:var(--border-y);transform:translateY(-2px);}
   .lib-thumb{aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;
     position:relative;overflow:hidden;}
-  .lt-promo{background:linear-gradient(135deg,rgba(255,203,5,.2),rgba(255,203,5,.05));}
+  .lt-promo{background:linear-gradient(135deg,rgba(255,179,0,.2),rgba(255,179,0,.05));}
   .lt-disc{background:linear-gradient(135deg,rgba(245,158,11,.2),rgba(245,158,11,.05));}
   .lt-menu{background:linear-gradient(135deg,rgba(34,197,94,.15),rgba(34,197,94,.03));}
   .lt-info{background:linear-gradient(135deg,rgba(99,102,241,.2),rgba(99,102,241,.05));}
@@ -153,7 +153,7 @@
   .tabs{display:flex;gap:4px;}
   .tab{padding:5px 12px;font-size:12px;font-weight:500;border-radius:6px;
     cursor:pointer;color:var(--text2);background:none;border:1px solid transparent;
-    font-family:'Barlow',sans-serif;transition:all .15s;}
+    font-family:'Inter',sans-serif;transition:all .15s;}
   .tab:hover{color:var(--text);background:var(--bg3);}
   .tab.active{color:var(--yellow);background:var(--yellow-dim);border-color:var(--border-y);}
 
@@ -186,8 +186,8 @@
   }
   [data-theme="light"] .sidebar { background: #111111; }
   [data-theme="light"] .sidebar .nav-item { color: rgba(255,255,255,.55); }
-  [data-theme="light"] .sidebar .nav-item:hover { color: #FFCB05; background: rgba(255,203,5,.08); }
-  [data-theme="light"] .sidebar .nav-item.active { color: #FFCB05; border-left-color: #FFCB05; background: rgba(255,203,5,.12); }
+  [data-theme="light"] .sidebar .nav-item:hover { color: #FFB300; background: rgba(255,179,0,.08); }
+  [data-theme="light"] .sidebar .nav-item.active { color: #FFB300; border-left-color: #FFB300; background: rgba(255,179,0,.12); }
   [data-theme="light"] .sidebar .live-dot { background: #22C55E; }
   [data-theme="light"] .sidebar .live-text { color: #22C55E; }
   [data-theme="light"] .topbar { background: rgba(244,244,245,0.96); }
@@ -238,6 +238,70 @@
   .theme-toggle:hover { border-color: var(--border-y); color: var(--yellow); background: var(--yellow-glow); }
   .theme-toggle svg { width: 17px; height: 17px; fill: currentColor; transition: transform .4s cubic-bezier(.34,1.56,.64,1); }
   .theme-toggle:hover svg { transform: rotate(25deg) scale(1.1); }
+
+
+  /* ── GLOBAL TYPOGRAPHY FIXES ── */
+  body {
+    font-size: 14px;
+    line-height: 1.6;
+    letter-spacing: 0.01em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  p, span, div, a, label, td, th, li {
+    letter-spacing: 0.01em;
+  }
+  /* Nav items */
+  .nav-label { letter-spacing: 0.02em; font-size: 13px; font-weight: 500; }
+  /* Topbar */
+  .topbar-sub { font-size: 12px; letter-spacing: 0.03em; line-height: 1.5; }
+  .topbar-title { letter-spacing: -0.01em; }
+  /* Stat cards */
+  .stat-label { font-size: 12px; letter-spacing: 0.04em; line-height: 1.5; font-weight: 500; }
+  .stat-num { letter-spacing: -0.02em; line-height: 1; }
+  /* Branch items */
+  .branch-name { font-size: 13px; font-weight: 600; letter-spacing: 0.01em; line-height: 1.4; }
+  .branch-sub { font-size: 11px; letter-spacing: 0.02em; line-height: 1.5; margin-top: 3px; }
+  .branch-code { font-size: 10px; letter-spacing: 0.1em; font-weight: 700; }
+  /* Content rows */
+  .content-name-txt { font-size: 13px; font-weight: 600; letter-spacing: 0.01em; line-height: 1.4; }
+  .content-meta-txt { font-size: 11px; letter-spacing: 0.02em; line-height: 1.5; margin-top: 3px; }
+  /* Panel titles */
+  .panel-title { font-size: 11px; letter-spacing: 0.08em; line-height: 1.4; }
+  /* Section titles */
+  .sec-title { font-size: 15px; letter-spacing: 0.01em; line-height: 1.3; }
+  /* Buttons */
+  .btn { font-size: 13px; letter-spacing: 0.02em; font-weight: 500; }
+  .btn-yellow { letter-spacing: 0.03em; font-weight: 600; }
+  /* Status badges */
+  .status-badge { font-size: 10px; letter-spacing: 0.06em; line-height: 1; }
+  .target-pill { font-size: 9px; letter-spacing: 0.06em; }
+  /* TV cards */
+  .tv-name { font-size: 12px; font-weight: 600; letter-spacing: 0.01em; line-height: 1.4; }
+  .tv-content-name { font-size: 11px; letter-spacing: 0.01em; line-height: 1.4; margin-top: 2px; }
+  /* Quick actions */
+  .qa-label { font-size: 13px; font-weight: 600; letter-spacing: 0.01em; line-height: 1.4; }
+  .qa-sub { font-size: 11px; letter-spacing: 0.02em; line-height: 1.5; margin-top: 2px; }
+  /* Alert */
+  .alert-msg { font-size: 13px; letter-spacing: 0.01em; line-height: 1.5; }
+  /* Footer */
+  .footer-left, .footer-right { font-size: 12px; letter-spacing: 0.02em; }
+  /* Tabs */
+  .tab { font-size: 12px; letter-spacing: 0.03em; font-weight: 500; }
+  /* Schedule */
+  .sch-time { font-size: 11px; letter-spacing: 0.02em; line-height: 1.4; }
+  .sch-block { font-size: 10px; letter-spacing: 0.04em; font-weight: 600; }
+  .sch-label { font-size: 10px; letter-spacing: 0.04em; }
+  /* Form elements */
+  .form-input, .form-select, .form-textarea {
+    font-size: 14px; letter-spacing: 0.01em; line-height: 1.5;
+  }
+  .form-label { font-size: 11px; letter-spacing: 0.06em; line-height: 1.5; font-weight: 600; }
+  /* Badges */
+  .badge-broadcast { font-size: 12px; letter-spacing: 0.03em; }
+  /* Bebas Neue headings — always need letter spacing */
+  [style*="Bebas"], .topbar-title,
+  .stat-num, .sec-title, .panel-title { }
 
 </style>
 <script src="ruangtv-api.js"></script>
@@ -337,7 +401,7 @@
 
           <div class="lib-card" data-status="live">
             <div class="lib-thumb lt-promo">
-              <svg viewBox="0 0 24 24" fill="rgba(255,203,5,.6)"><path d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
+              <svg viewBox="0 0 24 24" fill="rgba(255,179,0,.6)"><path d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
               <div style="position:absolute;top:6px;right:6px;background:rgba(34,197,94,.85);border-radius:4px;padding:2px 6px;font-size:9px;font-weight:700;color:#fff;">● LIVE</div>
             </div>
             <div class="lib-body">
@@ -409,7 +473,7 @@
 
           <div class="lib-card" data-status="sched">
             <div class="lib-thumb lt-promo">
-              <svg viewBox="0 0 24 24" fill="rgba(255,203,5,.6)"><path d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
+              <svg viewBox="0 0 24 24" fill="rgba(255,179,0,.6)"><path d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
               <div style="position:absolute;top:6px;right:6px;background:rgba(99,102,241,.85);border-radius:4px;padding:2px 6px;font-size:9px;font-weight:700;color:#fff;">SCHED</div>
             </div>
             <div class="lib-body">
@@ -513,7 +577,7 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="#FFCB05"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             Tips Konten RuangTV
           </div>
-          <div style="font-size:12px;color:rgba(255,203,5,.7);line-height:1.8;">
+          <div style="font-size:12px;color:rgba(255,179,0,.7);line-height:1.8;">
             • Gunakan resolusi <strong style="color:var(--yellow)">1920×1080</strong> untuk hasil terbaik<br>
             • Durasi ideal <strong style="color:var(--yellow)">15–45 detik</strong> per konten<br>
             • Format <strong style="color:var(--yellow)">MP4 H.264</strong> paling kompatibel<br>
@@ -634,7 +698,7 @@
 
     const catClass = { promo:'lt-promo', discount:'lt-disc', menu:'lt-menu', info:'lt-info' };
     const catIcon = {
-      promo: `<svg viewBox="0 0 24 24" fill="rgba(255,203,5,.6)"><path d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>`,
+      promo: `<svg viewBox="0 0 24 24" fill="rgba(255,179,0,.6)"><path d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>`,
       discount: `<svg viewBox="0 0 24 24" fill="rgba(245,158,11,.6)"><path d="M7 7h.01M17 17h.01M7 3H5a2 2 0 00-2 2v2m16-4h2a2 2 0 012 2v2M7 21H5a2 2 0 01-2-2v-2m16 4h2a2 2 0 002-2v-2M9 12a3 3 0 116 0 3 3 0 01-6 0z"/></svg>`,
       menu: `<svg viewBox="0 0 24 24" fill="rgba(34,197,94,.6)"><path d="M4 6h16M4 10h16M4 14h10M4 18h6"/></svg>`,
       info: `<svg viewBox="0 0 24 24" fill="rgba(99,102,241,.6)"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
