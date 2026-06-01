@@ -467,9 +467,15 @@
       }
       const data = await res.json();
       if (data.playlist && data.playlist.length > 0) {
-        // Replace slides with real data from API
+        // Hide ALL default template slides
+        document.querySelectorAll('.slide').forEach(s => {
+          s.classList.remove('active');
+          s.style.display = 'none';
+        });
+
+        // Clear slides array and build from API data
         slides.length = 0;
-        data.playlist.forEach(c => {
+        data.playlist.forEach((c, i) => {
           slides.push({
             id: c.id,
             name: c.name,
@@ -477,11 +483,60 @@
             category: c.category || 'promo',
             fileUrl: c.file_url ? SERVER + c.file_url : null,
           });
+
+          // Create new slide element for each API content
+          const slideEl = document.createElement('div');
+          slideEl.className = 'slide slide-api';
+          slideEl.id = 'api-slide-' + i;
+          slideEl.style.cssText = 'position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:#050505;';
+
+          if (c.file_url) {
+            const url = SERVER + c.file_url;
+            const ext = (c.file_url.split('.').pop() || '').toLowerCase();
+            if (['jpg','jpeg','png','gif','webp'].includes(ext)) {
+              slideEl.innerHTML = `
+                <img src="${url}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+                <div class="slide-footer" style="z-index:2">
+                  <div class="sf-brand"><div class="dot"></div><span>Ruangprint</span></div>
+                  <div class="sf-right">${c.name}</div>
+                </div>`;
+            } else if (['mp4','mov','webm','avi'].includes(ext)) {
+              slideEl.innerHTML = `
+                <video autoplay muted loop playsinline
+                  style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"
+                  src="${url}"></video>
+                <div class="slide-footer" style="z-index:2">
+                  <div class="sf-brand"><div class="dot"></div><span>Ruangprint</span></div>
+                  <div class="sf-right">${c.name}</div>
+                </div>`;
+            } else {
+              slideEl.innerHTML = `<div style="text-align:center;padding:10%">
+                <div style="font-family:Barlow Condensed,sans-serif;font-size:6vw;font-weight:700;color:#fff">${c.name}</div>
+                <div style="font-size:2vw;color:rgba(255,255,255,.5);margin-top:2%">Ruangprint</div>
+              </div>`;
+            }
+          } else {
+            // No file — show text slide
+            slideEl.innerHTML = `<div style="text-align:center;padding:10%">
+              <div style="font-size:2vw;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:#FFB300;margin-bottom:3%">Ruangprint</div>
+              <div style="font-family:Barlow Condensed,sans-serif;font-size:7vw;font-weight:700;color:#fff;line-height:1">${c.name}</div>
+            </div>
+            <div class="slide-footer">
+              <div class="sf-brand"><div class="dot"></div><span>Ruangprint</span></div>
+              <div class="sf-right">${c.name}</div>
+            </div>`;
+          }
+
+          document.getElementById('player').insertBefore(slideEl, document.querySelector('.top-bar'));
         });
+
         current = 0; elapsed = 0;
+        // Show first API slide
+        const first = document.getElementById('api-slide-0');
+        if (first) first.style.display = 'flex';
+
         buildPlaylist();
-        renderDynamicSlides();
-        console.log(`✅ Playlist loaded: ${slides.length} konten untuk ${BRANCH_CODE}`);
+        console.log('✅ Playlist loaded: ' + slides.length + ' konten untuk ' + BRANCH_CODE);
       }
     } catch(err) {
       console.log('Playlist fetch failed, using default slides:', err.message);
