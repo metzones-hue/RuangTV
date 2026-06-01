@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RuangTV Player — Ruangprint DMB</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --yellow:#FFB300;--black:#000;--white:#FFF;
@@ -30,7 +30,7 @@
   .slide-content{z-index:10;text-align:center;padding:60px;max-width:1400px;width:100%;}
   .slide-eyebrow{font-size:13px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
     color:var(--yellow);margin-bottom:20px;opacity:.85;}
-  .slide-headline{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;font-size:110px;font-weight:800;
+  .slide-headline{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:110px;font-weight:800;
     color:var(--white);line-height:.95;letter-spacing:-.04em;margin-bottom:24px;}
   .slide-headline .hl-yellow{color:var(--yellow);}
   .slide-sub{font-size:22px;color:var(--text2);font-weight:300;line-height:1.5;
@@ -38,7 +38,7 @@
   .slide-cta{display:inline-flex;align-items:center;gap:10px;background:var(--yellow);
     color:var(--black);padding:14px 36px;border-radius:50px;font-size:16px;font-weight:700;
     letter-spacing:.02em;}
-  .slide-big-num{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;font-size:220px;font-weight:800;
+  .slide-big-num{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:220px;font-weight:800;
     color:var(--yellow);line-height:.85;letter-spacing:-.05em;opacity:.12;
     position:absolute;right:80px;top:50%;transform:translateY(-50%);pointer-events:none;}
 
@@ -62,10 +62,10 @@
   .menu-icon{width:48px;height:48px;background:rgba(255,179,0,.1);border-radius:12px;
     display:flex;align-items:center;justify-content:center;margin-bottom:16px;}
   .menu-icon svg{width:26px;height:26px;fill:var(--yellow);}
-  .menu-name{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;font-size:20px;font-weight:700;
+  .menu-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;font-weight:700;
     color:var(--white);margin-bottom:6px;}
   .menu-desc{font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:12px;}
-  .menu-price{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;font-size:22px;font-weight:800;color:var(--yellow);}
+  .menu-price{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:22px;font-weight:800;color:var(--yellow);}
 
   /* TOP BAR OVERLAY */
   .top-bar{position:absolute;top:0;left:0;right:0;height:64px;z-index:50;
@@ -75,12 +75,12 @@
   .tb-logo{width:32px;height:32px;background:var(--yellow);border-radius:8px;
     display:flex;align-items:center;justify-content:center;}
   .tb-logo svg{width:18px;height:18px;fill:var(--black);}
-  .tb-name{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;font-size:14px;font-weight:700;color:var(--white);letter-spacing:.02em;}
+  .tb-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;font-weight:700;color:var(--white);letter-spacing:.02em;}
   .tb-branch{font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--yellow);
     background:rgba(255,179,0,.1);border:1px solid rgba(255,179,0,.2);
     border-radius:4px;padding:2px 8px;}
   .tb-right{display:flex;align-items:center;gap:16px;}
-  .tb-time{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;font-size:18px;font-weight:700;color:var(--white);}
+  .tb-time{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;font-weight:700;color:var(--white);}
   .tb-live{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;
     letter-spacing:.06em;color:var(--white);}
   .live-dot{width:7px;height:7px;border-radius:50%;background:#22C55E;
@@ -104,7 +104,7 @@
   .pl-item.upcoming{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:var(--text2);}
   .pl-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;}
   .pl-right{display:flex;align-items:center;gap:12px;font-size:11px;color:var(--text3);}
-  .countdown{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;font-size:13px;font-weight:700;color:var(--yellow);}
+  .countdown{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;font-weight:700;color:var(--yellow);}
 
   /* CONTROLS (mouse hover only) */
   .controls{position:absolute;inset:0;z-index:40;display:flex;align-items:center;
@@ -132,7 +132,7 @@
     border-radius:12px;padding:20px 24px;}
   .ic-label{font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--yellow);
     text-transform:uppercase;margin-bottom:4px;}
-  .ic-val{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;font-size:20px;font-weight:700;color:var(--white);}
+  .ic-val{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;font-weight:700;color:var(--white);}
 
   /* ── LIGHT MODE ── */
   [data-theme="light"] {
@@ -202,7 +202,7 @@
   .topbar-sub { font-size: 12px; letter-spacing: 0.03em; line-height: 1.5; }
   .topbar-title { letter-spacing: -0.01em; }
   /* Stat cards */
-  .stat-label { font-size: 12px; letter-spacing: 0.04em; line-height: 1.5; font-weight: 500; }
+  .stat-label { font-size: 12px; letter-spacing: 0.02em; line-height: 1.5; font-weight: 500; }
   .stat-num { letter-spacing: -0.02em; line-height: 1; }
   /* Branch items */
   .branch-name { font-size: 13px; font-weight: 600; letter-spacing: 0.01em; line-height: 1.4; }
@@ -235,8 +235,8 @@
   .tab { font-size: 12px; letter-spacing: 0.03em; font-weight: 500; }
   /* Schedule */
   .sch-time { font-size: 11px; letter-spacing: 0.02em; line-height: 1.4; }
-  .sch-block { font-size: 10px; letter-spacing: 0.04em; font-weight: 600; }
-  .sch-label { font-size: 10px; letter-spacing: 0.04em; }
+  .sch-block { font-size: 10px; letter-spacing: 0.02em; font-weight: 600; }
+  .sch-label { font-size: 10px; letter-spacing: 0.02em; }
   /* Form elements */
   .form-input, .form-select, .form-textarea {
     font-size: 14px; letter-spacing: 0.01em; line-height: 1.5;
@@ -244,8 +244,8 @@
   .form-label { font-size: 11px; letter-spacing: 0.06em; line-height: 1.5; font-weight: 600; }
   /* Badges */
   .badge-broadcast { font-size: 12px; letter-spacing: 0.03em; }
-  /* Bebas Neue headings — always need letter spacing */
-  [style*="Bebas"], .topbar-title,
+  /* Barlow Condensed headings */
+  [style*="Barlow"], .topbar-title,
   .stat-num, .sec-title, .panel-title { }
 
 </style>
@@ -291,7 +291,7 @@
   <div class="slide slide-menu" id="slide-2">
     <div style="text-align:center;margin-bottom:32px;padding-top:80px;z-index:10;position:relative;width:100%;">
       <div class="slide-eyebrow" style="color:#22C55E">📋 Layanan Cetak Ruangprint</div>
-      <div style="font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;font-size:64px;font-weight:800;color:var(--white);letter-spacing:-.03em;">Menu <span style="color:#22C55E">Layanan</span></div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:64px;font-weight:800;color:var(--white);letter-spacing:-.03em;">Menu <span style="color:#22C55E">Layanan</span></div>
     </div>
     <div class="menu-grid" style="z-index:10;position:relative;">
       <div class="menu-item">
@@ -442,51 +442,106 @@
     current = ((idx % slides.length) + slides.length) % slides.length;
     document.getElementById(slides[current].id).classList.add('active');
     elapsed = 0;
-    // ── Connect to backend WebSocket ──────────────────────────
+    // ── Server config ────────────────────────────────────────
   const params = new URLSearchParams(location.search);
   const BRANCH_CODE = params.get('branch') || 'DMB';
+  const SERVER = 'https://ruangtv-production.up.railway.app';
 
+  // ── Fetch playlist from API on load ──────────────────────
+  async function fetchPlaylist() {
+    try {
+      const res = await fetch(`${SERVER}/api/tv/${BRANCH_CODE}/playlist`, {
+        headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('ruangtv_token') || '') }
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.playlist && data.playlist.length > 0) {
+        // Replace slides with real data from API
+        slides.length = 0;
+        data.playlist.forEach(c => {
+          slides.push({
+            id: c.id,
+            name: c.name,
+            dur: c.duration || 10,
+            category: c.category || 'promo',
+            fileUrl: c.file_url ? SERVER + c.file_url : null,
+          });
+        });
+        current = 0; elapsed = 0;
+        buildPlaylist();
+        renderDynamicSlides();
+        console.log(`✅ Playlist loaded: ${slides.length} konten untuk ${BRANCH_CODE}`);
+      }
+    } catch(err) {
+      console.log('Playlist fetch failed, using default slides:', err.message);
+    }
+  }
+
+  // ── Render dynamic slides from API data ──────────────────
+  function renderDynamicSlides() {
+    // For slides that have fileUrl (uploaded images/videos), show them
+    slides.forEach((s, i) => {
+      const slideEl = document.getElementById(`slide-${i}`);
+      if (slideEl && s.fileUrl) {
+        const ext = s.fileUrl.split('.').pop().toLowerCase();
+        const isVideo = ['mp4','mov','webm','avi'].includes(ext);
+        const isImage = ['jpg','jpeg','png','gif','webp'].includes(ext);
+
+        if (isImage) {
+          // Replace slide background with actual image
+          slideEl.style.backgroundImage = `url('${s.fileUrl}')`;
+          slideEl.style.backgroundSize = 'cover';
+          slideEl.style.backgroundPosition = 'center';
+          slideEl.style.backgroundRepeat = 'no-repeat';
+          // Hide default content
+          const content = slideEl.querySelector('.slide-content, .info-layout, .menu-grid');
+          if (content) content.style.opacity = '0';
+        } else if (isVideo) {
+          // Add video element
+          slideEl.innerHTML = `
+            <video autoplay muted loop playsinline
+              style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1"
+              src="${s.fileUrl}"></video>
+            <div class="slide-footer" style="z-index:2">
+              <div class="sf-brand"><div class="dot"></div><span>Ruangprint</span></div>
+              <div class="sf-right">${s.name}</div>
+            </div>`;
+        }
+      }
+    });
+  }
+
+  // ── WebSocket connection ──────────────────────────────────
   async function connectToServer() {
     try {
-      // Get TV key from server
-      const res = await fetch(`http://localhost:3001/api/branches/${BRANCH_CODE}/tv-key`);
-      const data = await res.json();
-      if (!data.tvKey) return;
+      const keyRes = await fetch(`${SERVER}/api/branches/${BRANCH_CODE}/tv-key`);
+      const keyData = await keyRes.json();
+      if (!keyData.tvKey) return;
 
-      const wsUrl = `ws://localhost:3001/ws?branch=${BRANCH_CODE}&key=${data.tvKey}`;
-      const tvWs = new WebSocket(wsUrl);
+      const tvWs = new WebSocket(`wss://ruangtv-production.up.railway.app/ws?branch=${BRANCH_CODE}&key=${keyData.tvKey}`);
 
       tvWs.onopen = () => {
-        console.log('📺 Connected to RuangTV server');
-        // Send heartbeat every 30s
+        console.log('📺 WS Connected:', BRANCH_CODE);
         setInterval(() => {
-          if (tvWs.readyState === WebSocket.OPEN) {
+          if (tvWs.readyState === WebSocket.OPEN)
             tvWs.send(JSON.stringify({ type: 'HEARTBEAT' }));
-          }
         }, 30000);
       };
 
       tvWs.onmessage = (e) => {
-        try {
-          const msg = JSON.parse(e.data);
-          handleServerMessage(msg);
-        } catch {}
+        try { handleServerMessage(JSON.parse(e.data)); } catch {}
       };
 
-      tvWs.onclose = () => {
-        console.log('WS closed, reconnecting in 5s...');
-        setTimeout(connectToServer, 5000);
-      };
+      tvWs.onclose = () => setTimeout(connectToServer, 5000);
     } catch(err) {
-      console.log('Server not available, running standalone:', err.message);
+      console.log('WS not available:', err.message);
     }
   }
 
   function handleServerMessage(msg) {
     switch(msg.type) {
       case 'PUSH_CONTENT':
-        // Server pushed a single new content — add to playlist
-        if (msg.content && msg.content.name) {
+        if (msg.content?.name) {
           const exists = slides.some(s => s.id === msg.content.id);
           if (!exists) {
             slides.push({
@@ -494,41 +549,39 @@
               name: msg.content.name,
               dur: msg.content.duration || 10,
               category: msg.content.category || 'promo',
+              fileUrl: msg.content.file_url ? SERVER + msg.content.file_url : null,
             });
             buildPlaylist();
-            API.toast?.(`Konten baru: ${msg.content.name}`, 'info');
+            renderDynamicSlides();
           }
         }
         break;
-
       case 'PLAYLIST_UPDATE':
-        // Full playlist replacement
-        if (msg.playlist && msg.playlist.length > 0) {
+        if (msg.playlist?.length > 0) {
           slides.length = 0;
           msg.playlist.forEach(c => slides.push({
-            id: c.id,
-            name: c.name,
+            id: c.id, name: c.name,
             dur: c.duration || 10,
             category: c.category || 'promo',
+            fileUrl: c.file_url ? SERVER + c.file_url : null,
           }));
           current = 0; elapsed = 0;
-          goTo(0);
-          buildPlaylist();
+          goTo(0); buildPlaylist(); renderDynamicSlides();
         }
         break;
-
       case 'COMMAND':
-        switch(msg.command) {
-          case 'RELOAD': location.reload(); break;
-          case 'NEXT': nextSlide(); break;
-          case 'RESTART': goTo(0); break;
-        }
+        if (msg.command === 'RELOAD') location.reload();
+        else if (msg.command === 'NEXT') nextSlide();
+        else if (msg.command === 'RESTART') goTo(0);
         break;
     }
   }
 
-  // Connect on load
+  // Init — fetch playlist first, then connect WS
+  fetchPlaylist();
   connectToServer();
+  // Refresh playlist every 5 minutes
+  setInterval(fetchPlaylist, 300000);
 
   buildPlaylist();
   }
