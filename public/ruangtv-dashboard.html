@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RuangTV — Digital Signage Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --yellow: #FFCB05;
+    --yellow-dim: rgba(255,203,5,0.12);
+    --yellow-mid: rgba(255,203,5,0.25);
+    --yellow-glow: rgba(255,203,5,0.08);
+    --black: #000000;
+    --bg: #0A0A0A;
+    --bg2: #111111;
+    --bg3: #181818;
+    --bg4: #222222;
+    --border: rgba(255,255,255,0.07);
+    --border-y: rgba(255,203,5,0.3);
+    --text: #FFFFFF;
+    --text2: rgba(255,255,255,0.55);
+    --text3: rgba(255,255,255,0.28);
+    --green: #22C55E;
+    --red: #EF4444;
+    --orange: #F59E0B;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Barlow', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 64px;
+    background: var(--black);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    z-index: 100;
+    transition: width .3s cubic-bezier(.4,0,.2,1);
+  }
+  .sidebar:hover { width: 200px; }
+  .sidebar-logo {
+    width: 38px; height: 38px;
+    background: var(--yellow);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-bottom: 32px;
+  }
+  .sidebar-logo svg { width: 22px; height: 22px; fill: var(--black); }
+  .nav-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 13px;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all .2s;
+    white-space: nowrap;
+    overflow: hidden;
+    color: var(--text2);
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .nav-item:hover { color: var(--yellow); background: var(--yellow-glow); }
+  .nav-item.active { color: var(--yellow); border-left-color: var(--yellow); background: var(--yellow-dim); }
+  .nav-icon { width: 22px; height: 22px; flex-shrink: 0; }
+  .nav-label { opacity: 0; transition: opacity .2s .05s; font-size: 13px; }
+  .sidebar:hover .nav-label { opacity: 1; }
+  .nav-spacer { flex: 1; }
+  .sidebar-bottom { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .live-indicator {
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 13px;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; animation: pulse 2s infinite; }
+  .live-text { font-size: 11px; color: var(--green); font-weight: 600; letter-spacing: .05em; opacity: 0; transition: opacity .2s .05s; }
+  .sidebar:hover .live-text { opacity: 1; }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,.6); }
+    50% { box-shadow: 0 0 0 5px rgba(34,197,94,0); }
+  }
+
+  /* ── MAIN ── */
+  .main {
+    margin-left: 64px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: blur(12px);
+  }
+  .topbar-left { display: flex; flex-direction: column; gap: 2px; }
+  .topbar-title {
+    font-family: 'Bebas Neue', sans-serif; letter-spacing: .04em;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -.02em;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .topbar-title span { color: var(--yellow); }
+  .topbar-sub { font-size: 12px; color: var(--text2); }
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .badge-broadcast {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(34,197,94,.1);
+    border: 1px solid rgba(34,197,94,.25);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--green);
+  }
+  .badge-broadcast span { animation: pulse-text 2s infinite; }
+  @keyframes pulse-text {
+    0%, 100% { opacity: 1; } 50% { opacity: .6; }
+  }
+  .btn {
+    display: flex; align-items: center; gap: 7px;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all .2s;
+    font-family: 'Barlow', sans-serif;
+  }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text2);
+  }
+  .btn-outline:hover { border-color: var(--yellow); color: var(--yellow); background: var(--yellow-glow); }
+  .btn-yellow {
+    background: var(--yellow);
+    color: var(--black);
+    font-weight: 600;
+  }
+  .btn-yellow:hover { background: #FFD633; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(255,203,5,.3); }
+  .btn svg { width: 15px; height: 15px; }
+
+  /* ── CONTENT ── */
+  .content { padding: 24px 28px; flex: 1; }
+
+  /* ── ALERT ── */
+  .alert {
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(239,68,68,.08);
+    border: 1px solid rgba(239,68,68,.25);
+    border-left: 3px solid var(--red);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    margin-bottom: 24px;
+    font-size: 13px;
+  }
+  .alert svg { width: 16px; height: 16px; fill: var(--red); flex-shrink: 0; }
+  .alert-msg { flex: 1; color: rgba(255,255,255,.75); }
+  .alert-msg strong { color: var(--red); }
+  .alert-link { font-size: 12px; color: var(--red); cursor: pointer; white-space: nowrap; border-bottom: 1px solid rgba(239,68,68,.4); }
+  .alert-link:hover { color: #ff6b6b; }
+
+  /* ── STATS ── */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+  .stat-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .2s;
+  }
+  .stat-card:hover { border-color: rgba(255,203,5,.2); }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--yellow), transparent);
+    opacity: 0;
+    transition: opacity .2s;
+  }
+  .stat-card:hover::before { opacity: 1; }
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif; letter-spacing: .04em;
+    font-size: 40px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .stat-num.yellow { color: var(--yellow); }
+  .stat-num.green { color: var(--green); }
+  .stat-num.red { color: var(--red); }
+  .stat-num.orange { color: var(--orange); }
+  .stat-label { font-size: 12px; color: var(--text2); font-weight: 400; }
+  .stat-icon {
+    position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .stat-icon svg { width: 20px; height: 20px; }
+  .si-yellow { background: var(--yellow-dim); }
+  .si-yellow svg { fill: var(--yellow); }
+  .si-green { background: rgba(34,197,94,.1); }
+  .si-green svg { fill: var(--green); }
+  .si-red { background: rgba(239,68,68,.1); }
+  .si-red svg { fill: var(--red); }
+  .si-orange { background: rgba(245,158,11,.1); }
+  .si-orange svg { fill: var(--orange); }
+
+  /* ── GRID ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1.45fr; gap: 16px; margin-bottom: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+
+  /* ── PANEL ── */
+  .panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .panel-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .panel-title {
+    font-family: 'Bebas Neue', sans-serif; letter-spacing: .04em;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--text2);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .panel-title svg { width: 14px; height: 14px; fill: var(--yellow); }
+  .panel-action {
+    font-size: 12px;
+    color: var(--yellow);
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-family: 'Barlow', sans-serif;
+    font-weight: 500;
+  }
+  .panel-action:hover { text-decoration: underline; }
+  .panel-body { padding: 16px 20px; }
+
+  /* ── BRANCH LIST ── */
+  .branch-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 20px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .branch-item:last-child { border-bottom: none; }
+  .branch-item:hover { background: rgba(255,255,255,.03); }
+  .branch-status-dot {
+    width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
+  }
+  .ds-on { background: var(--green); box-shadow: 0 0 8px rgba(34,197,94,.5); }
+  .ds-off { background: var(--red); }
+  .ds-idle { background: var(--orange); }
+  .branch-code {
+    font-family: 'Bebas Neue', sans-serif; letter-spacing: .04em;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    color: var(--yellow);
+    background: var(--yellow-dim);
+    border: 1px solid var(--border-y);
+    border-radius: 5px;
+    padding: 3px 7px;
+    min-width: 38px;
+    text-align: center;
+  }
+  .branch-info { flex: 1; }
+  .branch-name { font-size: 13px; font-weight: 500; color: var(--text); }
+  .branch-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .branch-right { display: flex; align-items: center; gap: 8px; }
+  .status-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 20px;
+    letter-spacing: .04em;
+  }
+  .sb-on { background: rgba(34,197,94,.12); color: var(--green); border: 1px solid rgba(34,197,94,.2); }
+  .sb-off { background: rgba(239,68,68,.12); color: var(--red); border: 1px solid rgba(239,68,68,.2); }
+  .sb-idle { background: rgba(245,158,11,.12); color: var(--orange); border: 1px solid rgba(245,158,11,.2); }
+  .tv-count { font-size: 11px; color: var(--text3); display: flex; align-items: center; gap: 4px; }
+  .tv-count svg { width: 12px; height: 12px; fill: var(--text3); }
+
+  /* ── TV MINI CARDS ── */
+  .tv-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 16px; }
+  .tv-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .tv-card:hover { border-color: var(--border-y); transform: translateY(-2px); }
+  .tv-card.tv-offline { opacity: .55; }
+  .tv-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+  .tv-screen {
+    width: 100%; aspect-ratio: 16/9;
+    background: var(--bg3);
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+  .tv-screen-content {
+    font-size: 9px;
+    color: var(--text3);
+    text-align: center;
+    line-height: 1.4;
+  }
+  .tv-playing-bar {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--border);
+    overflow: hidden;
+  }
+  .tv-progress {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 2px;
+    animation: progress-anim 30s linear infinite;
+  }
+  .tv-offline-screen { opacity: .3; }
+  @keyframes progress-anim {
+    from { width: 0; } to { width: 100%; }
+  }
+  .tv-name { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .tv-content-name { font-size: 10px; color: var(--text3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tv-dot { width: 7px; height: 7px; border-radius: 50%; }
+  .tv-code-badge {
+    font-family: 'Bebas Neue', sans-serif; letter-spacing: .04em;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    color: var(--yellow);
+  }
+
+  /* ── CONTENT LIBRARY ── */
+  .content-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 20px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .content-row:last-child { border-bottom: none; }
+  .content-row:hover { background: rgba(255,255,255,.025); }
+  .content-thumb {
+    width: 52px; height: 33px;
+    border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .ct-promo { background: rgba(255,203,5,.15); }
+  .ct-promo svg { fill: var(--yellow); }
+  .ct-menu { background: rgba(34,197,94,.1); }
+  .ct-menu svg { fill: var(--green); }
+  .ct-info { background: rgba(99,102,241,.15); }
+  .ct-info svg { fill: #818cf8; }
+  .ct-disc { background: rgba(245,158,11,.1); }
+  .ct-disc svg { fill: var(--orange); }
+  .content-thumb svg { width: 18px; height: 18px; }
+  .content-name-txt { font-size: 13px; font-weight: 500; flex: 1; }
+  .content-meta-txt { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .content-targets { display: flex; gap: 4px; }
+  .target-pill {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--yellow-dim);
+    border: 1px solid var(--border-y);
+    color: var(--yellow);
+  }
+  .cst-live { background: rgba(34,197,94,.1); color: var(--green); border: 1px solid rgba(34,197,94,.2); font-size: 10px; padding: 3px 9px; border-radius: 20px; font-weight: 600; white-space: nowrap; }
+  .cst-sched { background: rgba(99,102,241,.1); color: #818cf8; border: 1px solid rgba(99,102,241,.2); font-size: 10px; padding: 3px 9px; border-radius: 20px; font-weight: 600; white-space: nowrap; }
+  .cst-draft { background: var(--bg3); color: var(--text3); border: 1px solid var(--border); font-size: 10px; padding: 3px 9px; border-radius: 20px; font-weight: 600; white-space: nowrap; }
+
+  /* ── SCHEDULE ── */
+  .schedule-wrap { padding: 0 20px 16px; }
+  .sch-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .sch-time { font-size: 11px; color: var(--text3); min-width: 88px; font-family: 'Barlow', sans-serif; }
+  .sch-track { flex: 1; height: 28px; background: var(--bg3); border-radius: 6px; overflow: hidden; display: flex; gap: 2px; padding: 2px; }
+  .sch-block {
+    height: 100%; display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 600; border-radius: 4px;
+    cursor: pointer; transition: opacity .15s; white-space: nowrap;
+    overflow: hidden; padding: 0 6px;
+  }
+  .sch-block:hover { opacity: .8; }
+  .sch-y { background: rgba(255,203,5,.2); color: var(--yellow); border: 1px solid rgba(255,203,5,.3); }
+  .sch-g { background: rgba(34,197,94,.15); color: var(--green); border: 1px solid rgba(34,197,94,.2); }
+  .sch-o { background: rgba(245,158,11,.15); color: var(--orange); border: 1px solid rgba(245,158,11,.2); }
+  .sch-p { background: rgba(99,102,241,.15); color: #818cf8; border: 1px solid rgba(99,102,241,.2); }
+  .sch-empty { background: var(--bg3); color: var(--text3); border: 1px dashed rgba(255,255,255,.1); }
+  .sch-label { font-size: 10px; color: var(--text3); min-width: 72px; text-align: right; }
+
+  /* ── QUICK ACTIONS ── */
+  .qactions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 16px; }
+  .qa-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    cursor: pointer;
+    transition: all .2s;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .qa-card:hover { border-color: var(--border-y); background: rgba(255,203,5,.04); }
+  .qa-icon {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    background: var(--yellow-dim);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .qa-icon svg { width: 17px; height: 17px; fill: var(--yellow); }
+  .qa-label { font-size: 12px; font-weight: 600; color: var(--text); }
+  .qa-sub { font-size: 11px; color: var(--text3); }
+
+  /* ── FOOTER ── */
+  .footer {
+    padding: 14px 28px;
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    margin-left: 0;
+  }
+  .footer-left { font-size: 11px; color: var(--text3); }
+  .footer-left strong { color: var(--yellow); }
+  .footer-right { font-size: 11px; color: var(--text3); display: flex; align-items: center; gap: 6px; }
+
+  /* ── SECTION HEADING ── */
+  .sec-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .sec-title {
+    font-family: 'Bebas Neue', sans-serif; letter-spacing: .04em;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .sec-title::before {
+    content: '';
+    width: 3px; height: 16px;
+    background: var(--yellow);
+    border-radius: 2px;
+  }
+  .sec-more { font-size: 12px; color: var(--yellow); cursor: pointer; background: none; border: none; font-family: 'Barlow', sans-serif; font-weight: 500; }
+  .sec-more:hover { text-decoration: underline; }
+
+  /* ── DIVIDER ── */
+  .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 3px; }
+
+  /* ── ANIMATIONS ── */
+  .fade-in { animation: fadeIn .4s ease both; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .delay-1 { animation-delay: .05s; }
+  .delay-2 { animation-delay: .1s; }
+  .delay-3 { animation-delay: .15s; }
+  .delay-4 { animation-delay: .2s; }
+
+  /* ── TV SCREEN ANIMATION ── */
+  .tv-live-glow {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,203,5,.06) 0%, transparent 70%);
+  }
+  .playing-text {
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    color: var(--yellow);
+    opacity: .7;
+  }
+
+  /* TABS */
+  .tabs { display: flex; gap: 4px; }
+  .tab {
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--text2);
+    background: none;
+    border: 1px solid transparent;
+    font-family: 'Barlow', sans-serif;
+    transition: all .15s;
+  }
+  .tab:hover { color: var(--text); background: var(--bg3); }
+  .tab.active { color: var(--yellow); background: var(--yellow-dim); border-color: var(--border-y); }
+
+  .now-badge {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: rgba(255,203,5,.15);
+    color: var(--yellow);
+    border: 1px solid rgba(255,203,5,.25);
+  }
+
+  /* CLOCK */
+  #clock {
+    font-family: 'Bebas Neue', sans-serif; letter-spacing: .04em;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--yellow);
+    letter-spacing: .05em;
+  }
+
+  /* ── LIGHT MODE VARIABLES ── */
+  [data-theme="light"] {
+    --yellow: #E6B800;
+    --yellow-dim: rgba(230,184,0,0.1);
+    --yellow-mid: rgba(230,184,0,0.2);
+    --yellow-glow: rgba(230,184,0,0.06);
+    --black: #FFFFFF;
+    --bg: #F4F4F5;
+    --bg2: #FFFFFF;
+    --bg3: #F0F0F2;
+    --bg4: #E8E8EA;
+    --border: rgba(0,0,0,0.08);
+    --border-y: rgba(180,144,0,0.35);
+    --text: #111111;
+    --text2: rgba(0,0,0,0.55);
+    --text3: rgba(0,0,0,0.3);
+    --green: #16A34A;
+    --red: #DC2626;
+    --orange: #D97706;
+  }
+  [data-theme="light"] .sidebar { background: #111111; }
+  [data-theme="light"] .sidebar .nav-item { color: rgba(255,255,255,.55); }
+  [data-theme="light"] .sidebar .nav-item:hover { color: #FFCB05; background: rgba(255,203,5,.08); }
+  [data-theme="light"] .sidebar .nav-item.active { color: #FFCB05; border-left-color: #FFCB05; background: rgba(255,203,5,.12); }
+  [data-theme="light"] .sidebar .live-dot { background: #22C55E; }
+  [data-theme="light"] .sidebar .live-text { color: #22C55E; }
+  [data-theme="light"] .topbar { background: rgba(244,244,245,0.96); }
+  [data-theme="light"] .stat-card { box-shadow: 0 1px 6px rgba(0,0,0,.07); }
+  [data-theme="light"] .panel { box-shadow: 0 1px 6px rgba(0,0,0,.07); }
+  [data-theme="light"] .tv-card { box-shadow: 0 1px 6px rgba(0,0,0,.07); }
+  [data-theme="light"] .qa-card { box-shadow: 0 1px 6px rgba(0,0,0,.07); }
+  [data-theme="light"] #clock { color: #B8960A; }
+  [data-theme="light"] .alert { background: rgba(220,38,38,.06); }
+  [data-theme="light"] .tv-screen { background: #E4E4E6; }
+  [data-theme="light"] .tv-live-glow { background: linear-gradient(135deg,rgba(230,184,0,.08) 0%,transparent 70%); }
+  [data-theme="light"] .sch-track { background: #EBEBED; }
+  [data-theme="light"] .sch-empty { background: #E8E8EA; border-color: rgba(0,0,0,.12); color: rgba(0,0,0,.3); }
+  [data-theme="light"] .form-input,
+  [data-theme="light"] .form-select,
+  [data-theme="light"] .form-textarea { background: #F4F4F5; color: #111; border-color: rgba(0,0,0,.1); }
+  [data-theme="light"] .form-input:focus,
+  [data-theme="light"] .form-select:focus,
+  [data-theme="light"] .form-textarea:focus { border-color: rgba(180,144,0,.4); }
+  [data-theme="light"] .side-panel { background: #FFFFFF; }
+  [data-theme="light"] .schedule-container { background: #FFFFFF; }
+  [data-theme="light"] .branch-header { background: #F4F4F5; }
+  [data-theme="light"] .slot-cell:hover { background: rgba(0,0,0,.02); }
+  [data-theme="light"] .sc-empty { border-color: rgba(0,0,0,.1); }
+  [data-theme="light"] .lib-card { box-shadow: 0 1px 6px rgba(0,0,0,.07); }
+  [data-theme="light"] .lt-draft { background: #EBEBED; }
+  [data-theme="light"] .upload-zone { background: #FFFFFF; border-color: rgba(180,144,0,.3); }
+  [data-theme="light"] .upload-zone:hover { background: rgba(230,184,0,.04); }
+  [data-theme="light"] .upload-progress { background: #FFFFFF; }
+  [data-theme="light"] .progress-bar { background: #EBEBED; }
+  [data-theme="light"] .overlay { background: rgba(0,0,0,.4); }
+  [data-theme="light"] .mini-stat { box-shadow: 0 1px 6px rgba(0,0,0,.07); }
+  [data-theme="light"] .day-cell { background: #FFFFFF; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+  [data-theme="light"] .day-cell.today { background: rgba(230,184,0,.1); }
+  [data-theme="light"] .legend { background: #F4F4F5; }
+  [data-theme="light"] .form-panel { box-shadow: 0 1px 6px rgba(0,0,0,.07); }
+
+  /* ── THEME TOGGLE BUTTON ── */
+  .theme-toggle {
+    width: 36px; height: 36px;
+    border-radius: var(--radius-sm);
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all .25s;
+    color: var(--text2); flex-shrink: 0;
+  }
+  .theme-toggle:hover { border-color: var(--border-y); color: var(--yellow); background: var(--yellow-glow); }
+  .theme-toggle svg { width: 17px; height: 17px; fill: currentColor; transition: transform .4s cubic-bezier(.34,1.56,.64,1); }
+  .theme-toggle:hover svg { transform: rotate(25deg) scale(1.1); }
+
+</style>
+<script src="ruangtv-api.js"></script>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M21 6H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1zm-1 10H4V8h16v8z"/>
+      <path d="M10 17h4v2h-4z"/>
+      <path d="M8 19h8v1H8z"/>
+    </svg>
+  </div>
+  <nav style="width:100%;display:flex;flex-direction:column;gap:2px;">
+    <a class="nav-item active" href="#">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <span class="nav-label">Dashboard</span>
+    </a>
+    <a class="nav-item" href="#">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M21 6H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1zm-1 10H4V8h16v8z"/></svg>
+      <span class="nav-label">Status TV</span>
+    </a>
+    <a class="nav-item" href="#">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19 11H7.83l4.88-4.88a1 1 0 0 0-1.42-1.42l-6.59 6.59a1 1 0 0 0 0 1.42l6.59 6.59a1 1 0 0 0 1.42-1.42L7.83 13H19a1 1 0 0 0 0-2z"/></svg>
+      <span class="nav-label">Konten</span>
+    </a>
+    <a class="nav-item" href="#">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg>
+      <span class="nav-label">Jadwal</span>
+    </a>
+    <a class="nav-item" href="#">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+      <span class="nav-label">Cabang</span>
+    </a>
+    <a class="nav-item" href="#">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+      <span class="nav-label">Laporan</span>
+    </a>
+    <a class="nav-item" href="#">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      <span class="nav-label">Pengaturan</span>
+    </a>
+  </nav>
+  <div class="nav-spacer"></div>
+  <div class="sidebar-bottom">
+    <div class="live-indicator">
+      <div class="live-dot"></div>
+      <span class="live-text">SIARAN LANGSUNG</span>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title">
+        Ruang<span>TV</span>
+        <span style="font-size:11px;background:var(--yellow-dim);border:1px solid var(--border-y);color:var(--yellow);padding:2px 8px;border-radius:4px;font-weight:600;letter-spacing:.04em;">HO</span>
+      </div>
+      <div class="topbar-sub">Digital Signage Management — Head Office Dashboard</div>
+    </div>
+    <div class="topbar-right">
+      <button class="theme-toggle" id="theme-toggle" title="Toggle Light/Dark" onclick="toggleTheme()">
+        <svg id="theme-icon" viewBox="0 0 24 24"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+      </button>
+      <div id="clock">--:--:--</div>
+      <div class="badge-broadcast">
+        <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor"><circle cx="4" cy="4" r="4"/></svg>
+        <span>4 Cabang Siaran</span>
+      </div>
+      <button class="btn btn-outline">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        Notifikasi
+      </button>
+      <button class="btn btn-outline">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        Upload Konten
+      </button>
+      <button class="btn btn-yellow">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4v16m8-8H4"/></svg>
+        Jadwalkan Konten
+      </button>
+    </div>
+  </header>
+
+  <!-- PAGE CONTENT -->
+  <div class="content">
+
+    <!-- ALERT -->
+    <div class="alert fade-in">
+      <svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+      <div class="alert-msg"><strong>Cabang BKS Offline</strong> — TV di Cabang Ruangprint BKS tidak terhubung sejak 14:32 WIB. Segera periksa koneksi internet cabang.</div>
+      <span class="alert-link">Panduan Troubleshoot →</span>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card fade-in">
+        <div class="stat-num yellow">5</div>
+        <div class="stat-label">Total Cabang Aktif</div>
+        <div class="stat-icon si-yellow">
+          <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        </div>
+      </div>
+      <div class="stat-card fade-in delay-1">
+        <div class="stat-num green">4</div>
+        <div class="stat-label">TV Online & Siaran</div>
+        <div class="stat-icon si-green">
+          <svg viewBox="0 0 24 24"><path d="M21 6H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1z"/></svg>
+        </div>
+      </div>
+      <div class="stat-card fade-in delay-2">
+        <div class="stat-num red">1</div>
+        <div class="stat-label">TV Offline / Error</div>
+        <div class="stat-icon si-red">
+          <svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+        </div>
+      </div>
+      <div class="stat-card fade-in delay-3">
+        <div class="stat-num orange">8</div>
+        <div class="stat-label">Konten Aktif Tayang</div>
+        <div class="stat-icon si-orange">
+          <svg viewBox="0 0 24 24"><path d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.9L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- TV STATUS MONITOR -->
+    <div class="sec-head fade-in delay-1">
+      <div class="sec-title">Monitor TV Semua Cabang</div>
+      <span class="now-badge">Live Update</span>
+    </div>
+    <div class="tv-grid fade-in delay-2">
+
+      <!-- DMB -->
+      <div class="tv-card">
+        <div class="tv-card-top">
+          <span class="tv-code-badge">DMB</span>
+          <div class="tv-dot ds-on"></div>
+        </div>
+        <div class="tv-screen">
+          <div class="tv-live-glow"></div>
+          <div class="tv-screen-content">
+            <div class="playing-text">▶ TAYANG</div>
+            <div style="margin-top:3px;font-size:7px;color:var(--text2)">Promo Lebaran</div>
+          </div>
+          <div class="tv-playing-bar"><div class="tv-progress" style="animation-delay:-8s"></div></div>
+        </div>
+        <div class="tv-name">Ruangprint DMB</div>
+        <div class="tv-content-name">Promo Lebaran 2025</div>
+      </div>
+
+      <!-- CTR -->
+      <div class="tv-card">
+        <div class="tv-card-top">
+          <span class="tv-code-badge">CTR</span>
+          <div class="tv-dot ds-on"></div>
+        </div>
+        <div class="tv-screen">
+          <div class="tv-live-glow"></div>
+          <div class="tv-screen-content">
+            <div class="playing-text">▶ TAYANG</div>
+            <div style="margin-top:3px;font-size:7px;color:var(--text2)">Diskon Member</div>
+          </div>
+          <div class="tv-playing-bar"><div class="tv-progress" style="animation-delay:-15s"></div></div>
+        </div>
+        <div class="tv-name">Ruangprint CTR</div>
+        <div class="tv-content-name">Diskon Member 20%</div>
+      </div>
+
+      <!-- GDS -->
+      <div class="tv-card">
+        <div class="tv-card-top">
+          <span class="tv-code-badge">GDS</span>
+          <div class="tv-dot ds-on"></div>
+        </div>
+        <div class="tv-screen">
+          <div class="tv-live-glow"></div>
+          <div class="tv-screen-content">
+            <div class="playing-text">▶ TAYANG</div>
+            <div style="margin-top:3px;font-size:7px;color:var(--text2)">Info Layanan</div>
+          </div>
+          <div class="tv-playing-bar"><div class="tv-progress" style="animation-delay:-22s"></div></div>
+        </div>
+        <div class="tv-name">Ruangprint GDS</div>
+        <div class="tv-content-name">Info Layanan Baru</div>
+      </div>
+
+      <!-- CGK -->
+      <div class="tv-card">
+        <div class="tv-card-top">
+          <span class="tv-code-badge">CGK</span>
+          <div class="tv-dot ds-on"></div>
+        </div>
+        <div class="tv-screen">
+          <div class="tv-live-glow"></div>
+          <div class="tv-screen-content">
+            <div class="playing-text">▶ TAYANG</div>
+            <div style="margin-top:3px;font-size:7px;color:var(--text2)">Menu Print</div>
+          </div>
+          <div class="tv-playing-bar"><div class="tv-progress" style="animation-delay:-4s"></div></div>
+        </div>
+        <div class="tv-name">Ruangprint CGK</div>
+        <div class="tv-content-name">Menu Layanan Print</div>
+      </div>
+
+      <!-- BKS OFFLINE -->
+      <div class="tv-card tv-offline">
+        <div class="tv-card-top">
+          <span class="tv-code-badge">BKS</span>
+          <div class="tv-dot ds-off"></div>
+        </div>
+        <div class="tv-screen tv-offline-screen">
+          <div class="tv-screen-content">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="rgba(239,68,68,.6)"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+            <div style="margin-top:4px;font-size:7px;color:rgba(239,68,68,.7);">NO SIGNAL</div>
+          </div>
+        </div>
+        <div class="tv-name" style="color:var(--text2)">Ruangprint BKS</div>
+        <div class="tv-content-name" style="color:var(--red)">Offline sejak 14:32</div>
+      </div>
+
+    </div>
+
+    <!-- GRID: BRANCHES + CONTENT -->
+    <div class="grid-2 fade-in delay-2">
+
+      <!-- BRANCH STATUS -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">
+            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            Status Cabang
+          </div>
+          <button class="panel-action">Kelola Cabang →</button>
+        </div>
+
+        <div class="branch-item">
+          <div class="branch-status-dot ds-on"></div>
+          <div class="branch-code">DMB</div>
+          <div class="branch-info">
+            <div class="branch-name">Ruangprint DMB</div>
+            <div class="branch-sub">1 TV · Tayang: Promo Lebaran 2025</div>
+          </div>
+          <div class="branch-right">
+            <div class="tv-count">
+              <svg viewBox="0 0 24 24"><path d="M21 6H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1z"/></svg>
+              1 TV
+            </div>
+            <span class="status-badge sb-on">ONLINE</span>
+          </div>
+        </div>
+
+        <div class="branch-item">
+          <div class="branch-status-dot ds-on"></div>
+          <div class="branch-code">CTR</div>
+          <div class="branch-info">
+            <div class="branch-name">Ruangprint CTR</div>
+            <div class="branch-sub">1 TV · Tayang: Diskon Member 20%</div>
+          </div>
+          <div class="branch-right">
+            <div class="tv-count">
+              <svg viewBox="0 0 24 24"><path d="M21 6H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1z"/></svg>
+              1 TV
+            </div>
+            <span class="status-badge sb-on">ONLINE</span>
+          </div>
+        </div>
+
+        <div class="branch-item">
+          <div class="branch-status-dot ds-on"></div>
+          <div class="branch-code">GDS</div>
+          <div class="branch-info">
+            <div class="branch-name">Ruangprint GDS</div>
+            <div class="branch-sub">1 TV · Tayang: Info Layanan Baru</div>
+          </div>
+          <div class="branch-right">
+            <div class="tv-count">
+              <svg viewBox="0 0 24 24"><path d="M21 6H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1z"/></svg>
+              1 TV
+            </div>
+            <span class="status-badge sb-on">ONLINE</span>
+          </div>
+        </div>
+
+        <div class="branch-item">
+          <div class="branch-status-dot ds-on"></div>
+          <div class="branch-code">CGK</div>
+          <div class="branch-info">
+            <div class="branch-name">Ruangprint CGK</div>
+            <div class="branch-sub">1 TV · Tayang: Menu Layanan Print</div>
+          </div>
+          <div class="branch-right">
+            <div class="tv-count">
+              <svg viewBox="0 0 24 24"><path d="M21 6H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1z"/></svg>
+              1 TV
+            </div>
+            <span class="status-badge sb-on">ONLINE</span>
+          </div>
+        </div>
+
+        <div class="branch-item">
+          <div class="branch-status-dot ds-off"></div>
+          <div class="branch-code" style="color:var(--red);border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.08)">BKS</div>
+          <div class="branch-info">
+            <div class="branch-name">Ruangprint BKS</div>
+            <div class="branch-sub" style="color:var(--red)">Offline sejak 14:32 WIB — Periksa koneksi</div>
+          </div>
+          <div class="branch-right">
+            <div class="tv-count">
+              <svg viewBox="0 0 24 24"><path d="M21 6H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1z"/></svg>
+              1 TV
+            </div>
+            <span class="status-badge sb-off">OFFLINE</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- CONTENT LIBRARY -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">
+            <svg viewBox="0 0 24 24"><path d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.9L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
+            Library Konten
+          </div>
+          <div class="tabs">
+            <button class="tab active">Semua</button>
+            <button class="tab">Live</button>
+            <button class="tab">Draft</button>
+          </div>
+        </div>
+
+        <div class="content-row">
+          <div class="content-thumb ct-promo">
+            <svg viewBox="0 0 24 24"><path d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
+          </div>
+          <div style="flex:1">
+            <div class="content-name-txt">Promo Lebaran 2025</div>
+            <div class="content-meta-txt">30 dtk · MP4 · 1920×1080</div>
+          </div>
+          <div class="content-targets">
+            <span class="target-pill">SEMUA</span>
+          </div>
+          <span class="cst-live">Live</span>
+        </div>
+
+        <div class="content-row">
+          <div class="content-thumb ct-disc">
+            <svg viewBox="0 0 24 24"><path d="M7 7h.01M17 17h.01M7 3H5a2 2 0 00-2 2v2m16-4h2a2 2 0 012 2v2M7 21H5a2 2 0 01-2-2v-2m16 4h2a2 2 0 002-2v-2M9 12a3 3 0 116 0 3 3 0 01-6 0z"/></svg>
+          </div>
+          <div style="flex:1">
+            <div class="content-name-txt">Diskon Member 20%</div>
+            <div class="content-meta-txt">20 dtk · MP4 · 1920×1080</div>
+          </div>
+          <div class="content-targets">
+            <span class="target-pill">CTR</span>
+            <span class="target-pill">DMB</span>
+          </div>
+          <span class="cst-live">Live</span>
+        </div>
+
+        <div class="content-row">
+          <div class="content-thumb ct-menu">
+            <svg viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h10M4 18h6"/></svg>
+          </div>
+          <div style="flex:1">
+            <div class="content-name-txt">Menu Layanan Print</div>
+            <div class="content-meta-txt">45 dtk · Slide · 1920×1080</div>
+          </div>
+          <div class="content-targets">
+            <span class="target-pill">CGK</span>
+          </div>
+          <span class="cst-live">Live</span>
+        </div>
+
+        <div class="content-row">
+          <div class="content-thumb ct-info">
+            <svg viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div style="flex:1">
+            <div class="content-name-txt">Info Layanan Baru</div>
+            <div class="content-meta-txt">45 dtk · Slide · 1920×1080</div>
+          </div>
+          <div class="content-targets">
+            <span class="target-pill">GDS</span>
+          </div>
+          <span class="cst-live">Live</span>
+        </div>
+
+        <div class="content-row">
+          <div class="content-thumb ct-promo">
+            <svg viewBox="0 0 24 24"><path d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
+          </div>
+          <div style="flex:1">
+            <div class="content-name-txt">Launching Produk Baru</div>
+            <div class="content-meta-txt">60 dtk · MP4 · 1920×1080</div>
+          </div>
+          <div class="content-targets">
+            <span class="target-pill">SEMUA</span>
+          </div>
+          <span class="cst-sched">Terjadwal</span>
+        </div>
+
+        <div class="content-row">
+          <div class="content-thumb ct-menu">
+            <svg viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h10M4 18h6"/></svg>
+          </div>
+          <div style="flex:1">
+            <div class="content-name-txt">Harga Spesial Akhir Tahun</div>
+            <div class="content-meta-txt">30 dtk · Slide · Belum dijadwal</div>
+          </div>
+          <div class="content-targets">
+            <span class="target-pill" style="color:var(--text3);border-color:var(--border);background:transparent">—</span>
+          </div>
+          <span class="cst-draft">Draft</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SCHEDULE -->
+    <div class="panel fade-in delay-3" style="margin-bottom:16px">
+      <div class="panel-head">
+        <div class="panel-title">
+          <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg>
+          Jadwal Siaran Hari Ini
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:11px;color:var(--text3)" id="today-date"></span>
+          <button class="panel-action">Atur Jadwal →</button>
+        </div>
+      </div>
+      <div class="schedule-wrap" style="padding-top:14px">
+
+        <div class="sch-row">
+          <div class="sch-time">08:00 – 11:00</div>
+          <div class="sch-track">
+            <div class="sch-block sch-y" style="width:40%">Promo Lebaran</div>
+            <div class="sch-block sch-g" style="width:25%">Menu Print</div>
+            <div class="sch-block sch-o" style="width:20%">Diskon 20%</div>
+            <div class="sch-block sch-p" style="width:15%">Info Layanan</div>
+          </div>
+          <div class="sch-label">Semua Cabang</div>
+        </div>
+
+        <div class="sch-row">
+          <div class="sch-time">11:00 – 14:00</div>
+          <div class="sch-track">
+            <div class="sch-block sch-o" style="width:30%">Diskon 20%</div>
+            <div class="sch-block sch-y" style="width:40%">Promo Lebaran</div>
+            <div class="sch-block sch-g" style="width:30%">Menu Print</div>
+          </div>
+          <div class="sch-label">DMB, CTR, GDS</div>
+        </div>
+
+        <div class="sch-row">
+          <div class="sch-time">14:00 – 17:00</div>
+          <div class="sch-track">
+            <div class="sch-block sch-g" style="width:35%">Info Layanan</div>
+            <div class="sch-block sch-y" style="width:35%">Promo Lebaran</div>
+            <div class="sch-block sch-empty" style="width:30%">— Kosong —</div>
+          </div>
+          <div class="sch-label">CGK, GDS</div>
+        </div>
+
+        <div class="sch-row">
+          <div class="sch-time">17:00 – 21:00</div>
+          <div class="sch-track">
+            <div class="sch-block sch-y" style="width:35%">Promo Lebaran</div>
+            <div class="sch-block sch-o" style="width:30%">Diskon 20%</div>
+            <div class="sch-block sch-g" style="width:20%">Menu Print</div>
+            <div class="sch-block sch-p" style="width:15%">Info Layan.</div>
+          </div>
+          <div class="sch-label">Semua Cabang</div>
+        </div>
+
+        <!-- LEGEND -->
+        <div style="display:flex;gap:16px;margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
+          <span style="font-size:11px;color:var(--text3)">Keterangan:</span>
+          <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;border-radius:2px;background:rgba(255,203,5,.2);border:1px solid rgba(255,203,5,.3)"></div><span style="font-size:11px;color:var(--text2)">Promo / Iklan</span></div>
+          <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;border-radius:2px;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.2)"></div><span style="font-size:11px;color:var(--text2)">Menu / Layanan</span></div>
+          <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;border-radius:2px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.2)"></div><span style="font-size:11px;color:var(--text2)">Diskon / Penawaran</span></div>
+          <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;border-radius:2px;background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.2)"></div><span style="font-size:11px;color:var(--text2)">Info / Edukasi</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="sec-head fade-in delay-4">
+      <div class="sec-title">Aksi Cepat</div>
+    </div>
+    <div class="qactions fade-in delay-4">
+      <div class="qa-card">
+        <div class="qa-icon">
+          <svg viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        </div>
+        <div class="qa-label">Upload Konten Baru</div>
+        <div class="qa-sub">Video, gambar, atau slide</div>
+      </div>
+      <div class="qa-card">
+        <div class="qa-icon">
+          <svg viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        </div>
+        <div class="qa-label">Jadwalkan Sekarang</div>
+        <div class="qa-sub">Atur waktu tayang per cabang</div>
+      </div>
+      <div class="qa-card">
+        <div class="qa-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        </div>
+        <div class="qa-label">Tambah Cabang Baru</div>
+        <div class="qa-sub">Daftarkan TV cabang baru</div>
+      </div>
+      <div class="qa-card">
+        <div class="qa-icon">
+          <svg viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        </div>
+        <div class="qa-label">Lihat Laporan Tayang</div>
+        <div class="qa-sub">Analitik performa konten</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-left">
+      <strong>RuangTV</strong> — Digital Signage Platform · Ruangprint Head Office Management System
+    </div>
+    <div class="footer-right">
+      <div class="live-dot" style="width:6px;height:6px"></div>
+      Sistem Berjalan Normal · v2.4.1
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  // ── Auth guard ───────────────────────────────────────────
+  API.requireAuth();
+
+  // ── Clock ────────────────────────────────────────────────
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('clock').textContent =
+      String(now.getHours()).padStart(2,'0') + ':' +
+      String(now.getMinutes()).padStart(2,'0') + ':' +
+      String(now.getSeconds()).padStart(2,'0');
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // ── Date ─────────────────────────────────────────────────
+  const dateEl = document.getElementById('today-date');
+  if (dateEl) {
+    const days = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+    const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    const now = new Date();
+    dateEl.textContent = days[now.getDay()] + ', ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
+  }
+
+  // ── Show logged-in user ──────────────────────────────────
+  const user = API.getUser();
+  if (user) {
+    const subEl = document.querySelector('.topbar-sub');
+    if (subEl) subEl.textContent = `Digital Signage Management — Head Office · ${user.username}`;
+  }
+
+  // ── Load Stats ───────────────────────────────────────────
+  async function loadStats() {
+    try {
+      const data = await API.stats();
+      // Update stat cards
+      const nums = document.querySelectorAll('.stat-num');
+      if (nums[0]) nums[0].textContent = data.branches.total;
+      if (nums[1]) nums[1].textContent = data.branches.online;
+      if (nums[2]) nums[2].textContent = data.branches.offline;
+      if (nums[3]) nums[3].textContent = data.contents.live;
+      // Update broadcast badge
+      const badge = document.querySelector('.badge-broadcast span');
+      if (badge) badge.textContent = `${data.branches.online} Cabang Siaran`;
+    } catch(e) { console.warn('Stats load failed:', e.message); }
+  }
+
+  // ── Load Branches ────────────────────────────────────────
+  async function loadBranches() {
+    try {
+      const branches = await API.branches.list();
+      renderTvGrid(branches);
+      renderBranchList(branches);
+    } catch(e) { console.warn('Branches load failed:', e.message); }
+  }
+
+  function renderTvGrid(branches) {
+    const grid = document.querySelector('.tv-grid');
+    if (!grid) return;
+    grid.innerHTML = branches.map(b => {
+      const online = b.status === 'online';
+      return `
+      <div class="tv-card ${online ? '' : 'tv-offline'}" onclick="pushToTv('${b.code}')">
+        <div class="tv-card-top">
+          <span class="tv-code-badge">${b.code}</span>
+          <div class="tv-dot ${online ? 'ds-on' : 'ds-off'}"></div>
+        </div>
+        <div class="tv-screen">
+          ${online ? '<div class="tv-live-glow"></div>' : ''}
+          <div class="tv-screen-content">
+            ${online
+              ? `<div class="playing-text">▶ TAYANG</div><div style="margin-top:3px;font-size:7px;color:var(--text2)">${b.name.replace('Ruangprint ','')}</div>`
+              : `<svg viewBox="0 0 24 24" width="20" height="20" fill="rgba(239,68,68,.6)"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg><div style="margin-top:4px;font-size:7px;color:rgba(239,68,68,.7)">NO SIGNAL</div>`
+            }
+          </div>
+          ${online ? '<div class="tv-playing-bar"><div class="tv-progress"></div></div>' : ''}
+        </div>
+        <div class="tv-name" style="${online ? '' : 'color:var(--text2)'}">${b.name}</div>
+        <div class="tv-content-name" style="${online ? '' : 'color:var(--red)'}">
+          ${online ? 'Siaran aktif' : `Offline${b.last_seen ? ' · '+new Date(b.last_seen).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : ''}`}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderBranchList(branches) {
+    const container = document.querySelector('.panel .branch-item')?.closest('.panel');
+    if (!container) return;
+    // Remove all existing branch items
+    container.querySelectorAll('.branch-item').forEach(el => el.remove());
+    const head = container.querySelector('.panel-head');
+    branches.forEach(b => {
+      const online = b.status === 'online';
+      const item = document.createElement('div');
+      item.className = 'branch-item';
+      item.innerHTML = `
+        <div class="branch-status-dot ${online ? 'ds-on' : 'ds-off'}"></div>
+        <div class="branch-code" style="${online ? '' : 'color:var(--red);border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.08)'}">${b.code}</div>
+        <div class="branch-info">
+          <div class="branch-name">${b.name}</div>
+          <div class="branch-sub" style="${online ? '' : 'color:var(--red)'}">
+            ${b.tv_count} TV · ${online ? 'Siaran aktif' : 'Offline — Periksa koneksi'}
+          </div>
+        </div>
+        <div class="branch-right">
+          <div class="tv-count">
+            <svg viewBox="0 0 24 24" fill="currentColor" style="width:12px;height:12px"><path d="M21 6H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1z"/></svg>
+            ${b.tv_count} TV
+          </div>
+          <span class="status-badge ${online ? 'sb-on' : 'sb-off'}">${online ? 'ONLINE' : 'OFFLINE'}</span>
+        </div>`;
+      container.appendChild(item);
+    });
+  }
+
+  // ── Load Contents ────────────────────────────────────────
+  async function loadContents() {
+    try {
+      const list = await API.contents.list();
+      renderContentLibrary(list);
+    } catch(e) { console.warn('Contents load failed:', e.message); }
+  }
+
+  function renderContentLibrary(list) {
+    const panel = document.querySelectorAll('.panel')[1];
+    if (!panel) return;
+    const existing = panel.querySelectorAll('.content-row');
+    existing.forEach(el => el.remove());
+
+    const catIcon = {
+      promo: `<svg viewBox="0 0 24 24"><path d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>`,
+      discount: `<svg viewBox="0 0 24 24"><path d="M7 7h.01M17 17h.01M7 3H5a2 2 0 00-2 2v2m16-4h2a2 2 0 012 2v2M7 21H5a2 2 0 01-2-2v-2m16 4h2a2 2 0 002-2v-2M9 12a3 3 0 116 0 3 3 0 01-6 0z"/></svg>`,
+      menu: `<svg viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h10M4 18h6"/></svg>`,
+      info: `<svg viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
+    };
+    const catClass = { promo:'ct-promo', discount:'ct-disc', menu:'ct-menu', info:'ct-info' };
+    const statusEl = { live:'<span class="cst-live">Live</span>', scheduled:'<span class="cst-sched">Terjadwal</span>', draft:'<span class="cst-draft">Draft</span>' };
+
+    list.slice(0, 6).forEach(c => {
+      const row = document.createElement('div');
+      row.className = 'content-row';
+      const targets = (c.targets || 'ALL').split(',').map(t => `<span class="target-pill">${t.trim()}</span>`).join('');
+      row.innerHTML = `
+        <div class="content-thumb ${catClass[c.category] || 'ct-info'}">
+          ${catIcon[c.category] || catIcon.info}
+        </div>
+        <div style="flex:1">
+          <div class="content-name-txt">${c.name}</div>
+          <div class="content-meta-txt">${c.duration} dtk · ${c.resolution || '1920×1080'}</div>
+        </div>
+        <div class="content-targets">${targets}</div>
+        ${statusEl[c.status] || statusEl.draft}`;
+      panel.appendChild(row);
+    });
+  }
+
+  // ── Push to TV ────────────────────────────────────────────
+  async function pushToTv(branchCode) {
+    try {
+      await API.tv.pushPlaylist(branchCode);
+      API.toast(`Playlist dikirim ke ${branchCode}`, 'success');
+    } catch(e) {
+      API.toast(`${branchCode} offline atau gagal`, 'error');
+    }
+  }
+
+  // ── WebSocket — live TV status ───────────────────────────
+  API.onWS('TV_ONLINE', msg => {
+    API.toast(`📺 ${msg.branchCode} online`, 'success');
+    loadBranches();
+    loadStats();
+  });
+  API.onWS('TV_OFFLINE', msg => {
+    API.toast(`⚠️ ${msg.branchCode} offline`, 'error');
+    loadBranches();
+    loadStats();
+  });
+  API.onWS('STATUS_SNAPSHOT', msg => {
+    loadBranches();
+    loadStats();
+  });
+  API.connectWS();
+
+  // ── Alert for offline branches ───────────────────────────
+  async function checkOfflineAlert() {
+    try {
+      const { branches } = await API.tv.status();
+      const offline = branches.filter(b => b.status === 'offline');
+      const alertEl = document.querySelector('.alert');
+      if (alertEl) {
+        if (offline.length > 0) {
+          alertEl.style.display = 'flex';
+          const msgEl = alertEl.querySelector('.alert-msg');
+          if (msgEl) msgEl.innerHTML = `<strong>${offline.map(b=>b.code).join(', ')} Offline</strong> — ${offline.length} TV tidak terhubung. Periksa koneksi internet cabang.`;
+        } else {
+          alertEl.style.display = 'none';
+        }
+      }
+    } catch {}
+  }
+
+  // ── Quick action buttons ──────────────────────────────────
+  document.querySelectorAll('.qa-card').forEach((card, i) => {
+    const actions = [
+      () => window.location.href = 'ruangtv-upload.html',
+      () => window.location.href = 'ruangtv-schedule.html',
+      () => { const code = prompt('Kode cabang baru (contoh: SBY):'); if (code) addBranch(code); },
+      () => API.toast('Fitur laporan segera hadir', 'info'),
+    ];
+    card.onclick = actions[i] || (() => {});
+  });
+
+  async function addBranch(code) {
+    const name = prompt(`Nama cabang ${code.toUpperCase()}:`);
+    if (!name) return;
+    try {
+      await API.branches.create({ code, name });
+      API.toast(`Cabang ${code.toUpperCase()} berhasil ditambahkan!`, 'success');
+      loadBranches(); loadStats();
+    } catch(e) { API.toast(e.message, 'error'); }
+  }
+
+  // ── Logout button ─────────────────────────────────────────
+  const logoutBtn = document.createElement('button');
+  logoutBtn.className = 'btn btn-outline';
+  logoutBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg> Logout`;
+  logoutBtn.onclick = () => { if (confirm('Yakin mau logout?')) API.logout(); };
+  const topbarRight = document.querySelector('.topbar-right');
+  if (topbarRight) topbarRight.insertBefore(logoutBtn, topbarRight.firstChild);
+
+  // ── Tab interaction ──────────────────────────────────────
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      this.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+
+  // ── Init ─────────────────────────────────────────────────
+  async function init() {
+    await Promise.all([loadStats(), loadBranches(), loadContents()]);
+    checkOfflineAlert();
+  }
+  init();
+  setInterval(() => { loadStats(); checkOfflineAlert(); }, 30000);
+
+  // ── THEME TOGGLE ──
+  const THEME_KEY = 'ruangtv-theme';
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    try { localStorage.setItem(THEME_KEY, theme); } catch(e){}
+    const icon = document.getElementById('theme-icon');
+    if (!icon) return;
+    if (theme === 'light') {
+      icon.innerHTML = '<path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>';
+    } else {
+      icon.innerHTML = '<path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>';
+    }
+  }
+  function toggleTheme() {
+    const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+    applyTheme(cur === 'light' ? 'dark' : 'light');
+  }
+  try { applyTheme(localStorage.getItem(THEME_KEY) || 'dark'); } catch(e){ applyTheme('dark'); }
+
+</script>
+</body>
+</html>

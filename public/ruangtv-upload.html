@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RuangTV — Upload Konten</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --yellow:#FFCB05;--yellow-dim:rgba(255,203,5,.12);--yellow-mid:rgba(255,203,5,.22);
+    --yellow-glow:rgba(255,203,5,.06);--black:#000;--bg:#0A0A0A;--bg2:#111;--bg3:#181818;
+    --bg4:#222;--border:rgba(255,255,255,.07);--border-y:rgba(255,203,5,.28);
+    --text:#FFF;--text2:rgba(255,255,255,.55);--text3:rgba(255,255,255,.28);
+    --green:#22C55E;--red:#EF4444;--orange:#F59E0B;--radius:12px;--radius-sm:8px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+  .sidebar{position:fixed;left:0;top:0;bottom:0;width:64px;background:var(--black);
+    border-right:1px solid var(--border);display:flex;flex-direction:column;
+    align-items:center;padding:20px 0;z-index:100;transition:width .3s cubic-bezier(.4,0,.2,1);}
+  .sidebar:hover{width:200px;}
+  .sidebar-logo{width:38px;height:38px;background:var(--yellow);border-radius:10px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-bottom:32px;}
+  .sidebar-logo svg{width:22px;height:22px;fill:var(--black);}
+  .nav-item{width:100%;display:flex;align-items:center;gap:12px;padding:12px 13px;
+    cursor:pointer;border-left:3px solid transparent;transition:all .2s;white-space:nowrap;
+    overflow:hidden;color:var(--text2);font-size:13px;font-weight:500;text-decoration:none;}
+  .nav-item:hover{color:var(--yellow);background:var(--yellow-glow);}
+  .nav-item.active{color:var(--yellow);border-left-color:var(--yellow);background:var(--yellow-dim);}
+  .nav-icon{width:22px;height:22px;flex-shrink:0;}
+  .nav-label{opacity:0;transition:opacity .2s .05s;}
+  .sidebar:hover .nav-label{opacity:1;}
+
+  .main{margin-left:64px;min-height:100vh;display:flex;flex-direction:column;}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;
+    border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:50;}
+  .topbar-title{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;font-size:20px;font-weight:700;letter-spacing:-.02em;display:flex;align-items:center;gap:8px;}
+  .topbar-title span{color:var(--yellow);}
+  .topbar-sub{font-size:12px;color:var(--text2);margin-top:2px;}
+  .btn{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--radius-sm);
+    font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .2s;font-family:'Barlow',sans-serif;}
+  .btn svg{width:15px;height:15px;}
+  .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text2);}
+  .btn-outline:hover{border-color:var(--yellow);color:var(--yellow);background:var(--yellow-glow);}
+  .btn-yellow{background:var(--yellow);color:var(--black);font-weight:600;}
+  .btn-yellow:hover{background:#FFD633;transform:translateY(-1px);box-shadow:0 4px 20px rgba(255,203,5,.3);}
+  .btn-sm{padding:6px 12px;font-size:12px;}
+
+  .content{padding:24px 28px;flex:1;}
+  .page-grid{display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:start;}
+
+  /* UPLOAD ZONE */
+  .upload-zone{background:var(--bg2);border:2px dashed rgba(255,203,5,.25);
+    border-radius:var(--radius);padding:48px 24px;text-align:center;
+    cursor:pointer;transition:all .2s;margin-bottom:20px;position:relative;}
+  .upload-zone:hover,.upload-zone.drag{background:var(--yellow-glow);border-color:rgba(255,203,5,.5);}
+  .upload-icon{width:56px;height:56px;background:var(--yellow-dim);border-radius:16px;
+    display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+  .upload-icon svg{width:28px;height:28px;fill:var(--yellow);}
+  .upload-title{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;font-size:16px;font-weight:700;margin-bottom:8px;}
+  .upload-sub{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:16px;}
+  .upload-formats{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;}
+  .fmt-badge{font-size:10px;font-weight:700;letter-spacing:.04em;padding:3px 8px;
+    border-radius:4px;background:var(--bg3);border:1px solid var(--border);color:var(--text3);}
+  #file-input{display:none;}
+
+  /* FORM PANEL */
+  .form-panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+  .fp-head{padding:16px 20px;border-bottom:1px solid var(--border);
+    font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;font-size:13px;font-weight:700;
+    letter-spacing:.04em;text-transform:uppercase;color:var(--text2);
+    display:flex;align-items:center;gap:8px;}
+  .fp-head svg{width:14px;height:14px;fill:var(--yellow);}
+  .fp-body{padding:20px;}
+  .form-group{margin-bottom:16px;}
+  .form-label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;
+    display:block;letter-spacing:.03em;}
+  .form-input{width:100%;background:var(--bg3);border:1px solid var(--border);
+    border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--text);
+    font-family:'Barlow',sans-serif;transition:border-color .15s;outline:none;}
+  .form-input:focus{border-color:var(--border-y);}
+  .form-select{width:100%;background:var(--bg3);border:1px solid var(--border);
+    border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--text);
+    font-family:'Barlow',sans-serif;transition:border-color .15s;outline:none;cursor:pointer;}
+  .form-select:focus{border-color:var(--border-y);}
+  .form-textarea{width:100%;background:var(--bg3);border:1px solid var(--border);
+    border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--text);
+    font-family:'Barlow',sans-serif;transition:border-color .15s;outline:none;
+    resize:vertical;min-height:72px;line-height:1.5;}
+  .form-textarea:focus{border-color:var(--border-y);}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .checkbox-group{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .checkbox-item{display:flex;align-items:center;gap:7px;cursor:pointer;}
+  .checkbox-item input{width:14px;height:14px;accent-color:var(--yellow);cursor:pointer;}
+  .checkbox-label{font-size:12px;color:var(--text2);}
+  .range-wrap{display:flex;align-items:center;gap:10px;}
+  .form-range{flex:1;accent-color:var(--yellow);}
+  .range-val{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;font-size:13px;font-weight:700;
+    color:var(--yellow);min-width:36px;text-align:right;}
+
+  /* LIBRARY */
+  .lib-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  .lib-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);
+    overflow:hidden;cursor:pointer;transition:all .2s;}
+  .lib-card:hover{border-color:var(--border-y);transform:translateY(-2px);}
+  .lib-thumb{aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;
+    position:relative;overflow:hidden;}
+  .lt-promo{background:linear-gradient(135deg,rgba(255,203,5,.2),rgba(255,203,5,.05));}
+  .lt-disc{background:linear-gradient(135deg,rgba(245,158,11,.2),rgba(245,158,11,.05));}
+  .lt-menu{background:linear-gradient(135deg,rgba(34,197,94,.15),rgba(34,197,94,.03));}
+  .lt-info{background:linear-gradient(135deg,rgba(99,102,241,.2),rgba(99,102,241,.05));}
+  .lt-draft{background:var(--bg3);}
+  .lib-thumb svg{width:28px;height:28px;opacity:.6;}
+  .lib-body{padding:12px;}
+  .lib-name{font-size:13px;font-weight:600;margin-bottom:4px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .lib-meta{font-size:11px;color:var(--text3);margin-bottom:8px;}
+  .lib-foot{display:flex;align-items:center;justify-content:space-between;}
+  .lib-status{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;}
+  .ls-live{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2);}
+  .ls-sched{background:rgba(99,102,241,.1);color:#818cf8;border:1px solid rgba(99,102,241,.2);}
+  .ls-draft{background:var(--bg3);color:var(--text3);border:1px solid var(--border);}
+  .lib-actions{display:flex;gap:4px;}
+  .lib-btn{width:24px;height:24px;border-radius:5px;background:var(--bg3);
+    border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+    cursor:pointer;transition:all .15s;color:var(--text3);}
+  .lib-btn:hover{border-color:var(--border-y);color:var(--yellow);}
+  .lib-btn svg{width:12px;height:12px;}
+
+  /* PROGRESS */
+  .upload-progress{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);
+    padding:16px 20px;margin-bottom:20px;display:none;}
+  .up-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+  .up-icon{width:36px;height:36px;border-radius:8px;background:var(--yellow-dim);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .up-icon svg{width:18px;height:18px;fill:var(--yellow);}
+  .up-info{flex:1;}
+  .up-name{font-size:13px;font-weight:500;margin-bottom:2px;}
+  .up-size{font-size:11px;color:var(--text3);}
+  .up-pct{font-size:13px;font-weight:700;color:var(--yellow);min-width:36px;text-align:right;}
+  .progress-bar{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--yellow);border-radius:2px;
+    transition:width .3s;width:0%;}
+
+  /* SECTION HEAD */
+  .sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .sec-title{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;font-size:15px;font-weight:700;
+    display:flex;align-items:center;gap:8px;}
+  .sec-title::before{content:'';width:3px;height:16px;background:var(--yellow);border-radius:2px;}
+
+  /* TABS */
+  .tabs{display:flex;gap:4px;}
+  .tab{padding:5px 12px;font-size:12px;font-weight:500;border-radius:6px;
+    cursor:pointer;color:var(--text2);background:none;border:1px solid transparent;
+    font-family:'Barlow',sans-serif;transition:all .15s;}
+  .tab:hover{color:var(--text);background:var(--bg3);}
+  .tab.active{color:var(--yellow);background:var(--yellow-dim);border-color:var(--border-y);}
+
+  ::-webkit-scrollbar{width:4px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px;}
+  .fade-in{animation:fadeIn .35s ease both;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+  .d1{animation-delay:.05s;}.d2{animation-delay:.1s;}.d3{animation-delay:.15s;}
+
+  /* ── LIGHT MODE VARIABLES ── */
+  [data-theme="light"] {
+    --yellow: #E6B800;
+    --yellow-dim: rgba(230,184,0,0.1);
+    --yellow-mid: rgba(230,184,0,0.2);
+    --yellow-glow: rgba(230,184,0,0.06);
+    --black: #FFFFFF;
+    --bg: #F4F4F5;
+    --bg2: #FFFFFF;
+    --bg3: #F0F0F2;
+    --bg4: #E8E8EA;
+    --border: rgba(0,0,0,0.08);
+    --border-y: rgba(180,144,0,0.35);
+    --text: #111111;
+    --text2: rgba(0,0,0,0.55);
+    --text3: rgba(0,0,0,0.3);
+    --green: #16A34A;
+    --red: #DC2626;
+    --orange: #D97706;
+  }
+  [data-theme="light"] .sidebar { background: #111111; }
+  [data-theme="light"] .sidebar .nav-item { color: rgba(255,255,255,.55); }
+  [data-theme="light"] .sidebar .nav-item:hover { color: #FFCB05; background: rgba(255,203,5,.08); }
+  [data-theme="light"] .sidebar .nav-item.active { color: #FFCB05; border-left-color: #FFCB05; background: rgba(255,203,5,.12); }
+  [data-theme="light"] .sidebar .live-dot { background: #22C55E; }
+  [data-theme="light"] .sidebar .live-text { color: #22C55E; }
+  [data-theme="light"] .topbar { background: rgba(244,244,245,0.96); }
+  [data-theme="light"] .stat-card { box-shadow: 0 1px 6px rgba(0,0,0,.07); }
+  [data-theme="light"] .panel { box-shadow: 0 1px 6px rgba(0,0,0,.07); }
+  [data-theme="light"] .tv-card { box-shadow: 0 1px 6px rgba(0,0,0,.07); }
+  [data-theme="light"] .qa-card { box-shadow: 0 1px 6px rgba(0,0,0,.07); }
+  [data-theme="light"] #clock { color: #B8960A; }
+  [data-theme="light"] .alert { background: rgba(220,38,38,.06); }
+  [data-theme="light"] .tv-screen { background: #E4E4E6; }
+  [data-theme="light"] .tv-live-glow { background: linear-gradient(135deg,rgba(230,184,0,.08) 0%,transparent 70%); }
+  [data-theme="light"] .sch-track { background: #EBEBED; }
+  [data-theme="light"] .sch-empty { background: #E8E8EA; border-color: rgba(0,0,0,.12); color: rgba(0,0,0,.3); }
+  [data-theme="light"] .form-input,
+  [data-theme="light"] .form-select,
+  [data-theme="light"] .form-textarea { background: #F4F4F5; color: #111; border-color: rgba(0,0,0,.1); }
+  [data-theme="light"] .form-input:focus,
+  [data-theme="light"] .form-select:focus,
+  [data-theme="light"] .form-textarea:focus { border-color: rgba(180,144,0,.4); }
+  [data-theme="light"] .side-panel { background: #FFFFFF; }
+  [data-theme="light"] .schedule-container { background: #FFFFFF; }
+  [data-theme="light"] .branch-header { background: #F4F4F5; }
+  [data-theme="light"] .slot-cell:hover { background: rgba(0,0,0,.02); }
+  [data-theme="light"] .sc-empty { border-color: rgba(0,0,0,.1); }
+  [data-theme="light"] .lib-card { box-shadow: 0 1px 6px rgba(0,0,0,.07); }
+  [data-theme="light"] .lt-draft { background: #EBEBED; }
+  [data-theme="light"] .upload-zone { background: #FFFFFF; border-color: rgba(180,144,0,.3); }
+  [data-theme="light"] .upload-zone:hover { background: rgba(230,184,0,.04); }
+  [data-theme="light"] .upload-progress { background: #FFFFFF; }
+  [data-theme="light"] .progress-bar { background: #EBEBED; }
+  [data-theme="light"] .overlay { background: rgba(0,0,0,.4); }
+  [data-theme="light"] .mini-stat { box-shadow: 0 1px 6px rgba(0,0,0,.07); }
+  [data-theme="light"] .day-cell { background: #FFFFFF; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+  [data-theme="light"] .day-cell.today { background: rgba(230,184,0,.1); }
+  [data-theme="light"] .legend { background: #F4F4F5; }
+  [data-theme="light"] .form-panel { box-shadow: 0 1px 6px rgba(0,0,0,.07); }
+
+  /* ── THEME TOGGLE BUTTON ── */
+  .theme-toggle {
+    width: 36px; height: 36px;
+    border-radius: var(--radius-sm);
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all .25s;
+    color: var(--text2); flex-shrink: 0;
+  }
+  .theme-toggle:hover { border-color: var(--border-y); color: var(--yellow); background: var(--yellow-glow); }
+  .theme-toggle svg { width: 17px; height: 17px; fill: currentColor; transition: transform .4s cubic-bezier(.34,1.56,.64,1); }
+  .theme-toggle:hover svg { transform: rotate(25deg) scale(1.1); }
+
+</style>
+<script src="ruangtv-api.js"></script>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <svg viewBox="0 0 24 24"><path d="M21 6H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1zm-1 10H4V8h16v8z"/><path d="M10 17h4v2h-4z"/></svg>
+  </div>
+  <nav style="width:100%;display:flex;flex-direction:column;gap:2px;">
+    <a class="nav-item" href="ruangtv-dashboard.html">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <span class="nav-label">Dashboard</span>
+    </a>
+    <a class="nav-item" href="#"><svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M21 6H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1z"/></svg><span class="nav-label">Status TV</span></a>
+    <a class="nav-item active" href="#"><svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg><span class="nav-label">Konten</span></a>
+    <a class="nav-item" href="ruangtv-schedule.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg><span class="nav-label">Jadwal</span></a>
+    <a class="nav-item" href="#"><svg class="nav-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg><span class="nav-label">Cabang</span></a>
+  </nav>
+</aside>
+
+<div class="main">
+  <header class="topbar">
+    <div>
+      <div class="topbar-title">Ruang<span>TV</span> — <span style="color:var(--text2);font-size:16px;">Manajemen Konten</span></div>
+      <div class="topbar-sub">Upload, kelola, dan distribusi konten ke semua cabang</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="btn btn-outline">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4v16m8-8H4"/></svg>
+        Buat Slide Baru
+      </button>
+      <button class="btn btn-yellow" onclick="triggerUpload()">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+        Upload File
+      </button>
+    </div>
+  </header>
+
+  <div class="content">
+    <div class="page-grid">
+
+      <!-- LEFT COLUMN -->
+      <div>
+
+        <!-- UPLOAD ZONE -->
+        <div class="upload-zone fade-in" id="drop-zone" onclick="triggerUpload()"
+          ondragover="event.preventDefault();this.classList.add('drag')"
+          ondragleave="this.classList.remove('drag')"
+          ondrop="handleDrop(event)">
+          <input type="file" id="file-input" multiple accept="video/*,image/*,.pdf" onchange="handleFiles(this.files)">
+          <div class="upload-icon">
+            <svg viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+          </div>
+          <div class="upload-title">Drag & Drop atau Klik untuk Upload</div>
+          <div class="upload-sub">Upload video iklan, gambar promosi, atau file PDF<br>untuk ditayangkan di Smart TV semua cabang Ruangprint</div>
+          <div class="upload-formats">
+            <span class="fmt-badge">MP4</span>
+            <span class="fmt-badge">MOV</span>
+            <span class="fmt-badge">JPG</span>
+            <span class="fmt-badge">PNG</span>
+            <span class="fmt-badge">PDF</span>
+            <span class="fmt-badge">GIF</span>
+            <span class="fmt-badge">Maks 500 MB</span>
+          </div>
+        </div>
+
+        <!-- PROGRESS (hidden by default) -->
+        <div class="upload-progress" id="upload-progress">
+          <div style="font-size:12px;font-weight:600;color:var(--text2);letter-spacing:.04em;text-transform:uppercase;margin-bottom:12px;">Mengupload...</div>
+          <div class="up-row">
+            <div class="up-icon"><svg viewBox="0 0 24 24"><path d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.9L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg></div>
+            <div class="up-info">
+              <div class="up-name" id="up-filename">Promo_Lebaran_Final_v2.mp4</div>
+              <div class="up-size">124.5 MB · 1920×1080 · 30 dtk</div>
+            </div>
+            <div class="up-pct" id="up-pct">0%</div>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        </div>
+
+        <!-- LIBRARY -->
+        <div class="sec-head fade-in d1">
+          <div class="sec-title">Library Konten</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="tabs">
+              <button class="tab active" onclick="filterLib(this,'all')">Semua (6)</button>
+              <button class="tab" onclick="filterLib(this,'live')">Live (4)</button>
+              <button class="tab" onclick="filterLib(this,'sched')">Terjadwal (1)</button>
+              <button class="tab" onclick="filterLib(this,'draft')">Draft (1)</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="lib-grid fade-in d2" id="lib-grid">
+
+          <div class="lib-card" data-status="live">
+            <div class="lib-thumb lt-promo">
+              <svg viewBox="0 0 24 24" fill="rgba(255,203,5,.6)"><path d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
+              <div style="position:absolute;top:6px;right:6px;background:rgba(34,197,94,.85);border-radius:4px;padding:2px 6px;font-size:9px;font-weight:700;color:#fff;">● LIVE</div>
+            </div>
+            <div class="lib-body">
+              <div class="lib-name">Promo Lebaran 2025</div>
+              <div class="lib-meta">MP4 · 30 dtk · 124.5 MB · 1920×1080</div>
+              <div class="lib-foot">
+                <span class="lib-status ls-live">Live</span>
+                <div class="lib-actions">
+                  <div class="lib-btn" title="Edit"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></div>
+                  <div class="lib-btn" title="Jadwalkan"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="lib-card" data-status="live">
+            <div class="lib-thumb lt-disc">
+              <svg viewBox="0 0 24 24" fill="rgba(245,158,11,.6)"><path d="M7 7h.01M17 17h.01M7 3H5a2 2 0 00-2 2v2m16-4h2a2 2 0 012 2v2M7 21H5a2 2 0 01-2-2v-2m16 4h2a2 2 0 002-2v-2M9 12a3 3 0 116 0 3 3 0 01-6 0z"/></svg>
+              <div style="position:absolute;top:6px;right:6px;background:rgba(34,197,94,.85);border-radius:4px;padding:2px 6px;font-size:9px;font-weight:700;color:#fff;">● LIVE</div>
+            </div>
+            <div class="lib-body">
+              <div class="lib-name">Diskon Member 20%</div>
+              <div class="lib-meta">MP4 · 20 dtk · 87.2 MB · 1920×1080</div>
+              <div class="lib-foot">
+                <span class="lib-status ls-live">Live</span>
+                <div class="lib-actions">
+                  <div class="lib-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></div>
+                  <div class="lib-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="lib-card" data-status="live">
+            <div class="lib-thumb lt-menu">
+              <svg viewBox="0 0 24 24" fill="rgba(34,197,94,.6)"><path d="M4 6h16M4 10h16M4 14h10M4 18h6"/></svg>
+              <div style="position:absolute;top:6px;right:6px;background:rgba(34,197,94,.85);border-radius:4px;padding:2px 6px;font-size:9px;font-weight:700;color:#fff;">● LIVE</div>
+            </div>
+            <div class="lib-body">
+              <div class="lib-name">Menu Layanan Print</div>
+              <div class="lib-meta">Slide · 45 dtk · 12.4 MB · 1920×1080</div>
+              <div class="lib-foot">
+                <span class="lib-status ls-live">Live</span>
+                <div class="lib-actions">
+                  <div class="lib-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></div>
+                  <div class="lib-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="lib-card" data-status="live">
+            <div class="lib-thumb lt-info">
+              <svg viewBox="0 0 24 24" fill="rgba(99,102,241,.6)"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <div style="position:absolute;top:6px;right:6px;background:rgba(34,197,94,.85);border-radius:4px;padding:2px 6px;font-size:9px;font-weight:700;color:#fff;">● LIVE</div>
+            </div>
+            <div class="lib-body">
+              <div class="lib-name">Info Layanan Baru</div>
+              <div class="lib-meta">Slide · 45 dtk · 8.1 MB · 1920×1080</div>
+              <div class="lib-foot">
+                <span class="lib-status ls-live">Live</span>
+                <div class="lib-actions">
+                  <div class="lib-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></div>
+                  <div class="lib-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="lib-card" data-status="sched">
+            <div class="lib-thumb lt-promo">
+              <svg viewBox="0 0 24 24" fill="rgba(255,203,5,.6)"><path d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
+              <div style="position:absolute;top:6px;right:6px;background:rgba(99,102,241,.85);border-radius:4px;padding:2px 6px;font-size:9px;font-weight:700;color:#fff;">SCHED</div>
+            </div>
+            <div class="lib-body">
+              <div class="lib-name">Launching Produk Baru</div>
+              <div class="lib-meta">MP4 · 60 dtk · 210.3 MB · 1920×1080</div>
+              <div class="lib-foot">
+                <span class="lib-status ls-sched">Terjadwal</span>
+                <div class="lib-actions">
+                  <div class="lib-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></div>
+                  <div class="lib-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="lib-card" data-status="draft">
+            <div class="lib-thumb lt-draft">
+              <svg viewBox="0 0 24 24" fill="rgba(255,255,255,.2)"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            </div>
+            <div class="lib-body">
+              <div class="lib-name">Harga Spesial Akhir Tahun</div>
+              <div class="lib-meta">Slide · 30 dtk · 5.8 MB · Belum selesai</div>
+              <div class="lib-foot">
+                <span class="lib-status ls-draft">Draft</span>
+                <div class="lib-actions">
+                  <div class="lib-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></div>
+                  <div class="lib-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- RIGHT PANEL -->
+      <div style="display:flex;flex-direction:column;gap:16px;">
+
+        <!-- UPLOAD SETTINGS -->
+        <div class="form-panel fade-in d1">
+          <div class="fp-head">
+            <svg viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+            Pengaturan Upload
+          </div>
+          <div class="fp-body">
+            <div class="form-group">
+              <label class="form-label">Nama Konten</label>
+              <input type="text" class="form-input" placeholder="Contoh: Promo Lebaran 2025 v2">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Kategori</label>
+              <select class="form-select">
+                <option>Promo / Iklan Utama</option>
+                <option>Diskon / Penawaran</option>
+                <option>Menu / Daftar Layanan</option>
+                <option>Info / Edukasi Pelanggan</option>
+                <option>Pengumuman Cabang</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Distribusi ke Cabang</label>
+              <div class="checkbox-group">
+                <label class="checkbox-item"><input type="checkbox" checked><span class="checkbox-label">DMB</span></label>
+                <label class="checkbox-item"><input type="checkbox" checked><span class="checkbox-label">CTR</span></label>
+                <label class="checkbox-item"><input type="checkbox" checked><span class="checkbox-label">GDS</span></label>
+                <label class="checkbox-item"><input type="checkbox" checked><span class="checkbox-label">CGK</span></label>
+                <label class="checkbox-item"><input type="checkbox"><span class="checkbox-label">BKS <span style="color:var(--red);font-size:10px">(offline)</span></span></label>
+                <label class="checkbox-item"><input type="checkbox"><span class="checkbox-label"><span style="color:var(--yellow)">+ Baru</span></span></label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Durasi Tayang per Putaran</label>
+              <div class="range-wrap">
+                <input type="range" class="form-range" min="5" max="120" value="30" id="dur-range" oninput="document.getElementById('dur-val').textContent=this.value+' dtk'">
+                <span class="range-val" id="dur-val">30 dtk</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Resolusi Output</label>
+              <select class="form-select">
+                <option selected>1920×1080 (Full HD — Rekomendasi)</option>
+                <option>3840×2160 (4K Ultra HD)</option>
+                <option>1280×720 (HD)</option>
+                <option>1080×1920 (Portrait / Vertical)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Keterangan (opsional)</label>
+              <textarea class="form-textarea" placeholder="Tambahkan catatan atau deskripsi konten..."></textarea>
+            </div>
+            <button class="btn btn-yellow" style="width:100%;justify-content:center;" onclick="simulateUpload()">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+              Upload & Simpan ke Library
+            </button>
+          </div>
+        </div>
+
+        <!-- TIPS -->
+        <div style="background:var(--yellow-dim);border:1px solid var(--border-y);border-radius:var(--radius);padding:16px 18px;">
+          <div style="font-size:12px;font-weight:700;color:var(--yellow);margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#FFCB05"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Tips Konten RuangTV
+          </div>
+          <div style="font-size:12px;color:rgba(255,203,5,.7);line-height:1.8;">
+            • Gunakan resolusi <strong style="color:var(--yellow)">1920×1080</strong> untuk hasil terbaik<br>
+            • Durasi ideal <strong style="color:var(--yellow)">15–45 detik</strong> per konten<br>
+            • Format <strong style="color:var(--yellow)">MP4 H.264</strong> paling kompatibel<br>
+            • Teks minimal, visual besar & kontras tinggi<br>
+            • Tambahkan <strong style="color:var(--yellow)">logo Ruangprint</strong> di setiap frame
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Auth guard ───────────────────────────────────────────
+  API.requireAuth();
+
+  // ── Logout ────────────────────────────────────────────────
+  const logoutBtn = document.createElement('button');
+  logoutBtn.className = 'btn btn-outline';
+  logoutBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor" style="width:15px;height:15px"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg> Logout`;
+  logoutBtn.onclick = () => { if(confirm('Yakin logout?')) API.logout(); };
+  const topbarRight = document.querySelector('.topbar-right');
+  if (topbarRight) topbarRight.insertBefore(logoutBtn, topbarRight.firstChild);
+
+  // ── Upload zone ───────────────────────────────────────────
+  function triggerUpload() { document.getElementById('file-input').click(); }
+  function handleDrop(e) {
+    e.preventDefault();
+    document.getElementById('drop-zone').classList.remove('drag');
+    handleFiles(e.dataTransfer.files);
+  }
+
+  function handleFiles(files) {
+    if (!files || !files.length) return;
+    const f = files[0];
+    document.getElementById('up-filename').textContent = f.name;
+    document.getElementById('upload-progress').style.display = 'block';
+    // Just show the file selected — real upload happens on form submit
+    document.getElementById('up-pct').textContent = 'Siap upload';
+    document.getElementById('up-pct').style.color = '#FFCB05';
+    document.getElementById('progress-fill').style.width = '0%';
+  }
+
+  // ── Real Upload ──────────────────────────────────────────
+  async function doRealUpload() {
+    const fileInput = document.getElementById('file-input');
+    const name = document.querySelector('input[type="text"].form-input')?.value?.trim();
+    const category = document.querySelector('select.form-select')?.value;
+    const durVal = document.getElementById('dur-range')?.value || 30;
+    const targets = Array.from(document.querySelectorAll('.checkbox-item input:checked'))
+      .map(cb => cb.nextElementSibling?.textContent?.trim().split(' ')[0])
+      .filter(Boolean).join(',') || 'ALL';
+
+    if (!name) { API.toast('Nama konten wajib diisi', 'error'); return; }
+
+    // Upload with file if selected, otherwise create record only
+    if (fileInput && fileInput.files && fileInput.files[0]) {
+      const fd = new FormData();
+      fd.append('file', fileInput.files[0]);
+      fd.append('name', name);
+      fd.append('category', category || 'promo');
+      fd.append('duration', durVal);
+      fd.append('targets', targets);
+
+      const btn = document.querySelector('.btn-yellow[onclick*="Upload"]') ||
+                  document.querySelector('.fp-body .btn-yellow');
+      if (btn) { btn.disabled = true; btn.textContent = 'Uploading...'; }
+
+      // Animate progress
+      let pct = 0;
+      const fill = document.getElementById('progress-fill');
+      const pctEl = document.getElementById('up-pct');
+      document.getElementById('upload-progress').style.display = 'block';
+      const iv = setInterval(() => {
+        pct = Math.min(pct + Math.random() * 12 + 3, 90);
+        fill.style.width = pct + '%';
+        pctEl.textContent = Math.round(pct) + '%';
+      }, 150);
+
+      try {
+        const content = await API.contents.upload(fd);
+        clearInterval(iv);
+        fill.style.width = '100%';
+        pctEl.textContent = '✓ Uploaded!';
+        pctEl.style.color = '#22C55E';
+        API.toast(`${content.name} berhasil diupload!`, 'success');
+        setTimeout(() => loadContents(), 500);
+        if (btn) { btn.disabled = false; btn.textContent = 'Upload & Simpan ke Library'; }
+      } catch(e) {
+        clearInterval(iv);
+        API.toast('Upload gagal: ' + e.message, 'error');
+        if (btn) { btn.disabled = false; btn.textContent = 'Upload & Simpan ke Library'; }
+      }
+    } else {
+      // No file — create content record without file
+      try {
+        await API.contents.create({ name, category: category||'promo', duration: durVal, targets });
+        API.toast(`${name} ditambahkan ke library!`, 'success');
+        loadContents();
+      } catch(e) { API.toast(e.message, 'error'); }
+    }
+  }
+
+  // ── Load Library ──────────────────────────────────────────
+  async function loadContents(filterStatus = 'all') {
+    try {
+      const list = await API.contents.list();
+      renderLibrary(list, filterStatus);
+    } catch(e) { console.warn('Contents load failed:', e.message); }
+  }
+
+  function renderLibrary(list, filterStatus = 'all') {
+    const grid = document.getElementById('lib-grid');
+    if (!grid) return;
+
+    const filtered = filterStatus === 'all' ? list : list.filter(c => c.status === filterStatus);
+
+    const catClass = { promo:'lt-promo', discount:'lt-disc', menu:'lt-menu', info:'lt-info' };
+    const catIcon = {
+      promo: `<svg viewBox="0 0 24 24" fill="rgba(255,203,5,.6)"><path d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>`,
+      discount: `<svg viewBox="0 0 24 24" fill="rgba(245,158,11,.6)"><path d="M7 7h.01M17 17h.01M7 3H5a2 2 0 00-2 2v2m16-4h2a2 2 0 012 2v2M7 21H5a2 2 0 01-2-2v-2m16 4h2a2 2 0 002-2v-2M9 12a3 3 0 116 0 3 3 0 01-6 0z"/></svg>`,
+      menu: `<svg viewBox="0 0 24 24" fill="rgba(34,197,94,.6)"><path d="M4 6h16M4 10h16M4 14h10M4 18h6"/></svg>`,
+      info: `<svg viewBox="0 0 24 24" fill="rgba(99,102,241,.6)"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
+    };
+    const statusBadge = {
+      live: `<span class="lib-status ls-live">Live</span>`,
+      scheduled: `<span class="lib-status ls-sched">Terjadwal</span>`,
+      draft: `<span class="lib-status ls-draft">Draft</span>`,
+    };
+
+    grid.innerHTML = filtered.length === 0
+      ? `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text3)">Belum ada konten</div>`
+      : filtered.map(c => `
+        <div class="lib-card" data-status="${c.status}" data-id="${c.id}">
+          <div class="lib-thumb ${catClass[c.category]||'lt-info'}">
+            ${catIcon[c.category]||catIcon.info}
+            ${c.status==='live' ? '<div style="position:absolute;top:6px;right:6px;background:rgba(34,197,94,.85);border-radius:4px;padding:2px 6px;font-size:9px;font-weight:700;color:#fff">● LIVE</div>' : ''}
+          </div>
+          <div class="lib-body">
+            <div class="lib-name">${c.name}</div>
+            <div class="lib-meta">${API.fmt.category(c.category)} · ${c.duration} dtk · ${c.file_size ? API.fmt.fileSize(c.file_size) : 'No file'}</div>
+            <div class="lib-foot">
+              ${statusBadge[c.status]||statusBadge.draft}
+              <div class="lib-actions">
+                ${c.status !== 'live'
+                  ? `<div class="lib-btn" title="Publish" onclick="publishContent('${c.id}')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 13l4 4L19 7"/></svg></div>`
+                  : `<div class="lib-btn" title="Unpublish" onclick="unpublishContent('${c.id}')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>`
+                }
+                <div class="lib-btn" title="Hapus" onclick="deleteContent('${c.id}','${c.name}')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></div>
+              </div>
+            </div>
+          </div>
+        </div>`).join('');
+  }
+
+  async function publishContent(id) {
+    try {
+      const r = await API.contents.publish(id);
+      API.toast(`${r.content.name} dipublish & dikirim ke TV!`, 'success');
+      loadContents();
+    } catch(e) { API.toast(e.message, 'error'); }
+  }
+
+  async function unpublishContent(id) {
+    try {
+      await API.contents.unpublish(id);
+      API.toast('Konten di-unpublish', 'info');
+      loadContents();
+    } catch(e) { API.toast(e.message, 'error'); }
+  }
+
+  async function deleteContent(id, name) {
+    if (!confirm(`Hapus konten "${name}"?`)) return;
+    try {
+      await API.contents.delete(id);
+      API.toast(`${name} dihapus`, 'info');
+      loadContents();
+    } catch(e) { API.toast(e.message, 'error'); }
+  }
+
+  function filterLib(tab, status) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const statusMap = { 'Semua':'all', 'Live':'live', 'Terjadwal':'scheduled', 'Draft':'draft' };
+    loadContents(statusMap[tab.textContent.split('(')[0].trim()] || 'all');
+  }
+
+  function simulateUpload() { doRealUpload(); }
+
+  // Wire upload button
+  const uploadBtn = document.querySelector('.fp-body .btn-yellow');
+  if (uploadBtn) uploadBtn.onclick = doRealUpload;
+
+  loadContents();
+
+  // ── THEME TOGGLE ──
+  const THEME_KEY = 'ruangtv-theme';
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    try { localStorage.setItem(THEME_KEY, theme); } catch(e){}
+    const icon = document.getElementById('theme-icon');
+    if (!icon) return;
+    if (theme === 'light') {
+      icon.innerHTML = '<path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>';
+    } else {
+      icon.innerHTML = '<path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>';
+    }
+  }
+  function toggleTheme() {
+    const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+    applyTheme(cur === 'light' ? 'dark' : 'light');
+  }
+  try { applyTheme(localStorage.getItem(THEME_KEY) || 'dark'); } catch(e){ applyTheme('dark'); }
+
+</script>
+</body>
+</html>

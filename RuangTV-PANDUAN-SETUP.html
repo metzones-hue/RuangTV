@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RuangTV — Panduan Setup</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --y: #FFCB05; --yd: rgba(255,203,5,.12); --yb: rgba(255,203,5,.25);
+    --bg: #0A0A0A; --bg2: #111; --bg3: #181818; --b: rgba(255,255,255,.07);
+    --by: rgba(255,203,5,.25); --t: #fff; --t2: rgba(255,255,255,.55);
+    --t3: rgba(255,255,255,.28); --g: #22C55E; --r: #EF4444; --o: #F59E0B;
+    --rad: 12px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Barlow', sans-serif; background: var(--bg); color: var(--t); min-height: 100vh; }
+
+  .hero { background: #000; border-bottom: 1px solid var(--b); padding: 40px 60px; display: flex; align-items: center; justify-content: space-between; }
+  .hero-logo { display: flex; align-items: center; gap: 14px; }
+  .logo-box { width: 48px; height: 48px; background: var(--y); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+  .logo-box svg { width: 28px; height: 28px; fill: #000; }
+  .logo-text { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: .04em; }
+  .logo-text span { color: var(--y); }
+  .hero-badge { background: var(--yd); border: 1px solid var(--by); color: var(--y); font-size: 12px; font-weight: 600; padding: 6px 14px; border-radius: 20px; letter-spacing: .04em; }
+
+  .container { max-width: 860px; margin: 0 auto; padding: 48px 24px; }
+
+  h1 { font-family: 'Bebas Neue', sans-serif; font-size: 48px; letter-spacing: .04em; margin-bottom: 8px; }
+  h1 span { color: var(--y); }
+  .lead { font-size: 16px; color: var(--t2); line-height: 1.6; margin-bottom: 48px; }
+
+  .steps { display: flex; flex-direction: column; gap: 12px; }
+
+  .step {
+    background: var(--bg2); border: 1px solid var(--b);
+    border-radius: var(--rad); overflow: hidden;
+    transition: border-color .2s;
+  }
+  .step:hover { border-color: rgba(255,203,5,.15); }
+  .step-head {
+    display: flex; align-items: center; gap: 16px;
+    padding: 20px 24px; cursor: pointer;
+  }
+  .step-num {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: var(--yd); border: 1px solid var(--by);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--y);
+    flex-shrink: 0;
+  }
+  .step-num.done { background: rgba(34,197,94,.1); border-color: rgba(34,197,94,.25); color: var(--g); }
+  .step-title { font-size: 16px; font-weight: 600; flex: 1; }
+  .step-tag { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; letter-spacing: .04em; }
+  .tag-req { background: rgba(239,68,68,.1); color: var(--r); border: 1px solid rgba(239,68,68,.2); }
+  .tag-opt { background: var(--bg3); color: var(--t3); border: 1px solid var(--b); }
+  .tag-done { background: rgba(34,197,94,.1); color: var(--g); border: 1px solid rgba(34,197,94,.2); }
+  .chevron { transition: transform .2s; color: var(--t3); flex-shrink: 0; }
+  .chevron.open { transform: rotate(180deg); }
+
+  .step-body { display: none; padding: 0 24px 24px; border-top: 1px solid var(--b); }
+  .step-body.open { display: block; }
+
+  .step-desc { font-size: 14px; color: var(--t2); line-height: 1.7; margin: 16px 0 12px; }
+
+  .cmd-block {
+    background: #000; border: 1px solid var(--b);
+    border-radius: 8px; padding: 14px 16px;
+    margin: 10px 0; position: relative;
+  }
+  .cmd-label { font-size: 10px; font-weight: 600; letter-spacing: .08em; color: var(--t3); text-transform: uppercase; margin-bottom: 8px; }
+  .cmd { font-family: 'Barlow Mono', monospace; font-size: 14px; color: var(--y); line-height: 1.8; }
+  .cmd .dim { color: var(--t3); }
+  .cmd .g { color: var(--g); }
+  .copy-btn {
+    position: absolute; top: 10px; right: 10px;
+    background: var(--bg3); border: 1px solid var(--b);
+    color: var(--t2); font-size: 11px; font-weight: 500;
+    padding: 4px 10px; border-radius: 5px; cursor: pointer;
+    font-family: 'Barlow', sans-serif; transition: all .15s;
+  }
+  .copy-btn:hover { border-color: var(--by); color: var(--y); }
+
+  .folder-tree {
+    background: #000; border: 1px solid var(--b);
+    border-radius: 8px; padding: 16px 20px; margin: 10px 0;
+    font-family: 'Barlow Mono', monospace; font-size: 13px; line-height: 2;
+  }
+  .ft-folder { color: var(--y); }
+  .ft-file { color: var(--t2); }
+  .ft-moved { color: var(--g); }
+  .ft-note { color: var(--t3); font-size: 11px; }
+
+  .info-box {
+    background: var(--yd); border: 1px solid var(--by);
+    border-radius: 8px; padding: 12px 16px;
+    font-size: 13px; color: rgba(255,203,5,.8);
+    line-height: 1.7; margin: 10px 0;
+  }
+  .info-box strong { color: var(--y); }
+  .warn-box {
+    background: rgba(239,68,68,.06); border: 1px solid rgba(239,68,68,.2);
+    border-radius: 8px; padding: 12px 16px;
+    font-size: 13px; color: rgba(239,68,68,.8); line-height: 1.7; margin: 10px 0;
+  }
+
+  .kv-list { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
+  .kv { display: flex; align-items: baseline; gap: 12px; }
+  .kv-key { font-family: 'Barlow Mono', monospace; font-size: 13px; color: var(--y); min-width: 180px; flex-shrink: 0; }
+  .kv-val { font-size: 13px; color: var(--t2); line-height: 1.5; }
+
+  .btn-dl {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--y); color: #000; font-weight: 700; font-size: 14px;
+    padding: 11px 24px; border-radius: 8px; text-decoration: none;
+    margin-top: 12px; transition: all .2s; cursor: pointer; border: none;
+    font-family: 'Barlow', sans-serif;
+  }
+  .btn-dl:hover { background: #FFD633; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(255,203,5,.3); }
+  .btn-dl svg { width: 16px; height: 16px; fill: #000; }
+  .btn-sec {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: transparent; color: var(--t2); font-weight: 500; font-size: 14px;
+    padding: 10px 22px; border-radius: 8px; border: 1px solid var(--b);
+    margin-top: 12px; margin-left: 8px; cursor: pointer; transition: all .2s;
+    font-family: 'Barlow', sans-serif; text-decoration: none;
+  }
+  .btn-sec:hover { border-color: var(--by); color: var(--y); }
+
+  .divider { height: 1px; background: var(--b); margin: 40px 0; }
+
+  .success-box {
+    background: rgba(34,197,94,.06); border: 1px solid rgba(34,197,94,.2);
+    border-radius: var(--rad); padding: 24px 28px; margin-top: 32px;
+    display: flex; align-items: flex-start; gap: 16px;
+  }
+  .success-icon { width: 40px; height: 40px; background: rgba(34,197,94,.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .success-icon svg { width: 22px; height: 22px; fill: var(--g); }
+  .success-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: .04em; color: var(--g); margin-bottom: 6px; }
+  .success-body { font-size: 13px; color: var(--t2); line-height: 1.7; }
+  .success-body a { color: var(--y); }
+
+  @media (max-width: 600px) {
+    .hero { padding: 24px; flex-direction: column; gap: 16px; align-items: flex-start; }
+    .container { padding: 24px 16px; }
+    h1 { font-size: 36px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-logo">
+    <div class="logo-box">
+      <svg viewBox="0 0 24 24"><path d="M21 6H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1zm-1 10H4V8h16v8z"/><path d="M10 17h4v2h-4z"/></svg>
+    </div>
+    <div class="logo-text">Ruang<span>TV</span></div>
+  </div>
+  <div class="hero-badge">PANDUAN SETUP WINDOWS</div>
+</div>
+
+<div class="container">
+  <h1>Setup <span>RuangTV</span><br>di Windows</h1>
+  <p class="lead">Ikuti langkah-langkah berikut untuk menjalankan backend RuangTV di laptop/PC Windows kamu. Estimasi waktu: <strong style="color:var(--y)">10–15 menit</strong>.</p>
+
+  <div class="steps">
+
+    <!-- STEP 1 -->
+    <div class="step">
+      <div class="step-head" onclick="toggle(1)">
+        <div class="step-num">1</div>
+        <div class="step-title">Install Node.js</div>
+        <span class="step-tag tag-req">WAJIB</span>
+        <svg class="chevron" id="chev-1" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="step-body" id="body-1">
+        <p class="step-desc">Node.js adalah runtime JavaScript yang dibutuhkan untuk menjalankan server RuangTV. Download versi LTS (Long-Term Support).</p>
+        <div class="cmd-block">
+          <div class="cmd-label">Download</div>
+          <div class="cmd">🌐 https://nodejs.org<br><span class="dim">→ Klik tombol "LTS" → Download → Install (next next finish)</span></div>
+        </div>
+        <div class="cmd-block">
+          <div class="cmd-label">Verifikasi instalasi — buka CMD dan ketik:</div>
+          <div class="cmd">node --version<br><span class="g">→ Harus muncul: v20.x.x atau v22.x.x</span></div>
+          <button class="copy-btn" onclick="copyText('node --version')">Copy</button>
+        </div>
+        <div class="info-box"><strong>Cara buka CMD:</strong> Tekan Windows+R → ketik <code>cmd</code> → Enter</div>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step">
+      <div class="step-head" onclick="toggle(2)">
+        <div class="step-num">2</div>
+        <div class="step-title">Atur Struktur Folder yang Benar</div>
+        <span class="step-tag tag-req">WAJIB</span>
+        <svg class="chevron" id="chev-2" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="step-body" id="body-2">
+        <p class="step-desc">Berdasarkan screenshot kamu, semua file masih flat di satu folder. File <code>auth.js</code>, <code>database.js</code>, <code>routes.js</code>, dan <code>websocket.js</code> harus masuk ke subfolder <code>src\</code>.</p>
+
+        <div class="folder-tree">
+          <div><span class="ft-folder">📁 RuangTV-1\</span> <span class="ft-note">← folder utama kamu</span></div>
+          <div>&nbsp;&nbsp;<span class="ft-file">📄 server.js</span></div>
+          <div>&nbsp;&nbsp;<span class="ft-file">📄 package.json</span> <span class="ft-note">← buat baru (lihat step 3)</span></div>
+          <div>&nbsp;&nbsp;<span class="ft-file">📄 .env</span> <span class="ft-note">← buat baru (lihat step 4)</span></div>
+          <div>&nbsp;&nbsp;<span class="ft-file">📄 README.md</span></div>
+          <div>&nbsp;&nbsp;<span class="ft-folder">📁 src\</span> <span class="ft-note">← BUAT FOLDER INI</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-moved">📄 auth.js</span> <span class="ft-note">← pindahkan ke sini</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-moved">📄 database.js</span> <span class="ft-note">← pindahkan ke sini</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-moved">📄 routes.js</span> <span class="ft-note">← pindahkan ke sini</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-moved">📄 websocket.js</span> <span class="ft-note">← pindahkan ke sini</span></div>
+          <div>&nbsp;&nbsp;<span class="ft-folder">📁 uploads\</span> <span class="ft-note">← buat folder kosong</span></div>
+          <div>&nbsp;&nbsp;<span class="ft-folder">📁 public\</span> <span class="ft-note">← taruh file HTML di sini</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">📄 ruangtv-dashboard.html</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">📄 ruangtv-schedule.html</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">📄 ruangtv-upload.html</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="ft-file">📄 ruangtv-player.html</span></div>
+          <div>&nbsp;&nbsp;<span class="ft-folder">📁 node_modules\</span> <span class="ft-note">← otomatis dibuat saat npm install</span></div>
+        </div>
+
+        <p class="step-desc">Cara cepat pakai CMD:</p>
+        <div class="cmd-block">
+          <div class="cmd-label">Buka CMD di folder RuangTV-1, lalu ketik:</div>
+          <div class="cmd">mkdir src<br>mkdir uploads<br>mkdir public<br>move auth.js src\<br>move database.js src\<br>move routes.js src\<br>move websocket.js src\<br><span class="dim">REM Pindahkan HTML ke public\</span><br>copy ruangtv-*.html public\</div>
+          <button class="copy-btn" onclick="copyText('mkdir src\nmkdir uploads\nmkdir public\nmove auth.js src\\\nmove database.js src\\\nmove routes.js src\\\nmove websocket.js src\\')">Copy</button>
+        </div>
+        <div class="info-box"><strong>Cara buka CMD di folder:</strong> Di File Explorer, klik address bar → ketik <code>cmd</code> → Enter. CMD langsung terbuka di folder itu.</div>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step">
+      <div class="step-head" onclick="toggle(3)">
+        <div class="step-num">3</div>
+        <div class="step-title">Buat File package.json</div>
+        <span class="step-tag tag-req">WAJIB</span>
+        <svg class="chevron" id="chev-3" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="step-body" id="body-3">
+        <p class="step-desc">Buat file baru bernama <code>package.json</code> di folder utama RuangTV-1. Bukan di dalam src\, tapi di root folder.</p>
+        <div class="cmd-block">
+          <div class="cmd-label">Isi package.json (copy paste ke Notepad, simpan sebagai package.json)</div>
+          <div class="cmd" id="pkgjson">{
+  "name": "ruangtv-backend",
+  "version": "1.0.0",
+  "description": "RuangTV Digital Signage Backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1",
+    "sql.js": "^1.10.2",
+    "ws": "^8.14.2"
+  }
+}</div>
+          <button class="copy-btn" onclick="copyId('pkgjson')">Copy</button>
+        </div>
+        <div class="info-box"><strong>Cara buat file dengan Notepad:</strong> Buka Notepad → paste isinya → Save As → nama file: <code>package.json</code> → Save as type: <strong>All Files</strong> → simpan di folder RuangTV-1</div>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step">
+      <div class="step-head" onclick="toggle(4)">
+        <div class="step-num">4</div>
+        <div class="step-title">Buat File .env (Konfigurasi)</div>
+        <span class="step-tag tag-req">WAJIB</span>
+        <svg class="chevron" id="chev-4" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="step-body" id="body-4">
+        <p class="step-desc">File <code>.env</code> berisi konfigurasi server. Buat di folder utama RuangTV-1 (sama level dengan server.js).</p>
+        <div class="cmd-block">
+          <div class="cmd-label">Isi file .env</div>
+          <div class="cmd" id="envfile">PORT=3001
+JWT_SECRET=ruangtv-secret-ruangprint-2025
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=ruangprint2025</div>
+          <button class="copy-btn" onclick="copyId('envfile')">Copy</button>
+        </div>
+        <div class="kv-list">
+          <div class="kv"><div class="kv-key">PORT</div><div class="kv-val">Port server (default 3001, jangan diubah kecuali konflik)</div></div>
+          <div class="kv"><div class="kv-key">JWT_SECRET</div><div class="kv-val">Kunci enkripsi token. Bisa diganti dengan string apapun</div></div>
+          <div class="kv"><div class="kv-key">ADMIN_USERNAME</div><div class="kv-val">Username login dashboard HO</div></div>
+          <div class="kv"><div class="kv-key">ADMIN_PASSWORD</div><div class="kv-val">Password login dashboard HO</div></div>
+        </div>
+        <div class="warn-box">⚠️ Nama filenya harus persis <strong>.env</strong> (ada titik di depan, tidak ada ekstensi). Di Notepad → Save As → nama: <code>.env</code> → Save as type: <strong>All Files</strong></div>
+      </div>
+    </div>
+
+    <!-- STEP 5 -->
+    <div class="step">
+      <div class="step-head" onclick="toggle(5)">
+        <div class="step-num">5</div>
+        <div class="step-title">Install Dependencies (npm install)</div>
+        <span class="step-tag tag-req">WAJIB</span>
+        <svg class="chevron" id="chev-5" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="step-body" id="body-5">
+        <p class="step-desc">Perintah ini akan mengunduh semua library yang dibutuhkan server dan membuat folder <code>node_modules</code>. Butuh koneksi internet.</p>
+        <div class="cmd-block">
+          <div class="cmd-label">Buka CMD di folder RuangTV-1, lalu ketik:</div>
+          <div class="cmd">npm install</div>
+          <button class="copy-btn" onclick="copyText('npm install')">Copy</button>
+        </div>
+        <div class="info-box">
+          Proses ini 1–3 menit tergantung koneksi internet.<br>
+          Setelah selesai akan muncul folder <strong>node_modules</strong> dan file <strong>package-lock.json</strong>.
+        </div>
+        <div class="cmd-block">
+          <div class="cmd-label">Jika ada error, coba ini:</div>
+          <div class="cmd">npm install --legacy-peer-deps</div>
+          <button class="copy-btn" onclick="copyText('npm install --legacy-peer-deps')">Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 6 -->
+    <div class="step">
+      <div class="step-head" onclick="toggle(6)">
+        <div class="step-num">6</div>
+        <div class="step-title">Jalankan Server</div>
+        <span class="step-tag tag-done">FINISH</span>
+        <svg class="chevron" id="chev-6" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="step-body" id="body-6">
+        <p class="step-desc">Setelah semua langkah di atas selesai, jalankan server dengan perintah berikut:</p>
+        <div class="cmd-block">
+          <div class="cmd-label">Opsi 1 — Double-click file:</div>
+          <div class="cmd">📄 START-RuangTV.bat <span class="dim">← double-click langsung</span></div>
+        </div>
+        <div class="cmd-block">
+          <div class="cmd-label">Opsi 2 — Via CMD:</div>
+          <div class="cmd">node server.js</div>
+          <button class="copy-btn" onclick="copyText('node server.js')">Copy</button>
+        </div>
+        <div class="cmd-block">
+          <div class="cmd-label">Jika server berhasil jalan, kamu akan melihat:</div>
+          <div class="cmd"><span class="g">╔══════════════════════════════════════════╗
+║        RuangTV Backend Server            ║
+╠══════════════════════════════════════════╣
+║  HTTP  → http://localhost:3001           ║
+║  WS    → ws://localhost:3001/ws          ║
+╚══════════════════════════════════════════╝</span>
+
+📺 TV Keys (pasang di Smart TV tiap cabang):
+  DMB: 04c4ab27ec783b37...
+  CTR: 8868d1ade23ccc32...
+  ...</div>
+        </div>
+
+        <p class="step-desc" style="margin-top:16px">Buka browser dan akses:</p>
+        <div class="kv-list">
+          <div class="kv"><div class="kv-key">Dashboard HO</div><div class="kv-val"><a href="http://localhost:3001" style="color:var(--y)">http://localhost:3001</a></div></div>
+          <div class="kv"><div class="kv-key">API Health</div><div class="kv-val"><a href="http://localhost:3001/health" style="color:var(--y)">http://localhost:3001/health</a></div></div>
+          <div class="kv"><div class="kv-key">Login</div><div class="kv-val">admin / ruangprint2025</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 7 -->
+    <div class="step">
+      <div class="step-head" onclick="toggle(7)">
+        <div class="step-num">7</div>
+        <div class="step-title">Setup Smart TV di Setiap Cabang</div>
+        <span class="step-tag tag-opt">SMART TV</span>
+        <svg class="chevron" id="chev-7" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="step-body" id="body-7">
+        <p class="step-desc">Setelah server jalan di laptop HO, Smart TV di setiap cabang perlu diarahkan ke server. Cara paling mudah: buka browser di Smart TV dan akses URL Player.</p>
+
+        <div class="cmd-block">
+          <div class="cmd-label">URL Player per cabang (ganti IP_LAPTOP_HO dengan IP Windows kamu)</div>
+          <div class="cmd"><span class="dim"># Cari IP laptop: buka CMD → ketik ipconfig → lihat IPv4</span>
+
+http://192.168.1.xxx:3001/ruangtv-player.html?branch=DMB
+http://192.168.1.xxx:3001/ruangtv-player.html?branch=CTR
+http://192.168.1.xxx:3001/ruangtv-player.html?branch=GDS
+http://192.168.1.xxx:3001/ruangtv-player.html?branch=CGK
+http://192.168.1.xxx:3001/ruangtv-player.html?branch=BKS</div>
+        </div>
+
+        <div class="info-box">
+          <strong>Syarat:</strong> Laptop HO dan Smart TV cabang harus terhubung ke internet yang sama (atau VPN), atau laptop HO harus punya IP publik.<br><br>
+          <strong>Untuk cabang berbeda kota:</strong> Deploy server ke VPS (cloud server) seperti Niagahoster, DigitalOcean, atau Railway.app — bisa dilihat di step berikutnya.
+        </div>
+
+        <div class="cmd-block">
+          <div class="cmd-label">Cari IP laptop kamu:</div>
+          <div class="cmd">ipconfig<br><span class="dim">→ Cari baris "IPv4 Address" → itu IP kamu</span></div>
+          <button class="copy-btn" onclick="copyText('ipconfig')">Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 8 -->
+    <div class="step">
+      <div class="step-head" onclick="toggle(8)">
+        <div class="step-num">8</div>
+        <div class="step-title">Deploy ke VPS (Untuk Cabang Berbeda Kota)</div>
+        <span class="step-tag tag-opt">OPSIONAL</span>
+        <svg class="chevron" id="chev-8" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="step-body" id="body-8">
+        <p class="step-desc">Kalau cabang ada di kota berbeda, server harus di-deploy ke VPS supaya bisa diakses dari mana saja. Rekomendasi yang paling mudah dan murah:</p>
+
+        <div class="kv-list" style="margin-bottom:16px">
+          <div class="kv"><div class="kv-key">Railway.app</div><div class="kv-val">Gratis ($5 credit/bulan) — paling mudah, deploy pakai GitHub</div></div>
+          <div class="kv"><div class="kv-key">Niagahoster VPS</div><div class="kv-val">~Rp 50-100rb/bulan — lokal Indonesia, latency rendah</div></div>
+          <div class="kv"><div class="kv-key">DigitalOcean Droplet</div><div class="kv-val">$6/bulan — stabil, banyak tutorial</div></div>
+        </div>
+
+        <div class="cmd-block">
+          <div class="cmd-label">Deploy ke VPS Linux (setelah punya server):</div>
+          <div class="cmd"><span class="dim"># 1. Upload file ke server</span>
+scp -r RuangTV-1/ user@IP_SERVER:/home/user/
+
+<span class="dim"># 2. Install Node.js di server</span>
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+<span class="dim"># 3. Install & jalankan</span>
+cd RuangTV-1 && npm install
+node server.js
+
+<span class="dim"># 4. Pakai PM2 (auto-restart)</span>
+npm install -g pm2
+pm2 start server.js --name ruangtv
+pm2 save && pm2 startup</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="success-box">
+    <div class="success-icon">
+      <svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+    </div>
+    <div>
+      <div class="success-title">Butuh Bantuan Lebih Lanjut?</div>
+      <div class="success-body">
+        Kalau ada error saat setup, screenshot pesan errornya dan tanyakan ke Claude.<br>
+        Step berikutnya: <a href="#">Sambungkan Frontend ke API</a> dan <a href="#">Update TV Player real-time</a>.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function toggle(n) {
+    const body = document.getElementById('body-' + n);
+    const chev = document.getElementById('chev-' + n);
+    body.classList.toggle('open');
+    chev.classList.toggle('open');
+  }
+
+  function copyText(text) {
+    navigator.clipboard.writeText(text).then(() => {
+      showCopied(event.target);
+    });
+  }
+
+  function copyId(id) {
+    const text = document.getElementById(id).innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      showCopied(event.target);
+    });
+  }
+
+  function showCopied(btn) {
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    btn.style.color = '#22C55E';
+    btn.style.borderColor = 'rgba(34,197,94,.3)';
+    setTimeout(() => {
+      btn.textContent = orig;
+      btn.style.color = '';
+      btn.style.borderColor = '';
+    }, 1500);
+  }
+
+  // Auto-open step 1
+  toggle(1);
+</script>
+</body>
+</html>
