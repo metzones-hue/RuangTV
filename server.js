@@ -32,7 +32,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Serve frontend static files (for production)
-const frontendPath = path.join(__dirname, '..', 'public');
+const frontendPath = path.join(__dirname, 'public');
 if (require('fs').existsSync(frontendPath)) {
   app.use(express.static(frontendPath));
 }
