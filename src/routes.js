@@ -132,8 +132,8 @@ router.delete('/branches/:code', requireAuth, (req, res) => {
   res.json({ message: `Cabang ${branch.code} berhasil dihapus` });
 });
 
-// GET /api/branches/:code/tv-key — generate TV pairing key
-router.get('/branches/:code/tv-key', requireAuth, (req, res) => {
+// GET /api/branches/:code/tv-key — public endpoint for TV player
+router.get('/branches/:code/tv-key', (req, res) => {
   const branch = get(`SELECT * FROM branches WHERE code = ?`, [req.params.code.toUpperCase()]);
   if (!branch) return res.status(404).json({ error: 'Cabang tidak ditemukan' });
   const tvKey = generateTvKey(branch.code);
@@ -397,23 +397,8 @@ router.post('/tv/command', requireAuth, (req, res) => {
   res.json({ message: sent ? `Perintah ${command} dikirim` : 'TV offline', sent });
 });
 
-// GET /api/tv/:code/playlist — get current playlist for a branch
-// Accepts both JWT (HO dashboard) and TV key (Smart TV player)
-router.get('/tv/:code/playlist', (req, res, next) => {
-  // Try TV key auth first
-  const tvKey = req.headers['x-tv-key'];
-  const branchCode = req.headers['x-branch-code'] || req.params.code;
-  if (tvKey) {
-    const { generateTvKey } = require('./auth');
-    const expectedKey = generateTvKey(branchCode.toUpperCase());
-    if (tvKey === expectedKey) {
-      req.user = { role: 'tv' };
-      return next();
-    }
-  }
-  // Fall back to JWT auth
-  requireAuth(req, res, next);
-}, (req, res) => {
+// GET /api/tv/:code/playlist — public endpoint for TV players
+router.get('/tv/:code/playlist', (req, res) => {
   const code = req.params.code.toUpperCase();
   const branch = get(`SELECT * FROM branches WHERE code = ?`, [code]);
   if (!branch) return res.status(404).json({ error: 'Cabang tidak ditemukan' });
