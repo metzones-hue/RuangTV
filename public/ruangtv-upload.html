@@ -303,6 +303,28 @@
   [style*="Barlow"], .topbar-title,
   .stat-num, .sec-title, .panel-title { }
 
+
+  /* ── EDIT MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.7);
+    z-index: 999; display: none; align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 28px 32px;
+    width: 100%; max-width: 440px;
+    box-shadow: 0 24px 80px rgba(0,0,0,.5);
+  }
+  .modal-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px; font-weight: 700; letter-spacing: .04em;
+    margin-bottom: 20px; color: var(--text);
+  }
+  .modal-footer { display: flex; gap: 10px; margin-top: 20px; }
+  .modal-footer .btn { flex: 1; justify-content: center; }
+
 </style>
 </head>
 <body>
@@ -698,6 +720,46 @@
     }
   }
 
+
+  // ── EDIT FUNCTIONS ──────────────────────────────────────
+  function openEdit(id, name, duration, category, targets) {
+    document.getElementById('edit-id').value = id;
+    document.getElementById('edit-name').value = name;
+    document.getElementById('edit-duration').value = duration;
+    document.getElementById('edit-category').value = category || 'promo';
+    document.getElementById('edit-targets').value = targets || 'ALL';
+    document.getElementById('edit-modal').classList.add('show');
+  }
+
+  function closeEdit() {
+    document.getElementById('edit-modal').classList.remove('show');
+  }
+
+  async function saveEdit() {
+    const id       = document.getElementById('edit-id').value;
+    const name     = document.getElementById('edit-name').value.trim();
+    const duration = parseInt(document.getElementById('edit-duration').value);
+    const category = document.getElementById('edit-category').value;
+    const targets  = document.getElementById('edit-targets').value.trim().toUpperCase();
+
+    if (!name) { API.toast('Nama konten wajib diisi', 'error'); return; }
+    if (!duration || duration < 5) { API.toast('Durasi minimal 5 detik', 'error'); return; }
+
+    try {
+      await API.contents.update(id, { name, duration, category, targets });
+      API.toast('✓ Konten berhasil diupdate!', 'success');
+      closeEdit();
+      loadContents();
+    } catch(e) {
+      API.toast('Gagal update: ' + e.message, 'error');
+    }
+  }
+
+  // Close modal on overlay click
+  document.getElementById('edit-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeEdit();
+  });
+
   // ── Load Library ──────────────────────────────────────────
   async function loadContents(filterStatus = 'all') {
     try {
@@ -766,6 +828,9 @@
           <div class="lib-foot">
             ${statusBadge[c.status] || statusBadge.draft}
             <div class="lib-actions">
+              <div class="lib-btn" title="Edit" onclick="openEdit('${c.id}','${c.name.replace(/'/g,"\'")}','${c.duration}','${c.category}','${c.targets||'ALL'}')">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+              </div>
               ${c.status !== 'live'
                 ? `<div class="lib-btn" title="Publish" onclick="publishContent('${c.id}')">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 13l4 4L19 7"/></svg>
@@ -850,5 +915,43 @@
   try { applyTheme(localStorage.getItem(THEME_KEY) || 'dark'); } catch(e){ applyTheme('dark'); }
 
 </script>
+
+<!-- EDIT CONTENT MODAL -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal-box">
+    <div class="modal-title">✏️ Edit Konten</div>
+    <input type="hidden" id="edit-id">
+    <div class="form-group">
+      <label class="form-label">Nama Konten</label>
+      <input type="text" class="form-input" id="edit-name" placeholder="Nama konten">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Durasi Tayang (detik)</label>
+      <input type="number" class="form-input" id="edit-duration" min="5" max="300" placeholder="30">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Kategori</label>
+      <select class="form-select" id="edit-category">
+        <option value="promo">Promo / Iklan Utama</option>
+        <option value="discount">Diskon / Penawaran</option>
+        <option value="menu">Menu / Daftar Layanan</option>
+        <option value="info">Info / Edukasi Pelanggan</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Target Cabang</label>
+      <input type="text" class="form-input" id="edit-targets" placeholder="ALL atau DMB,CTR,GDS">
+      <div style="font-size:11px;color:var(--text3);margin-top:4px">Gunakan ALL untuk semua cabang, atau pisahkan dengan koma: DMB,CTR</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeEdit()">Batal</button>
+      <button class="btn btn-yellow" onclick="saveEdit()">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 13l4 4L19 7"/></svg>
+        Simpan
+      </button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
