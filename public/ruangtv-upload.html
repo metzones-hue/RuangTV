@@ -758,7 +758,7 @@
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                    </div>`
               }
-              <div class="lib-btn" title="Hapus" onclick="deleteContent('${c.id}','${c.name.replace(/'/g,\`'\`)}')">
+              <div class="lib-btn" title="Hapus" onclick="deleteContent(this)" data-id="${c.id}" data-name="${c.name.replace(/"/g,'&quot;')}">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
               </div>
             </div>
@@ -783,11 +783,18 @@
     } catch(e) { API.toast(e.message, 'error'); }
   }
 
-  async function deleteContent(id, name) {
-    if (!confirm(`Hapus konten "${name}"?`)) return;
+  async function deleteContent(elOrId, name) {
+    let id, contentName;
+    if (typeof elOrId === 'string') {
+      id = elOrId; contentName = name;
+    } else {
+      id = elOrId.dataset.id;
+      contentName = elOrId.dataset.name || 'konten ini';
+    }
+    if (!confirm('Hapus konten "' + contentName + '"?')) return;
     try {
       await API.contents.delete(id);
-      API.toast(`${name} dihapus`, 'info');
+      API.toast(contentName + ' dihapus', 'info');
       loadContents();
     } catch(e) { API.toast(e.message, 'error'); }
   }
