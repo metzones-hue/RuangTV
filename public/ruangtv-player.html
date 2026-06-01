@@ -201,6 +201,9 @@
     <div class="ctrl-btn" onclick="prevSlide()"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></div>
     <div class="ctrl-btn" onclick="togglePause()" id="pause-btn"><svg viewBox="0 0 24 24" id="pause-icon"><path d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
     <div class="ctrl-btn" onclick="nextSlide()"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+    <div class="ctrl-btn" onclick="toggleMute()" id="mute-btn" title="Mute/Unmute">
+      <svg id="mute-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M15.536 8.464a5 5 0 010 7.072M12 6v12l-5-4H4V10h3l5-4zM18.364 5.636a9 9 0 010 12.728"/></svg>
+    </div>
   </div>
 
   <!-- THEME TOGGLE -->
@@ -433,6 +436,32 @@
     applyTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
   }
   try { applyTheme(localStorage.getItem('ruangtv-theme') || 'dark'); } catch { applyTheme('dark'); }
+
+  // ── MUTE TOGGLE ─────────────────────────────────────────
+  let muted = true;
+  function toggleMute() {
+    muted = !muted;
+    const vid = document.getElementById('media-video');
+    vid.muted = muted;
+    if (!muted) vid.volume = 1;
+    const icon = document.getElementById('mute-icon');
+    icon.innerHTML = muted
+      ? '<path d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15zM17 14l-2-2m0 0l-2-2m2 2l2-2m-2 2l-2 2"/>'
+      : '<path d="M15.536 8.464a5 5 0 010 7.072M12 6v12l-5-4H4V10h3l5-4zM18.364 5.636a9 9 0 010 12.728"/>';
+  }
+
+  // Auto unmute on first click anywhere
+  document.getElementById('player').addEventListener('click', function onFirstClick() {
+    const vid = document.getElementById('media-video');
+    if (vid && muted) {
+      muted = false;
+      vid.muted = false;
+      vid.volume = 1;
+      const icon = document.getElementById('mute-icon');
+      if (icon) icon.innerHTML = '<path d="M15.536 8.464a5 5 0 010 7.072M12 6v12l-5-4H4V10h3l5-4zM18.364 5.636a9 9 0 010 12.728"/>';
+    }
+    this.removeEventListener('click', onFirstClick);
+  }, { once: true });
 
   // ── INIT ─────────────────────────────────────────────────
   fetchPlaylist();
