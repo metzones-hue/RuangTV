@@ -18,17 +18,21 @@ const PORT = process.env.PORT || 3001;
 // ── Middleware ────────────────────────────────────────────────────────────────
 app.use(cors({
   origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-TV-Key', 'X-Branch-Code'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-TV-Key', 'X-Branch-Code', 'Accept'],
+  credentials: false,
 }));
+
+// Handle preflight
+app.options('*', cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // Serve uploaded files
-app.use('/uploads', express.static(process.env.UPLOAD_DIR || path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Serve frontend static files (for production)
-const frontendPath = path.join(__dirname, 'public');
+const frontendPath = path.join(__dirname, '..', 'public');
 if (require('fs').existsSync(frontendPath)) {
   app.use(express.static(frontendPath));
 }
