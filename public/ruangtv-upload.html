@@ -722,12 +722,17 @@
 
 
   // ── EDIT FUNCTIONS ──────────────────────────────────────
-  function openEdit(id, name, duration, category, targets) {
-    document.getElementById('edit-id').value = id;
-    document.getElementById('edit-name').value = name;
-    document.getElementById('edit-duration').value = duration;
+  function openEdit(el) {
+    const id       = typeof el === 'string' ? el : el.dataset.id;
+    const name     = typeof el === 'string' ? arguments[1] : el.dataset.name;
+    const duration = typeof el === 'string' ? arguments[2] : el.dataset.duration;
+    const category = typeof el === 'string' ? arguments[3] : el.dataset.category;
+    const targets  = typeof el === 'string' ? arguments[4] : el.dataset.targets;
+    document.getElementById('edit-id').value       = id;
+    document.getElementById('edit-name').value     = name || '';
+    document.getElementById('edit-duration').value = duration || 30;
     document.getElementById('edit-category').value = category || 'promo';
-    document.getElementById('edit-targets').value = targets || 'ALL';
+    document.getElementById('edit-targets').value  = targets || 'ALL';
     document.getElementById('edit-modal').classList.add('show');
   }
 
@@ -828,16 +833,12 @@
           <div class="lib-foot">
             ${statusBadge[c.status] || statusBadge.draft}
             <div class="lib-actions">
-              <div class="lib-btn" title="Edit" onclick="openEdit('${c.id}','${c.name.replace(/'/g,"\'")}','${c.duration}','${c.category}','${c.targets||'ALL'}')">
+              <div class="lib-btn" title="Edit" onclick="openEdit(this)" data-id="${c.id}" data-name="${c.name.replace(/"/g,'&quot;')}" data-duration="${c.duration}" data-category="${c.category||'promo'}" data-targets="${c.targets||'ALL'}">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
               </div>
               ${c.status !== 'live'
-                ? `<div class="lib-btn" title="Publish" onclick="publishContent('${c.id}')">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 13l4 4L19 7"/></svg>
-                   </div>`
-                : `<div class="lib-btn" title="Unpublish" onclick="unpublishContent('${c.id}')">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                   </div>`
+                ? `<div class="lib-btn" title="Publish" onclick="publishContent('${c.id}')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 13l4 4L19 7"/></svg></div>`
+                : `<div class="lib-btn" title="Unpublish" onclick="unpublishContent('${c.id}')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>`
               }
               <div class="lib-btn" title="Hapus" onclick="deleteContent(this)" data-id="${c.id}" data-name="${c.name.replace(/"/g,'&quot;')}">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
