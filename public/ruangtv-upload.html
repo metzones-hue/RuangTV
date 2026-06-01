@@ -330,11 +330,11 @@
       <div class="topbar-sub">Upload, kelola, dan distribusi konten ke semua cabang</div>
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
-      <button class="btn btn-outline">
+      <button class="btn btn-outline" onclick="window.open('ruangtv-template-maker.html','_blank')">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4v16m8-8H4"/></svg>
         Buat Slide Baru
       </button>
-      <button class="btn btn-yellow" onclick="triggerUpload()">
+      <button class="btn btn-yellow" id="upload-trigger-btn" onclick="triggerUpload()">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
         Upload File
       </button>
