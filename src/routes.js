@@ -398,7 +398,22 @@ router.post('/tv/command', requireAuth, (req, res) => {
 });
 
 // GET /api/tv/:code/playlist — get current playlist for a branch
-router.get('/tv/:code/playlist', requireAuth, (req, res) => {
+// Accepts both JWT (HO dashboard) and TV key (Smart TV player)
+router.get('/tv/:code/playlist', (req, res, next) => {
+  // Try TV key auth first
+  const tvKey = req.headers['x-tv-key'];
+  const branchCode = req.headers['x-branch-code'] || req.params.code;
+  if (tvKey) {
+    const { generateTvKey } = require('./auth');
+    const expectedKey = generateTvKey(branchCode.toUpperCase());
+    if (tvKey === expectedKey) {
+      req.user = { role: 'tv' };
+      return next();
+    }
+  }
+  // Fall back to JWT auth
+  requireAuth(req, res, next);
+}, (req, res) => {
   const code = req.params.code.toUpperCase();
   const branch = get(`SELECT * FROM branches WHERE code = ?`, [code]);
   if (!branch) return res.status(404).json({ error: 'Cabang tidak ditemukan' });

@@ -450,10 +450,21 @@
   // ── Fetch playlist from API on load ──────────────────────
   async function fetchPlaylist() {
     try {
+      // Get TV key first for auth
+      const keyRes = await fetch(`${SERVER}/api/branches/${BRANCH_CODE}/tv-key`);
+      const keyData = await keyRes.json().catch(() => ({}));
+      const tvKey = keyData.tvKey || '';
+
       const res = await fetch(`${SERVER}/api/tv/${BRANCH_CODE}/playlist`, {
-        headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('ruangtv_token') || '') }
+        headers: {
+          'X-TV-Key': tvKey,
+          'X-Branch-Code': BRANCH_CODE,
+        }
       });
-      if (!res.ok) return;
+      if (!res.ok) {
+        console.log('Playlist fetch failed:', res.status);
+        return;
+      }
       const data = await res.json();
       if (data.playlist && data.playlist.length > 0) {
         // Replace slides with real data from API
