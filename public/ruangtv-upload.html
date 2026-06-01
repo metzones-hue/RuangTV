@@ -770,71 +770,78 @@
 
   function renderLibrary(list, filterStatus) {
     filterStatus = filterStatus || 'all';
-    const grid = document.getElementById('lib-grid');
+    var grid = document.getElementById('lib-grid');
     if (!grid) return;
-
-    const filtered = filterStatus === 'all' ? list : list.filter(function(c){ return c.status === filterStatus; });
-    const SERVER = 'https://ruangtv-production.up.railway.app';
-    const catColor = { promo:'rgba(255,179,0,.5)', discount:'rgba(245,158,11,.5)', menu:'rgba(34,197,94,.5)', info:'rgba(99,102,241,.5)' };
-
-    function getThumb(c) {
-      if (c.file_url) {
-        var url = SERVER + c.file_url;
-        var ext = (c.file_url.split('.').pop() || '').toLowerCase();
-        if (['jpg','jpeg','png','gif','webp'].indexOf(ext) >= 0)
-          return '<img src="' + url + '" style="width:100%;height:100%;object-fit:cover" onerror="this.parentNode.style.background='var(--bg3)'">';
-        if (['mp4','mov','webm'].indexOf(ext) >= 0)
-          return '<video src="' + url + '" style="width:100%;height:100%;object-fit:cover" muted preload="metadata"></video>';
-      }
-      var col = catColor[c.category] || 'rgba(99,102,241,.5)';
-      return '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" width="36" height="36" fill="' + col + '"><path d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.9L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg></div>';
-    }
+    var SERVER = 'https://ruangtv-production.up.railway.app';
+    var filtered = filterStatus === 'all' ? list : list.filter(function(c){ return c.status === filterStatus; });
 
     if (filtered.length === 0) {
       grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text3)">Belum ada konten</div>';
       return;
     }
 
-    grid.innerHTML = filtered.map(function(c) {
-      var id   = c.id;
-      var name = (c.name||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-      var dur  = c.duration || 30;
-      var cat  = c.category || 'promo';
-      var tgt  = c.targets || 'ALL';
+    var cards = filtered.map(function(c) {
+      var id  = c.id || '';
+      var dur = c.duration || 30;
+      var cat = c.category || 'promo';
+      var tgt = c.targets || 'ALL';
+      var nm  = (c.name || '').replace(/\\/g,'').replace(/'/g,'').replace(/"/g,'');
 
-      var overlay = c.status === 'live'
-        ? '<div style="position:absolute;top:8px;right:8px;background:rgba(34,197,94,.92);border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700;color:#fff;z-index:2">● LIVE</div>'
-        : c.status === 'scheduled'
-        ? '<div style="position:absolute;top:8px;right:8px;background:rgba(99,102,241,.92);border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700;color:#fff;z-index:2">SCHED</div>'
-        : '';
+      // Thumbnail
+      var thumb = '';
+      if (c.file_url) {
+        var url = SERVER + c.file_url;
+        var ext = c.file_url.split('.').pop().toLowerCase();
+        if (['jpg','jpeg','png','gif','webp'].indexOf(ext) >= 0) {
+          thumb = '<img src="' + url + '" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'">';
+        } else if (['mp4','mov','webm'].indexOf(ext) >= 0) {
+          thumb = '<video src="' + url + '" style="width:100%;height:100%;object-fit:cover" muted preload="metadata"></video>';
+        }
+      }
+      if (!thumb) {
+        var colors = {promo:'rgba(255,179,0,.4)',discount:'rgba(245,158,11,.4)',menu:'rgba(34,197,94,.4)',info:'rgba(99,102,241,.4)'};
+        var col = colors[cat] || 'rgba(99,102,241,.4)';
+        thumb = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--bg3)"><svg viewBox="0 0 24 24" width="40" height="40" fill="' + col + '"><path d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.9L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg></div>';
+      }
 
-      var badge = c.status === 'live'
-        ? '<span class="lib-status ls-live">Live</span>'
-        : c.status === 'scheduled'
-        ? '<span class="lib-status ls-sched">Terjadwal</span>'
-        : '<span class="lib-status ls-draft">Draft</span>';
+      // Status overlay
+      var overlay = '';
+      if (c.status === 'live') overlay = '<div style="position:absolute;top:8px;right:8px;background:rgba(34,197,94,.9);border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700;color:#fff;z-index:2">● LIVE</div>';
+      else if (c.status === 'scheduled') overlay = '<div style="position:absolute;top:8px;right:8px;background:rgba(99,102,241,.9);border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700;color:#fff;z-index:2">SCHED</div>';
 
-      var publishBtn = c.status !== 'live'
-        ? '<div class="lib-btn" title="Publish" onclick="publishContent('' + id + '')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 13l4 4L19 7"/></svg></div>'
-        : '<div class="lib-btn" title="Unpublish" onclick="unpublishContent('' + id + '')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>';
+      // Status badge
+      var badge = c.status === 'live' ? '<span class="lib-status ls-live">Live</span>'
+                : c.status === 'scheduled' ? '<span class="lib-status ls-sched">Terjadwal</span>'
+                : '<span class="lib-status ls-draft">Draft</span>';
 
-      return '<div class="lib-card" data-status="' + c.status + '">' +
-        '<div style="position:relative;height:130px;overflow:hidden;background:var(--bg3);border-radius:8px 8px 0 0">' + getThumb(c) + overlay + '</div>' +
-        '<div class="lib-body">' +
-          '<div class="lib-name">' + (c.name||'') + '</div>' +
-          '<div class="lib-meta">' + API.fmt.category(cat) + ' · ' + dur + ' dtk · ' + (c.file_size ? API.fmt.fileSize(c.file_size) : 'No file') + '</div>' +
-          '<div class="lib-foot">' + badge +
-            '<div class="lib-actions">' +
-              '<div class="lib-btn" title="Edit" onclick="openEdit('' + id + '','' + name + '',' + dur + ','' + cat + '','' + tgt + '')">' +
-                '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></div>' +
-              publishBtn +
-              '<div class="lib-btn" title="Hapus" onclick="deleteContent('' + id + '','' + name + '')">' +
-                '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></div>' +
-            '</div>' +
-          '</div>' +
-        '</div>' +
-      '</div>';
-    }).join('');
+      // Edit btn
+      var editBtn = '<div class="lib-btn" title="Edit" style="cursor:pointer" onclick="openEdit(\'' + id + '\',\'' + nm + '\',' + dur + ',\'' + cat + '\',\'' + tgt + '\')">'
+                  + '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></div>';
+
+      // Publish/Unpublish btn
+      var pubBtn = c.status !== 'live'
+        ? '<div class="lib-btn" title="Publish" style="cursor:pointer" onclick="publishContent(\'' + id + '\')">'
+          + '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 13l4 4L19 7"/></svg></div>'
+        : '<div class="lib-btn" title="Unpublish" style="cursor:pointer" onclick="unpublishContent(\'' + id + '\')">'
+          + '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>';
+
+      // Delete btn
+      var delBtn = '<div class="lib-btn" title="Hapus" style="cursor:pointer" onclick="deleteContent(\'' + id + '\',\'' + nm + '\')">'
+                 + '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></div>';
+
+      return '<div class="lib-card" style="cursor:default">'
+           + '<div style="position:relative;height:130px;overflow:hidden;background:var(--bg3);border-radius:8px 8px 0 0">' + thumb + overlay + '</div>'
+           + '<div class="lib-body">'
+           + '<div class="lib-name">' + (c.name||'') + '</div>'
+           + '<div class="lib-meta">' + API.fmt.category(cat) + ' · ' + dur + ' dtk · ' + (c.file_size ? API.fmt.fileSize(c.file_size) : 'No file') + '</div>'
+           + '<div class="lib-foot">' + badge
+           + '<div class="lib-actions">' + editBtn + pubBtn + delBtn + '</div>'
+           + '</div>'
+           + '</div>'
+           + '</div>';
+    });
+
+    grid.innerHTML = cards.join('');
   }
 
     async function publishContent(id) {
