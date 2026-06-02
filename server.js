@@ -4,6 +4,9 @@ const express = require('express');
 const cors = require('cors');
 const http = require('http');
 const path = require('path');
+const morgan = require('morgan');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 const { initDb } = require('./src/database');
 const { initWebSocket, registerHO, broadcastToHO } = require('./src/websocket');
@@ -14,6 +17,16 @@ const app = express();
 const server = http.createServer(app);
 
 const PORT = process.env.PORT || 3001;
+const isDev = process.env.NODE_ENV !== 'production';
+
+// ── Security headers (Helmet) ─────────────────────────────────────────────────
+app.use(helmet({
+  contentSecurityPolicy: false,   // dimatikan agar tidak break frontend yang ada
+  crossOriginEmbedderPolicy: false,
+}));
+
+// ── Request logger ────────────────────────────────────────────────────────────
+app.use(morgan(isDev ? 'dev' : 'combined'));
 
 // ── Middleware ────────────────────────────────────────────────────────────────
 app.use(cors({
@@ -36,6 +49,16 @@ const frontendPath = path.join(__dirname, 'public');
 if (require('fs').existsSync(frontendPath)) {
   app.use(express.static(frontendPath));
 }
+
+// ── Rate limiting (hanya /api, tidak ganggu WS atau static) ──────────────────
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000,   // 1 menit
+  max: 120,              // 120 request per IP per menit
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Terlalu banyak request, coba lagi sebentar.' },
+});
+app.use('/api', apiLimiter);
 
 // ── API Routes ────────────────────────────────────────────────────────────────
 app.use('/api', routes);
@@ -119,3 +142,15 @@ async function start() {
 }
 
 start();
+
+// ── Graceful shutdown ─────────────────────────────────────────────────────────
+function shutdown(signal) {
+  console.log(`\n[${signal}] Menutup server...`);
+  server.close(() => {
+    console.log('Server tertutup.');
+    process.exit(0);
+  });
+  setTimeout(() => process.exit(1), 10000).unref();
+}
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT',  () => shutdown('SIGINT'));
