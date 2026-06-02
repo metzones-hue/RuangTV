@@ -1,0 +1,113 @@
+/**
+ * RuangTV Design Tokens
+ * Sumber tunggal untuk semua nilai desain — warna, font, radius, animasi.
+ * Import file ini di setiap halaman sebelum stylesheet lainnya.
+ */
+
+:root {
+  /* ── BRAND COLORS ── */
+  --yellow:      #FFB300;
+  --yellow-dim:  rgba(255,179,0,0.12);
+  --yellow-mid:  rgba(255,179,0,0.25);
+  --yellow-glow: rgba(255,179,0,0.08);
+  --yellow-hover:rgba(255,179,0,0.04);
+
+  /* ── BACKGROUNDS ── */
+  --black: #000000;
+  --bg:    #0A0A0A;
+  --bg2:   #111111;
+  --bg3:   #181818;
+  --bg4:   #222222;
+
+  /* ── BORDERS ── */
+  --border:   rgba(255,255,255,0.07);
+  --border-y: rgba(255,179,0,0.30);
+
+  /* ── TEXT ── */
+  --text:  #FFFFFF;
+  --text2: rgba(255,255,255,0.55);
+  --text3: rgba(255,255,255,0.28);
+
+  /* ── SEMANTIC COLORS ── */
+  --green:  #22C55E;
+  --red:    #EF4444;
+  --orange: #F59E0B;
+  --indigo: #818CF8;
+
+  /* ── SEMANTIC ALPHA ── */
+  --green-dim:  rgba(34,197,94,0.10);
+  --green-border: rgba(34,197,94,0.20);
+  --red-dim:    rgba(239,68,68,0.10);
+  --red-border: rgba(239,68,68,0.20);
+  --orange-dim: rgba(245,158,11,0.10);
+  --orange-border: rgba(245,158,11,0.20);
+  --indigo-dim: rgba(99,102,241,0.15);
+  --indigo-border: rgba(99,102,241,0.20);
+
+  /* ── RADIUS ── */
+  --radius:    12px;
+  --radius-sm: 8px;
+  --radius-xs: 5px;
+
+  /* ── TYPOGRAPHY ── */
+  --font-display: 'Syne', sans-serif;
+  --font-body:    'DM Sans', sans-serif;
+
+  /* ── TRANSITIONS ── */
+  --transition-fast:   all 0.15s ease;
+  --transition-base:   all 0.20s ease;
+  --transition-slow:   all 0.30s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ── Z-INDEX ── */
+  --z-sidebar:  100;
+  --z-topbar:    50;
+  --z-modal:    200;
+  --z-toast:    300;
+
+  /* ── SPACING ── */
+  --sidebar-width:        64px;
+  --sidebar-width-hover: 200px;
+  --topbar-height:        60px;
+  --content-padding:      28px;
+}
+
+/* ── GLOBAL RESET ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar        { width: 5px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: rgba(255,255,255,0.10); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.20); }
+
+/* ── KEYFRAMES (shared) ── */
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.60); }
+  50%       { box-shadow: 0 0 0 5px rgba(34,197,94,0);  }
+}
+
+@keyframes pulse-text {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.60; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes progress-anim {
+  from { width: 0%;   }
+  to   { width: 100%; }
+}
+
+/* ── ANIMATION UTILITIES ── */
+.fade-in  { animation: fadeIn 0.4s ease both; }
+.delay-1  { animation-delay: 0.05s; }
+.delay-2  { animation-delay: 0.10s; }
+.delay-3  { animation-delay: 0.15s; }
+.delay-4  { animation-delay: 0.20s; }
