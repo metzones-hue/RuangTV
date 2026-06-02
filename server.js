@@ -19,6 +19,9 @@ const server = http.createServer(app);
 const PORT = process.env.PORT || 3001;
 const isDev = process.env.NODE_ENV !== 'production';
 
+// Railway & reverse proxy: percayai X-Forwarded-For header
+app.set('trust proxy', 1);
+
 // ── Security headers (Helmet) ─────────────────────────────────────────────────
 app.use(helmet({
   contentSecurityPolicy: false,   // dimatikan agar tidak break frontend yang ada
