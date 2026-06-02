@@ -4,8 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RuangTV Player</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- REMOVED: font base64 embed (was causing ~1MB overhead) — now using Google Fonts CDN -->
 <style>
-/* === EMBEDDED FONTS === */
+/* === EMBEDDED FONTS (kept as fallback for offline) === */
 @font-face {
   font-family: 'Barlow Condensed';
   font-style: normal;
@@ -329,8 +333,10 @@
   // ── CONFIG ──────────────────────────────────────────────
   const params   = new URLSearchParams(location.search);
   const BRANCH   = (params.get('branch') || 'DMB').toUpperCase();
-  const SERVER   = 'https://ruangtv-production.up.railway.app';
+  // Auto-detect server URL — tidak lagi hardcoded!
+  const SERVER   = window.RUANGTV_SERVER_URL || window.location.origin;
   const REFRESH  = 300000; // refresh playlist every 5 min
+  const CACHE_KEY = `ruangtv_playlist_${BRANCH}`;
 
   document.getElementById('branch-badge').textContent = BRANCH;
   document.title = 'RuangTV Player — ' + BRANCH;
@@ -343,43 +349,92 @@
   let lastTs   = null;
   let rafId    = null;
 
+  // ── OFFLINE CACHE ────────────────────────────────────────
+  function savePlaylistCache(pl) {
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), playlist: pl }));
+    } catch {}
+  }
+
+  function loadPlaylistCache() {
+    try {
+      const raw = localStorage.getItem(CACHE_KEY);
+      if (!raw) return null;
+      const { ts, playlist: pl } = JSON.parse(raw);
+      // Cache valid selama 24 jam
+      if (Date.now() - ts < 86400000 && pl && pl.length > 0) return pl;
+    } catch {}
+    return null;
+  }
+
+  function applyPlaylist(pl, fromCache = false) {
+    playlist = pl.map(c => ({
+      id:      c.id,
+      name:    c.name,
+      dur:     Math.max(5, c.duration || c.dur || 10),
+      fileUrl: c.fileUrl || (c.file_url ? SERVER + c.file_url : null),
+      ext:     c.ext || (c.file_url ? c.file_url.split('.').pop().toLowerCase() : null),
+    }));
+
+    console.log(`${fromCache ? '📦 Cache' : '✅ Server'} Playlist:`, playlist.length, 'konten untuk', BRANCH);
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('no-content').style.display = 'none';
+
+    if (fromCache) {
+      // Tampilkan indikator offline
+      const badge = document.getElementById('branch-badge');
+      if (badge) badge.title = 'Mode Offline — menampilkan konten terakhir';
+    }
+
+    current = 0; elapsed = 0; lastTs = null;
+    showSlide(0);
+    buildPlaylistUI();
+    if (!rafId) startLoop();
+  }
+
   // ── FETCH PLAYLIST ───────────────────────────────────────
   async function fetchPlaylist() {
     try {
-      const res  = await fetch(`${SERVER}/api/tv/${BRANCH}/playlist`);
+      const res  = await fetch(`${SERVER}/api/tv/${BRANCH}/playlist`, {
+        signal: AbortSignal.timeout ? AbortSignal.timeout(10000) : undefined,
+      });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
 
       if (data.playlist && data.playlist.length > 0) {
-        playlist = data.playlist.map(c => ({
-          id:      c.id,
-          name:    c.name,
-          dur:     Math.max(5, c.duration || 10),
-          fileUrl: c.file_url ? SERVER + c.file_url : null,
-          ext:     c.file_url ? c.file_url.split('.').pop().toLowerCase() : null,
-        }));
-
-        console.log('✅ Playlist:', playlist.length, 'konten untuk', BRANCH);
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('no-content').style.display = 'none';
-
-        // Reset to first slide
-        current = 0; elapsed = 0; lastTs = null;
-        showSlide(0);
-        buildPlaylistUI();
-
-        if (!rafId) startLoop();
+        // Simpan ke cache untuk offline fallback
+        savePlaylistCache(data.playlist.map(c => ({
+          id: c.id, name: c.name, dur: c.duration || 10,
+          file_url: c.file_url, ext: c.file_url ? c.file_url.split('.').pop().toLowerCase() : null,
+        })));
+        applyPlaylist(data.playlist);
       } else {
         console.log('ℹ️ Tidak ada konten Live untuk', BRANCH);
         document.getElementById('loading').style.display = 'none';
-        document.getElementById('no-content').style.display = 'flex';
+        // Coba load dari cache jika tidak ada konten live
+        const cached = loadPlaylistCache();
+        if (cached) {
+          console.log('📦 Menggunakan cache karena tidak ada konten live');
+          applyPlaylist(cached, true);
+        } else {
+          document.getElementById('no-content').style.display = 'flex';
+        }
       }
     } catch(e) {
       console.error('Fetch playlist error:', e.message);
       document.getElementById('loading').style.display = 'none';
+
+      // ── OFFLINE FALLBACK: gunakan cache terakhir ──────────
       if (playlist.length === 0) {
-        document.getElementById('no-content').style.display = 'flex';
+        const cached = loadPlaylistCache();
+        if (cached) {
+          console.log('📦 Server tidak tersedia — menggunakan cache offline');
+          applyPlaylist(cached, true);
+        } else {
+          document.getElementById('no-content').style.display = 'flex';
+        }
       }
+      // Jika sudah ada playlist berjalan, biarkan terus berjalan
     }
   }
 
@@ -476,38 +531,70 @@
       </div>`).join('');
   }
 
-  // ── WEBSOCKET ────────────────────────────────────────────
+  // ── WEBSOCKET dengan Exponential Backoff ─────────────────
+  let wsRetryDelay = 2000;
+  let wsManualClose = false;
+  let heartbeatTimer = null;
+
   async function connectWS() {
+    if (wsManualClose) return;
     try {
       const r    = await fetch(`${SERVER}/api/branches/${BRANCH}/tv-key`);
       const data = await r.json();
-      if (!data.tvKey) return;
+      if (!data.tvKey) { scheduleWsReconnect(); return; }
 
-      const ws = new WebSocket(`wss://ruangtv-production.up.railway.app/ws?branch=${BRANCH}&key=${data.tvKey}`);
+      // Auto-detect WS protocol (ws:// atau wss://)
+      const wsProto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsHost  = window.RUANGTV_WS_HOST || window.location.host;
+      const ws = new WebSocket(`${wsProto}//${wsHost}/ws?branch=${BRANCH}&key=${data.tvKey}`);
 
       ws.onopen = () => {
         console.log('📺 WS connected:', BRANCH);
-        setInterval(() => {
-          if (ws.readyState === 1) ws.send(JSON.stringify({ type: 'HEARTBEAT' }));
+        wsRetryDelay = 2000; // reset delay
+        // Heartbeat setiap 30 detik
+        if (heartbeatTimer) clearInterval(heartbeatTimer);
+        heartbeatTimer = setInterval(() => {
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: 'HEARTBEAT' }));
+          }
         }, 30000);
       };
 
       ws.onmessage = (e) => {
         try {
           const msg = JSON.parse(e.data);
-          if (msg.type === 'PLAYLIST_UPDATE' || msg.type === 'PUSH_CONTENT') fetchPlaylist();
+          if (msg.type === 'PLAYLIST_UPDATE' || msg.type === 'PUSH_CONTENT') {
+            fetchPlaylist();
+          }
           if (msg.type === 'COMMAND') {
             if (msg.command === 'RELOAD')   location.reload();
             if (msg.command === 'NEXT')     nextSlide();
+            if (msg.command === 'PREV')     prevSlide();
             if (msg.command === 'RESTART')  goTo(0);
+            if (msg.command === 'PAUSE')    { if (!paused) togglePause(); }
+            if (msg.command === 'RESUME')   { if (paused) togglePause(); }
           }
         } catch {}
       };
 
-      ws.onclose = () => setTimeout(connectWS, 5000);
+      ws.onclose = () => {
+        if (heartbeatTimer) { clearInterval(heartbeatTimer); heartbeatTimer = null; }
+        if (!wsManualClose) scheduleWsReconnect();
+      };
+
+      ws.onerror = () => {}; // onclose akan handle reconnect
+
     } catch(e) {
-      setTimeout(connectWS, 10000);
+      console.warn('WS connect error:', e.message);
+      scheduleWsReconnect();
     }
+  }
+
+  function scheduleWsReconnect() {
+    setTimeout(() => {
+      wsRetryDelay = Math.min(wsRetryDelay * 2, 60000); // max 60 detik
+      connectWS();
+    }, wsRetryDelay);
   }
 
   // ── CLOCK ────────────────────────────────────────────────

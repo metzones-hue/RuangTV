@@ -1,15 +1,25 @@
 // ============================================================
-//  RuangTV — API Client & Auth Layer v1.0
+//  RuangTV — API Client & Auth Layer v2.0
 //  Include di semua halaman: <script src="ruangtv-api.js"></script>
 // ============================================================
 const API = (() => {
-  const BASE = 'http://localhost:3001/api';
-  const WS_BASE = 'ws://localhost:3001/ws';
+  // ── Auto-detect server URL (no more hardcoded localhost!) ──────────────────
+  const BASE_URL = window.RUANGTV_API_URL || window.location.origin;
+  const BASE = BASE_URL + '/api';
+
+  const WS_PROTOCOL = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const WS_HOST = (window.RUANGTV_WS_URL || window.location.host);
+  const WS_BASE = `${WS_PROTOCOL}//${WS_HOST}`;
 
   const getToken = () => localStorage.getItem('ruangtv_token');
   const setToken = t => localStorage.setItem('ruangtv_token', t);
-  const clearToken = () => { localStorage.removeItem('ruangtv_token'); localStorage.removeItem('ruangtv_user'); };
-  const getUser = () => { try { return JSON.parse(localStorage.getItem('ruangtv_user')); } catch { return null; } };
+  const clearToken = () => {
+    localStorage.removeItem('ruangtv_token');
+    localStorage.removeItem('ruangtv_user');
+  };
+  const getUser = () => {
+    try { return JSON.parse(localStorage.getItem('ruangtv_user')); } catch { return null; }
+  };
   const setUser = u => localStorage.setItem('ruangtv_user', JSON.stringify(u));
 
   const requireAuth = () => {
@@ -22,9 +32,18 @@ const API = (() => {
     if (!isForm) headers['Content-Type'] = 'application/json';
     const opts = { method, headers };
     if (body) opts.body = isForm ? body : JSON.stringify(body);
-    const res = await fetch(BASE + path, opts);
+
+    let res;
+    try {
+      res = await fetch(BASE + path, opts);
+    } catch {
+      throw new Error('Tidak dapat terhubung ke server. Periksa koneksi jaringan.');
+    }
+
     if (res.status === 401) { clearToken(); window.location.href = 'ruangtv-login.html'; throw new Error('Sesi habis'); }
-    const data = await res.json();
+
+    let data;
+    try { data = await res.json(); } catch { throw new Error(`Respons tidak valid (HTTP ${res.status})`); }
     if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
     return data;
   };
@@ -36,12 +55,18 @@ const API = (() => {
   const form = (path, fd) => req('POST', path, fd, true);
 
   const login = async (username, password) => {
-    const res = await fetch(BASE + '/auth/login', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password })
-    });
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
+    let res;
+    try {
+      res = await fetch(BASE + '/auth/login', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+    } catch { throw new Error('Tidak dapat terhubung ke server.'); }
+
+    let data;
+    try { data = await res.json(); } catch { throw new Error('Respons server tidak valid'); }
+    if (res.status === 429) throw new Error('Terlalu banyak percobaan login. Coba lagi nanti.');
+    if (!res.ok) throw new Error(data.error || 'Login gagal');
     setToken(data.token); setUser(data.user);
     return data;
   };
@@ -85,40 +110,57 @@ const API = (() => {
 
   const stats = () => get('/stats');
 
-  // WebSocket
+  // WebSocket dengan Exponential Backoff
   let ws = null, wsHandlers = {}, wsTimer = null;
+  let wsRetryDelay = 1000, wsManualClose = false;
+
   const connectWS = () => {
-    const token = getToken(); if (!token) return;
-    try { ws = new WebSocket(`${WS_BASE}?type=ho&token=${token}`); } catch { return; }
-    ws.onopen = () => { if (wsTimer) { clearTimeout(wsTimer); wsTimer = null; } wsHandlers['open']?.(); };
+    const token = getToken();
+    if (!token || wsManualClose) return;
+    try { ws = new WebSocket(`${WS_BASE}/ws?type=ho&token=${token}`); } catch { scheduleReconnect(); return; }
+    ws.onopen = () => { wsRetryDelay = 1000; if (wsTimer) { clearTimeout(wsTimer); wsTimer = null; } wsHandlers['open']?.(); };
     ws.onmessage = e => { try { const m = JSON.parse(e.data); wsHandlers[m.type]?.(m); wsHandlers['*']?.(m); } catch {} };
-    ws.onclose = () => { wsHandlers['close']?.(); wsTimer = setTimeout(connectWS, 5000); };
+    ws.onclose = (ev) => { wsHandlers['close']?.(ev); if (!wsManualClose) scheduleReconnect(); };
+    ws.onerror = err => wsHandlers['error']?.(err);
   };
+
+  const scheduleReconnect = () => {
+    if (wsTimer) clearTimeout(wsTimer);
+    wsTimer = setTimeout(() => { wsRetryDelay = Math.min(wsRetryDelay * 2, 30000); connectWS(); }, wsRetryDelay);
+  };
+
+  const disconnectWS = () => {
+    wsManualClose = true;
+    if (wsTimer) { clearTimeout(wsTimer); wsTimer = null; }
+    if (ws) { ws.close(); ws = null; }
+  };
+
   const onWS = (type, fn) => { wsHandlers[type] = fn; };
 
-  // Toast
-  const toast = (msg, type = 'success') => {
+  const toast = (msg, type = 'success', duration = 3500) => {
     const el = document.createElement('div');
     el.className = `rtv-toast rtv-toast-${type}`;
-    el.innerHTML = `<span>${{success:'✓',error:'✕',info:'ℹ'}[type]||'ℹ'}</span><span>${msg}</span>`;
+    const icons = { success: '✓', error: '✕', info: 'ℹ', warning: '⚠' };
+    el.innerHTML = `<span>${icons[type] || 'ℹ'}</span><span>${msg}</span>`;
     document.body.appendChild(el);
-    setTimeout(() => el.classList.add('show'), 10);
-    setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 300); }, 3500);
+    requestAnimationFrame(() => el.classList.add('show'));
+    setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 350); }, duration);
   };
 
   const fmt = {
-    fileSize: b => b > 1048576 ? (b/1048576).toFixed(1)+' MB' : Math.round(b/1024)+' KB',
+    fileSize: b => b >= 1073741824 ? (b/1073741824).toFixed(1)+' GB' : b >= 1048576 ? (b/1048576).toFixed(1)+' MB' : Math.round(b/1024)+' KB',
     date: s => s ? new Date(s).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}) : '—',
+    time: s => s ? new Date(s).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : '—',
     status: s => ({live:'Live',draft:'Draft',scheduled:'Terjadwal',online:'Online',offline:'Offline'})[s] || s,
     category: c => ({promo:'Promo',discount:'Diskon',menu:'Menu',info:'Info'})[c] || c,
+    duration: s => s >= 60 ? `${Math.floor(s/60)}m ${s%60}s` : `${s}s`,
   };
 
-  // Inject toast CSS
   if (!document.getElementById('rtv-css')) {
     const s = document.createElement('style'); s.id = 'rtv-css';
-    s.textContent = `.rtv-toast{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;align-items:center;gap:10px;padding:12px 20px;border-radius:10px;font-size:14px;font-weight:500;box-shadow:0 8px 32px rgba(0,0,0,.4);transform:translateY(20px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);max-width:360px;}.rtv-toast.show{transform:translateY(0);opacity:1;}.rtv-toast-success{background:#111;border:1px solid rgba(34,197,94,.3);color:#22C55E;}.rtv-toast-error{background:#111;border:1px solid rgba(239,68,68,.3);color:#EF4444;}.rtv-toast-info{background:#111;border:1px solid rgba(255,203,5,.3);color:#FFCB05;}`;
+    s.textContent = `.rtv-toast{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;align-items:center;gap:10px;padding:12px 20px;border-radius:10px;font-size:14px;font-weight:500;box-shadow:0 8px 32px rgba(0,0,0,.4);transform:translateY(20px);opacity:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);max-width:380px;font-family:'DM Sans','Inter',sans-serif;}.rtv-toast.show{transform:translateY(0);opacity:1;}.rtv-toast-success{background:#111;border:1px solid rgba(34,197,94,.3);color:#22C55E;}.rtv-toast-error{background:#111;border:1px solid rgba(239,68,68,.3);color:#EF4444;}.rtv-toast-info{background:#111;border:1px solid rgba(255,203,5,.3);color:#FFCB05;}.rtv-toast-warning{background:#111;border:1px solid rgba(245,158,11,.3);color:#F59E0B;}`;
     document.head.appendChild(s);
   }
 
-  return { login, logout, getToken, getUser, requireAuth, branches, contents, schedules, tv, stats, connectWS, onWS, toast, fmt };
+  return { login, logout, getToken, getUser, requireAuth, branches, contents, schedules, tv, stats, connectWS, disconnectWS, onWS, toast, fmt, get serverUrl() { return BASE_URL; } };
 })();
