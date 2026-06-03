@@ -3,8 +3,8 @@
 //  Include di semua halaman: <script src="ruangtv-api.js"></script>
 // ============================================================
 const API = (() => {
-  const BASE = 'https://ruangtv-production.up.railway.app/api';
-  const WS_BASE = 'wss://ruangtv-production.up.railway.app/ws';
+  const BASE = 'https://ruangtv.up.railway.app/api';
+  const WS_BASE = 'wss://ruangtv.up.railway.app/ws';
 
   const getToken = () => localStorage.getItem('ruangtv_token');
   const setToken = t => localStorage.setItem('ruangtv_token', t);
