@@ -3,8 +3,13 @@
 //  Include di semua halaman: <script src="ruangtv-api.js"></script>
 // ============================================================
 const API = (() => {
-  const BASE = 'http://localhost:3001/api';
-  const WS_BASE = 'ws://localhost:3001/ws';
+  // Auto-detect: pakai localhost saat dev di file lokal / localhost,
+  // selain itu pakai domain & host halaman saat ini (Railway).
+  const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.protocol === 'file:';
+  const HTTP_ORIGIN = isLocal ? 'http://localhost:3001' : location.origin;
+  const WS_ORIGIN   = isLocal ? 'ws://localhost:3001'    : (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host;
+  const BASE = HTTP_ORIGIN + '/api';
+  const WS_BASE = WS_ORIGIN + '/ws';
 
   const getToken = () => localStorage.getItem('ruangtv_token');
   const setToken = t => localStorage.setItem('ruangtv_token', t);
