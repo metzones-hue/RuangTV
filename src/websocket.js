@@ -189,11 +189,12 @@ function pushCurrentContent(branchCode) {
   // Push all currently live content for this branch
   try {
     const { query } = require('./database');
-    const liveContents = query(`
-      SELECT * FROM contents
-      WHERE status = 'live'
-      AND (targets = 'ALL' OR targets LIKE ? OR targets LIKE ? OR targets LIKE ?)
-    `, [`%${branchCode}%`, `${branchCode},%`, `%,${branchCode}`]);
+    const allLive = query(`SELECT * FROM contents WHERE status = 'live' ORDER BY id ASC`);
+    const liveContents = allLive.filter(c => {
+      const t = (c.targets || 'ALL').toUpperCase().trim();
+      if (t === 'ALL' || t === '') return true;
+      return t.split(',').map(x => x.trim()).filter(Boolean).includes(branchCode.toUpperCase());
+    });
 
     if (liveContents.length > 0) {
       sendToTv(branchCode, {
