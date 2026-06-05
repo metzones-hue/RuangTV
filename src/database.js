@@ -45,6 +45,7 @@ async function initDb() {
       location    TEXT,
       tv_count    INTEGER DEFAULT 1,
       status      TEXT DEFAULT 'offline',
+      manual_override TEXT DEFAULT NULL,
       last_seen   TEXT,
       created_at  TEXT DEFAULT (datetime('now','localtime'))
     )
@@ -104,6 +105,18 @@ async function initDb() {
       created_at  TEXT DEFAULT (datetime('now','localtime'))
     )
   `);
+
+  // ── MIGRATION: add manual_override column if missing ─────────────────────────
+  try {
+    const cols = db.exec("PRAGMA table_info(branches)")[0];
+    const colNames = cols ? cols.values.map(r => r[1]) : [];
+    if (!colNames.includes('manual_override')) {
+      db.run("ALTER TABLE branches ADD COLUMN manual_override TEXT DEFAULT NULL");
+      console.log('✓ Migration: added manual_override column');
+    }
+  } catch (e) {
+    console.error('Migration error:', e.message);
+  }
 
   // ── SEED DATA ────────────────────────────────────────────────────────────────
   const existingBranches = db.exec("SELECT COUNT(*) as c FROM branches")[0];

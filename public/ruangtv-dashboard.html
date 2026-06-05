@@ -442,6 +442,161 @@
   .sch-empty { background: var(--bg3); color: var(--text3); border: 1px dashed rgba(255,255,255,.1); }
   .sch-label { font-size: 10px; color: var(--text3); min-width: 72px; text-align: right; }
 
+
+  /* ── TV TOGGLE SWITCH ── */
+  .tv-toggle {
+    position: relative;
+    display: inline-block;
+    width: 34px;
+    height: 18px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .tv-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+  .tv-toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    transition: background .2s, border-color .2s;
+  }
+  .tv-toggle-slider::before {
+    content: '';
+    position: absolute;
+    height: 12px; width: 12px;
+    left: 2px; top: 2px;
+    background: var(--text3);
+    border-radius: 50%;
+    transition: transform .2s, background .2s;
+  }
+  .tv-toggle input:checked + .tv-toggle-slider {
+    background: rgba(34,197,94,.25);
+    border-color: var(--green);
+  }
+  .tv-toggle input:checked + .tv-toggle-slider::before {
+    transform: translateX(16px);
+    background: var(--green);
+  }
+
+  /* ── PREVIEW MONITOR ── */
+  .preview-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .preview-card {
+    background: var(--bg2);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color .2s, transform .2s, box-shadow .2s;
+  }
+  .preview-card:hover { border-color: var(--border-y); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.25); }
+  .preview-card.offline-card { opacity: .5; pointer-events: none; }
+  .preview-frame-wrap {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%;
+    background: #000;
+    overflow: hidden;
+  }
+  .preview-frame-wrap iframe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 400%;
+    height: 400%;
+    transform: scale(0.25);
+    transform-origin: top left;
+    border: none;
+    pointer-events: none;
+  }
+  .preview-offline-screen {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #111;
+    gap: 6px;
+  }
+  .preview-offline-screen svg { width: 22px; height: 22px; fill: rgba(255,255,255,.2); }
+  .preview-offline-screen span { font-size: 9px; color: rgba(255,255,255,.3); letter-spacing: .06em; font-weight: 600; }
+  .preview-card-foot {
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+  }
+  .preview-branch-code {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    color: var(--yellow);
+    font-family: 'Barlow Condensed', sans-serif;
+  }
+  .preview-branch-name { font-size: 10px; color: var(--text2); flex: 1; }
+  .preview-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .preview-dot.online { background: var(--green); box-shadow: 0 0 5px var(--green); }
+  .preview-dot.offline { background: var(--red); }
+  .preview-fullscreen-btn {
+    width: 20px; height: 20px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg3);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: border-color .15s;
+    flex-shrink: 0;
+  }
+  .preview-fullscreen-btn:hover { border-color: var(--border-y); }
+  .preview-fullscreen-btn svg { width: 10px; height: 10px; fill: var(--text2); }
+  /* Modal */
+  .preview-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0,0,0,.92);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  .preview-modal.open { display: flex; }
+  .preview-modal-head {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 12px;
+    width: min(1280px, 92vw);
+  }
+  .preview-modal-title { font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:700; color:#fff; letter-spacing:.04em; flex:1; }
+  .preview-modal-close {
+    width:32px; height:32px; border:1px solid rgba(255,255,255,.2); border-radius:8px;
+    background:rgba(255,255,255,.05); display:flex; align-items:center; justify-content:center;
+    cursor:pointer; color:#fff; font-size:18px; transition:background .15s;
+  }
+  .preview-modal-close:hover { background:rgba(255,255,255,.12); }
+  .preview-modal-iframe-wrap {
+    width: min(1280px, 92vw);
+    aspect-ratio: 16/9;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid rgba(255,179,0,.3);
+  }
+  .preview-modal-iframe-wrap iframe { width:100%; height:100%; border:none; }
+  .preview-modal-tabs { display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; justify-content:center; }
+  .preview-modal-tab {
+    padding:6px 14px; border-radius:20px; border:1.5px solid rgba(255,255,255,.15);
+    background:rgba(255,255,255,.05); color:rgba(255,255,255,.5); font-size:11px;
+    font-weight:700; letter-spacing:.06em; cursor:pointer; transition:all .15s;
+    font-family:'Barlow Condensed',sans-serif;
+  }
+  .preview-modal-tab.active { border-color:var(--yellow); color:var(--yellow); background:rgba(255,179,0,.12); }
+  .preview-modal-tab.offline-tab { opacity:.4; pointer-events:none; }
+
   /* ── QUICK ACTIONS ── */
   .qactions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 16px; }
   .qa-card {
@@ -1186,6 +1341,108 @@
       </div>
     </div>
 
+    <!-- PREVIEW MONITOR -->
+    <div class="sec-head fade-in delay-3">
+      <div class="sec-title">Preview Live TV Semua Cabang</div>
+      <span class="now-badge">Real-time Preview</span>
+    </div>
+    <div class="preview-grid fade-in delay-3" id="preview-grid">
+
+      <!-- DMB -->
+      <div class="preview-card" onclick="openPreview('DMB','Ruangprint DMB',true)">
+        <div class="preview-frame-wrap">
+          <iframe id="prev-iframe-DMB" src="" data-src="ruangtv-player.html?branch=DMB" loading="lazy"></iframe>
+        </div>
+        <div class="preview-card-foot">
+          <span class="preview-branch-code">DMB</span>
+          <span class="preview-branch-name">Ruangprint DMB</span>
+          <span class="preview-dot online"></span>
+          <div class="preview-fullscreen-btn" onclick="event.stopPropagation();openPreview('DMB','Ruangprint DMB',true)">
+            <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTR -->
+      <div class="preview-card" onclick="openPreview('CTR','Ruangprint CTR',true)">
+        <div class="preview-frame-wrap">
+          <iframe id="prev-iframe-CTR" src="" data-src="ruangtv-player.html?branch=CTR" loading="lazy"></iframe>
+        </div>
+        <div class="preview-card-foot">
+          <span class="preview-branch-code">CTR</span>
+          <span class="preview-branch-name">Ruangprint CTR</span>
+          <span class="preview-dot online"></span>
+          <div class="preview-fullscreen-btn" onclick="event.stopPropagation();openPreview('CTR','Ruangprint CTR',true)">
+            <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- GDS -->
+      <div class="preview-card" onclick="openPreview('GDS','Ruangprint GDS',true)">
+        <div class="preview-frame-wrap">
+          <iframe id="prev-iframe-GDS" src="" data-src="ruangtv-player.html?branch=GDS" loading="lazy"></iframe>
+        </div>
+        <div class="preview-card-foot">
+          <span class="preview-branch-code">GDS</span>
+          <span class="preview-branch-name">Ruangprint GDS</span>
+          <span class="preview-dot online"></span>
+          <div class="preview-fullscreen-btn" onclick="event.stopPropagation();openPreview('GDS','Ruangprint GDS',true)">
+            <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- CGK -->
+      <div class="preview-card" onclick="openPreview('CGK','Ruangprint CGK',true)">
+        <div class="preview-frame-wrap">
+          <iframe id="prev-iframe-CGK" src="" data-src="ruangtv-player.html?branch=CGK" loading="lazy"></iframe>
+        </div>
+        <div class="preview-card-foot">
+          <span class="preview-branch-code">CGK</span>
+          <span class="preview-branch-name">Ruangprint CGK</span>
+          <span class="preview-dot online"></span>
+          <div class="preview-fullscreen-btn" onclick="event.stopPropagation();openPreview('CGK','Ruangprint CGK',true)">
+            <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- BKS (offline) -->
+      <div class="preview-card offline-card">
+        <div class="preview-frame-wrap">
+          <div class="preview-offline-screen">
+            <svg viewBox="0 0 24 24"><path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+            <span>OFFLINE</span>
+          </div>
+        </div>
+        <div class="preview-card-foot">
+          <span class="preview-branch-code" style="color:var(--red)">BKS</span>
+          <span class="preview-branch-name">Ruangprint BKS</span>
+          <span class="preview-dot offline"></span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- MODAL PREVIEW -->
+    <div class="preview-modal" id="preview-modal" onclick="if(event.target===this)closePreview()">
+      <div class="preview-modal-head">
+        <div class="preview-modal-title" id="preview-modal-title">Preview — Ruangprint DMB</div>
+        <div class="preview-modal-close" onclick="closePreview()">✕</div>
+      </div>
+      <div class="preview-modal-iframe-wrap">
+        <iframe id="preview-modal-iframe" src="" allow="autoplay"></iframe>
+      </div>
+      <div class="preview-modal-tabs" id="preview-modal-tabs">
+        <button class="preview-modal-tab active" onclick="switchPreview('DMB','Ruangprint DMB')">DMB</button>
+        <button class="preview-modal-tab" onclick="switchPreview('CTR','Ruangprint CTR')">CTR</button>
+        <button class="preview-modal-tab" onclick="switchPreview('GDS','Ruangprint GDS')">GDS</button>
+        <button class="preview-modal-tab" onclick="switchPreview('CGK','Ruangprint CGK')">CGK</button>
+        <button class="preview-modal-tab offline-tab">BKS (Offline)</button>
+      </div>
+    </div>
+
     <!-- QUICK ACTIONS -->
     <div class="sec-head fade-in delay-4">
       <div class="sec-title">Aksi Cepat</div>
@@ -1297,13 +1554,20 @@
     if (!grid) return;
     grid.innerHTML = branches.map(b => {
       const online = b.status === 'online';
+      const overridden = b.is_overridden;
       return `
-      <div class="tv-card ${online ? '' : 'tv-offline'}" onclick="pushToTv('${b.code}')">
+      <div class="tv-card ${online ? '' : 'tv-offline'}">
         <div class="tv-card-top">
           <span class="tv-code-badge">${b.code}</span>
-          <div class="tv-dot ${online ? 'ds-on' : 'ds-off'}"></div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <label class="tv-toggle ${online ? 'on' : 'off'}" title="${overridden ? 'Manual override aktif' : 'Auto (dari TV)'}" onclick="event.stopPropagation()">
+              <input type="checkbox" ${online ? 'checked' : ''} onchange="toggleBranch('${b.code}', this.checked)">
+              <span class="tv-toggle-slider"></span>
+            </label>
+            <div class="tv-dot ${online ? 'ds-on' : 'ds-off'}"></div>
+          </div>
         </div>
-        <div class="tv-screen">
+        <div class="tv-screen" onclick="pushToTv('${b.code}')" style="cursor:pointer">
           ${online ? '<div class="tv-live-glow"></div>' : ''}
           <div class="tv-screen-content">
             ${online
@@ -1313,7 +1577,7 @@
           </div>
           ${online ? '<div class="tv-playing-bar"><div class="tv-progress"></div></div>' : ''}
         </div>
-        <div class="tv-name" style="${online ? '' : 'color:var(--text2)'}">${b.name}</div>
+        <div class="tv-name" style="${online ? '' : 'color:var(--text2)'}">${b.name}${overridden ? ' <span style="font-size:8px;color:var(--yellow);font-weight:700">MANUAL</span>' : ''}</div>
         <div class="tv-content-name" style="${online ? '' : 'color:var(--red)'}">
           ${online ? 'Siaran aktif' : `Offline${b.last_seen ? ' · '+new Date(b.last_seen).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : ''}`}
         </div>
@@ -1341,10 +1605,10 @@
           </div>
         </div>
         <div class="branch-right">
-          <div class="tv-count">
-            <svg viewBox="0 0 24 24" fill="currentColor" style="width:12px;height:12px"><path d="M21 6H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1z"/></svg>
-            ${b.tv_count} TV
-          </div>
+          <label class="tv-toggle ${online ? 'on' : 'off'}" title="${b.is_overridden ? 'Manual' : 'Auto'}" ondblclick="resetBranchAuto('${b.code}')">
+            <input type="checkbox" ${online ? 'checked' : ''} onchange="toggleBranch('${b.code}', this.checked)">
+            <span class="tv-toggle-slider"></span>
+          </label>
           <span class="status-badge ${online ? 'sb-on' : 'sb-off'}">${online ? 'ONLINE' : 'OFFLINE'}</span>
         </div>`;
       container.appendChild(item);
@@ -1392,6 +1656,32 @@
     });
   }
 
+  // ── Toggle branch online/offline (manual override) ───────
+  async function toggleBranch(branchCode, makeOnline) {
+    const mode = makeOnline ? 'online' : 'offline';
+    try {
+      await API.branches.override(branchCode, mode);
+      API.toast(`${branchCode} di-set ${makeOnline ? 'ONLINE' : 'OFFLINE'} (manual)`, 'success');
+      loadBranches();
+      loadStats();
+    } catch(e) {
+      API.toast('Gagal mengubah status: ' + e.message, 'error');
+      loadBranches();
+    }
+  }
+
+  // Reset to auto mode (double-click the toggle area)
+  async function resetBranchAuto(branchCode) {
+    try {
+      await API.branches.override(branchCode, 'auto');
+      API.toast(`${branchCode} kembali ke mode AUTO`, 'success');
+      loadBranches();
+      loadStats();
+    } catch(e) {
+      API.toast('Gagal: ' + e.message, 'error');
+    }
+  }
+
   // ── Push to TV ────────────────────────────────────────────
   async function pushToTv(branchCode) {
     try {
@@ -1436,6 +1726,87 @@
       }
     } catch {}
   }
+
+
+  // ── Preview Monitor ─────────────────────────────────────
+  var SERVER = 'https://ruangtv-production.up.railway.app';
+  var BRANCHES = [
+    { code:'DMB', name:'Ruangprint DMB', online:true },
+    { code:'CTR', name:'Ruangprint CTR', online:true },
+    { code:'GDS', name:'Ruangprint GDS', online:true },
+    { code:'CGK', name:'Ruangprint CGK', online:true },
+    { code:'BKS', name:'Ruangprint BKS', online:false }
+  ];
+  var currentPreviewBranch = null;
+
+  // Lazy load iframes when section scrolls into view
+  function loadPreviewIframes() {
+    BRANCHES.forEach(function(b) {
+      if (!b.online) return;
+      var iframe = document.getElementById('prev-iframe-' + b.code);
+      if (iframe && !iframe.src) {
+        iframe.src = SERVER + '/ruangtv-player.html?branch=' + b.code;
+      }
+    });
+  }
+
+  // Observe when preview grid is visible
+  var previewGrid = document.getElementById('preview-grid');
+  if (previewGrid && 'IntersectionObserver' in window) {
+    var previewObs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          loadPreviewIframes();
+          previewObs.disconnect();
+        }
+      });
+    }, { threshold: 0.1 });
+    previewObs.observe(previewGrid);
+  } else if (previewGrid) {
+    setTimeout(loadPreviewIframes, 1500);
+  }
+
+  function openPreview(code, name, online) {
+    if (!online) return;
+    currentPreviewBranch = code;
+    var modal = document.getElementById('preview-modal');
+    var iframe = document.getElementById('preview-modal-iframe');
+    var title = document.getElementById('preview-modal-title');
+    title.textContent = 'Preview Live — ' + name + ' (' + code + ')';
+    iframe.src = SERVER + '/ruangtv-player.html?branch=' + code;
+    // Update active tab
+    document.querySelectorAll('.preview-modal-tab').forEach(function(t) {
+      t.classList.remove('active');
+      if (t.textContent.trim() === code) t.classList.add('active');
+    });
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function switchPreview(code, name) {
+    currentPreviewBranch = code;
+    var iframe = document.getElementById('preview-modal-iframe');
+    var title = document.getElementById('preview-modal-title');
+    title.textContent = 'Preview Live — ' + name + ' (' + code + ')';
+    iframe.src = SERVER + '/ruangtv-player.html?branch=' + code;
+    document.querySelectorAll('.preview-modal-tab').forEach(function(t) {
+      t.classList.remove('active');
+      if (t.textContent.trim() === code) t.classList.add('active');
+    });
+  }
+
+  function closePreview() {
+    var modal = document.getElementById('preview-modal');
+    var iframe = document.getElementById('preview-modal-iframe');
+    modal.classList.remove('open');
+    iframe.src = '';
+    document.body.style.overflow = '';
+  }
+
+  // ESC to close
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closePreview();
+  });
 
   // ── Quick action buttons ──────────────────────────────────
   document.querySelectorAll('.qa-card').forEach((card, i) => {

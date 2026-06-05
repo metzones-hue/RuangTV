@@ -77,25 +77,56 @@ router.post('/auth/change-password', requireAuth, (req, res) => {
 router.get('/branches', requireAuth, (req, res) => {
   const branches = query(`SELECT * FROM branches ORDER BY code ASC`);
   const onlineBranches = getOnlineBranches();
-  // Inject real-time online status (both fields for compatibility)
+  // Inject status: manual override wins, otherwise auto from WebSocket
   const result = branches.map(b => {
-    const isOnline = onlineBranches.includes(b.code);
+    const autoOnline = onlineBranches.includes(b.code);
+    let status;
+    if (b.manual_override === 'online')  status = 'online';
+    else if (b.manual_override === 'offline') status = 'offline';
+    else status = autoOnline ? 'online' : 'offline';
     return {
       ...b,
-      ws_connected: isOnline,
-      status: isOnline ? 'online' : 'offline',
+      ws_connected: autoOnline,
+      status,
+      is_overridden: b.manual_override === 'online' || b.manual_override === 'offline',
     };
   });
   res.json(result);
+});
+
+// PUT /api/branches/:code/override — set manual online/offline toggle
+router.put('/branches/:code/override', requireAuth, (req, res) => {
+  const code = req.params.code.toUpperCase();
+  const branch = get(`SELECT * FROM branches WHERE code = ?`, [code]);
+  if (!branch) return res.status(404).json({ error: 'Cabang tidak ditemukan' });
+
+  // mode: 'online' | 'offline' | 'auto'
+  const { mode } = req.body;
+  const override = (mode === 'online' || mode === 'offline') ? mode : null;
+
+  run(`UPDATE branches SET manual_override = ? WHERE code = ?`, [override, code]);
+
+  const autoOnline = isTvOnline(code);
+  let status;
+  if (override === 'online') status = 'online';
+  else if (override === 'offline') status = 'offline';
+  else status = autoOnline ? 'online' : 'offline';
+
+  res.json({ branchCode: code, manual_override: override, status, ws_connected: autoOnline });
 });
 
 // GET /api/branches/:code
 router.get('/branches/:code', requireAuth, (req, res) => {
   const branch = get(`SELECT * FROM branches WHERE code = ?`, [req.params.code.toUpperCase()]);
   if (!branch) return res.status(404).json({ error: 'Cabang tidak ditemukan' });
-  const isOnline = isTvOnline(branch.code);
-  branch.ws_connected = isOnline;
-  branch.status = isOnline ? 'online' : 'offline';
+  const autoOnline = isTvOnline(branch.code);
+  let status;
+  if (branch.manual_override === 'online') status = 'online';
+  else if (branch.manual_override === 'offline') status = 'offline';
+  else status = autoOnline ? 'online' : 'offline';
+  branch.ws_connected = autoOnline;
+  branch.status = status;
+  branch.is_overridden = branch.manual_override === 'online' || branch.manual_override === 'offline';
   // Get TV key for this branch
   branch.tv_key = generateTvKey(branch.code);
   res.json(branch);
