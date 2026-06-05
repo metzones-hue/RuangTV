@@ -325,6 +325,30 @@
   .modal-footer { display: flex; gap: 10px; margin-top: 20px; }
   .modal-footer .btn { flex: 1; justify-content: center; }
 
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .page-grid { grid-template-columns: 1fr !important; }
+    .lib-grid { grid-template-columns: repeat(2,1fr) !important; }
+  }
+  @media (max-width: 600px) {
+    .sidebar { width: 52px !important; }
+    .sidebar:hover { width: 52px !important; }
+    .nav-label { display: none !important; }
+    .main { margin-left: 52px !important; }
+    .content { padding: 14px 12px !important; }
+    .lib-grid { grid-template-columns: 1fr !important; }
+    .form-row { grid-template-columns: 1fr !important; }
+    .checkbox-group { grid-template-columns: 1fr 1fr !important; }
+    .page-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .page-header h1 { font-size: 18px !important; }
+    .tab-bar { flex-wrap: wrap; gap: 4px; }
+  }
+  /* TV / Large screen */
+  @media (min-width: 1600px) {
+    .lib-grid { grid-template-columns: repeat(4,1fr) !important; }
+    .content { padding: 32px 40px !important; }
+  }
 </style>
 </head>
 <body>
