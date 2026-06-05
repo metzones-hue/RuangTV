@@ -368,11 +368,12 @@ router.post('/tv/push-playlist', requireAuth, (req, res) => {
   if (!branch) return res.status(404).json({ error: 'Cabang tidak ditemukan' });
 
   const code = branch.code;
-  const liveContents = query(`
-    SELECT * FROM contents WHERE status = 'live'
-    AND (targets = 'ALL' OR targets LIKE ? OR targets LIKE ? OR targets LIKE ?)
-    ORDER BY created_at DESC
-  `, [`%${code}%`, `${code},%`, `%,${code}`]);
+  const allLive = query(`SELECT * FROM contents WHERE status = 'live' ORDER BY id ASC`);
+  const liveContents = allLive.filter(c => {
+    const t = (c.targets || 'ALL').toUpperCase().trim();
+    if (t === 'ALL' || t === '') return true;
+    return t.split(',').map(x => x.trim()).filter(Boolean).includes(code);
+  });
 
   const sent = pushContentToTv(code, {
     type: 'PLAYLIST_UPDATE',
@@ -403,11 +404,21 @@ router.get('/tv/:code/playlist', (req, res) => {
   const branch = get(`SELECT * FROM branches WHERE code = ?`, [code]);
   if (!branch) return res.status(404).json({ error: 'Cabang tidak ditemukan' });
 
-  const playlist = query(`
-    SELECT * FROM contents WHERE status = 'live'
-    AND (targets = 'ALL' OR targets LIKE ? OR targets LIKE ? OR targets LIKE ?)
-    ORDER BY created_at DESC
-  `, [`%${code}%`, `${code},%`, `%,${code}`]);
+  // Get all live content, then filter by target in JS (robust against spaces/case)
+  const allLive = query(`SELECT * FROM contents WHERE status = 'live' ORDER BY id ASC`);
+
+  const playlist = allLive.filter(c => {
+    const t = (c.targets || 'ALL').toUpperCase().trim();
+    if (t === 'ALL' || t === '') return true;
+    // Split on comma, trim each, compare exact code match
+    const list = t.split(',').map(x => x.trim()).filter(Boolean);
+    return list.includes(code);
+  });
+
+  // Prevent any caching so all devices get identical, fresh playlist
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
 
   res.json({ branchCode: code, playlist, count: playlist.length });
 });
