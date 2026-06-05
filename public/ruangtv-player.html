@@ -262,7 +262,7 @@
   // ── CONFIG ──────────────────────────────────────────────
   const params   = new URLSearchParams(location.search);
   const BRANCH   = (params.get('branch') || 'DMB').toUpperCase();
-  const SERVER   = 'https://ruangtv-production.up.railway.app';
+  const SERVER   = 'https://ruangtv.up.railway.app';
   const REFRESH  = 300000; // refresh playlist every 5 min
 
   document.getElementById('branch-badge').textContent = BRANCH;
@@ -419,7 +419,7 @@
       const data = await r.json();
       if (!data.tvKey) return;
 
-      const ws = new WebSocket(`wss://ruangtv-production.up.railway.app/ws?branch=${BRANCH}&key=${data.tvKey}`);
+      const ws = new WebSocket(`wss://ruangtv.up.railway.app/ws?branch=${BRANCH}&key=${data.tvKey}`);
 
       ws.onopen = () => {
         console.log('📺 WS connected:', BRANCH);

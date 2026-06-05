@@ -772,7 +772,7 @@
     filterStatus = filterStatus || 'all';
     var grid = document.getElementById('lib-grid');
     if (!grid) return;
-    var SERVER = 'https://ruangtv-production.up.railway.app';
+    var SERVER = 'https://ruangtv.up.railway.app';
     var filtered = filterStatus === 'all' ? list : list.filter(function(c){ return c.status === filterStatus; });
 
     if (filtered.length === 0) {
