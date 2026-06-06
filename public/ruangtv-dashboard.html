@@ -941,12 +941,6 @@
   <!-- PAGE CONTENT -->
   <div class="content">
 
-    <!-- ALERT -->
-    <div class="alert fade-in">
-      <svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
-      <div class="alert-msg"><strong>Cabang BKS Offline</strong> — TV di Cabang Ruangprint BKS tidak terhubung sejak 14:32 WIB. Segera periksa koneksi internet cabang.</div>
-      <span class="alert-link">Panduan Troubleshoot →</span>
-    </div>
 
     <!-- STATS -->
     <div class="stats-row">
@@ -1059,20 +1053,18 @@
         <div class="tv-content-name">Menu Layanan Print</div>
       </div>
 
-      <!-- BKS OFFLINE -->
-      <div class="tv-card tv-offline">
+      <!-- BKS -->
+      <div class="tv-card">
         <div class="tv-card-top">
           <span class="tv-code-badge">BKS</span>
-          <div class="tv-dot ds-off"></div>
+          <div class="tv-dot ds-on"></div>
         </div>
-        <div class="tv-screen tv-offline-screen">
-          <div class="tv-screen-content">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="rgba(239,68,68,.6)"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
-            <div style="margin-top:4px;font-size:7px;color:rgba(239,68,68,.7);">NO SIGNAL</div>
-          </div>
+        <div class="tv-screen">
+          <div class="tv-playing-badge">▶ TAYANG</div>
+          <div class="tv-playing-bar"><div class="tv-progress" style="animation-delay:-2s"></div></div>
         </div>
-        <div class="tv-name" style="color:var(--text2)">Ruangprint BKS</div>
-        <div class="tv-content-name" style="color:var(--red)">Offline sejak 14:32</div>
+        <div class="tv-name">Ruangprint BKS</div>
+        <div class="tv-content-name">Promo Cabang BKS</div>
       </div>
 
     </div>
@@ -1155,18 +1147,18 @@
         </div>
 
         <div class="branch-item">
-          <div class="branch-status-dot ds-off"></div>
-          <div class="branch-code" style="color:var(--red);border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.08)">BKS</div>
+          <div class="branch-status-dot ds-on"></div>
+          <div class="branch-code">BKS</div>
           <div class="branch-info">
             <div class="branch-name">Ruangprint BKS</div>
-            <div class="branch-sub" style="color:var(--red)">Offline sejak 14:32 WIB — Periksa koneksi</div>
+            <div class="branch-sub">1 TV Aktif</div>
           </div>
           <div class="branch-right">
             <div class="tv-count">
               <svg viewBox="0 0 24 24"><path d="M21 6H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1z"/></svg>
               1 TV
             </div>
-            <span class="status-badge sb-off">OFFLINE</span>
+            <span class="status-badge sb-on">ONLINE</span>
           </div>
         </div>
 
