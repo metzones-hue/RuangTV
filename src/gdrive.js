@@ -1,94 +1,91 @@
-const { google } = require('googleapis');
+const { JWT } = require('google-auth-library');
+const fetch = require('node-fetch');
 const fs = require('fs');
-const path = require('path');
+const FormData = require('form-data');
 
 const FOLDER_NAME = 'RuangTV-Uploads';
 let folderId = null;
 
-function getAuth() {
-  return new google.auth.GoogleAuth({
-    credentials: {
-      type: 'service_account',
-      project_id: process.env.GDRIVE_PROJECT_ID,
-      private_key_id: process.env.GDRIVE_PRIVATE_KEY_ID,
-      private_key: (process.env.GDRIVE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
-      client_email: process.env.GDRIVE_CLIENT_EMAIL,
-      client_id: process.env.GDRIVE_CLIENT_ID,
-    },
+function getClient() {
+  return new JWT({
+    email: process.env.GDRIVE_CLIENT_EMAIL,
+    key: (process.env.GDRIVE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
     scopes: ['https://www.googleapis.com/auth/drive'],
   });
 }
 
-async function getDrive() {
-  const auth = getAuth();
-  return google.drive({ version: 'v3', auth });
+async function getToken() {
+  const client = getClient();
+  const { token } = await client.getAccessToken();
+  return token;
 }
 
 async function getOrCreateFolder() {
   if (folderId) return folderId;
 
-  const drive = await getDrive();
+  const token = await getToken();
 
   // Cari folder yang sudah ada
-  const res = await drive.files.list({
-    q: `name='${FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
-    fields: 'files(id,name)',
+  const q = encodeURIComponent(`name='${FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`);
+  const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)`, {
+    headers: { Authorization: `Bearer ${token}` },
   });
+  const data = await res.json();
 
-  if (res.data.files.length > 0) {
-    folderId = res.data.files[0].id;
+  if (data.files && data.files.length > 0) {
+    folderId = data.files[0].id;
     return folderId;
   }
 
   // Buat folder baru
-  const folder = await drive.files.create({
-    requestBody: {
-      name: FOLDER_NAME,
-      mimeType: 'application/vnd.google-apps.folder',
-    },
-    fields: 'id',
+  const createRes = await fetch('https://www.googleapis.com/drive/v3/files?fields=id', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: FOLDER_NAME, mimeType: 'application/vnd.google-apps.folder' }),
   });
-
-  folderId = folder.data.id;
+  const folder = await createRes.json();
+  folderId = folder.id;
   console.log(`✓ Google Drive folder dibuat: ${folderId}`);
   return folderId;
 }
 
 async function uploadToDrive(filePath, fileName, mimeType) {
-  const drive = await getDrive();
+  const token = await getToken();
   const parentId = await getOrCreateFolder();
 
-  const res = await drive.files.create({
-    requestBody: {
-      name: fileName,
-      parents: [parentId],
-    },
-    media: {
-      mimeType,
-      body: fs.createReadStream(filePath),
-    },
-    fields: 'id,webContentLink,webViewLink',
+  // Multipart upload
+  const metadata = JSON.stringify({ name: fileName, parents: [parentId] });
+  const fileStream = fs.createReadStream(filePath);
+
+  const form = new FormData();
+  form.append('metadata', metadata, { contentType: 'application/json' });
+  form.append('file', fileStream, { contentType: mimeType, filename: fileName });
+
+  const res = await fetch(
+    'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',
+    { method: 'POST', headers: { Authorization: `Bearer ${token}`, ...form.getHeaders() }, body: form }
+  );
+  const file = await res.json();
+  const fileId = file.id;
+
+  // Set public
+  await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}/permissions`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ role: 'reader', type: 'anyone' }),
   });
 
-  const fileId = res.data.id;
-
-  // Set file jadi public agar bisa diakses langsung
-  await drive.permissions.create({
-    fileId,
-    requestBody: { role: 'reader', type: 'anyone' },
-  });
-
-  // Direct link untuk video/gambar
   const directUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
-  const viewUrl = `https://drive.google.com/file/d/${fileId}/view`;
-
-  return { fileId, directUrl, viewUrl };
+  return { fileId, directUrl };
 }
 
 async function deleteFromDrive(fileId) {
   try {
-    const drive = await getDrive();
-    await drive.files.delete({ fileId });
+    const token = await getToken();
+    await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    });
   } catch (e) {
     console.warn('GDrive delete warning:', e.message);
   }
