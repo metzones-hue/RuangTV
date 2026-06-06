@@ -721,6 +721,38 @@
   const g = id => document.getElementById(id)?.value || '';
   const s = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
 
+  const SAVE_KEY = 'ruangtv_template_data';
+  const FIELD_IDS = [
+    'p-eyebrow','p-h1','p-h2','p-h3','p-sub','p-cta','p-deco',
+    'd-pct','d-title','d-desc','d-cta',
+    'm-title','m1-name','m1-price','m2-name','m2-price','m3-name','m3-price',
+    'i-badge','i-h1','i-h2','i-h3','i-body',
+    'i-c1l','i-c1v','i-c2l','i-c2v','i-c3l','i-c3v',
+    'brand-name','brand-tagline'
+  ];
+
+  function saveData() {
+    const data = {};
+    FIELD_IDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) data[id] = el.value;
+    });
+    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+  }
+
+  function loadData() {
+    try {
+      const raw = localStorage.getItem(SAVE_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      FIELD_IDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && data[id] !== undefined) el.value = data[id];
+      });
+    } catch(e) {}
+    updatePromo(); updateDiskon(); updateMenu(); updateInfo(); updateBrand();
+  }
+
   function updatePromo() {
     s('v-eyebrow', g('p-eyebrow'));
     s('v-h1', g('p-h1'));
@@ -729,6 +761,7 @@
     s('v-sub', g('p-sub'));
     s('v-cta', g('p-cta'));
     s('v-deco', g('p-deco'));
+    saveData();
   }
 
   function updateDiskon() {
@@ -736,6 +769,7 @@
     s('v-dtitle', g('d-title'));
     s('v-ddesc', g('d-desc'));
     s('v-dcta', g('d-cta'));
+    saveData();
   }
 
   function updateMenu() {
@@ -743,6 +777,7 @@
     s('v-m1n', g('m1-name')); s('v-m1p', g('m1-price'));
     s('v-m2n', g('m2-name')); s('v-m2p', g('m2-price'));
     s('v-m3n', g('m3-name')); s('v-m3p', g('m3-price'));
+    saveData();
   }
 
   function updateInfo() {
@@ -754,6 +789,7 @@
     s('v-ic1l', g('i-c1l')); s('v-ic1v', g('i-c1v'));
     s('v-ic2l', g('i-c2l')); s('v-ic2v', g('i-c2v'));
     s('v-ic3l', g('i-c3l')); s('v-ic3v', g('i-c3v'));
+    saveData();
   }
 
   function updateBrand() {
@@ -761,7 +797,10 @@
     const tag = g('brand-tagline');
     ['sf1','sf3','sf5','sf7'].forEach(id => s(id, brand));
     ['sf2','sf4','sf6','sf8'].forEach(id => s(id, tag));
+    saveData();
   }
+
+  document.addEventListener('DOMContentLoaded', loadData);
 
   function downloadSlide() {
     const frame = document.getElementById('slide-frame');
