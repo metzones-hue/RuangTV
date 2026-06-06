@@ -1408,18 +1408,18 @@
         </div>
       </div>
 
-      <!-- BKS (offline) -->
-      <div class="preview-card offline-card">
+      <!-- BKS -->
+      <div class="preview-card" onclick="openPreview('BKS','Ruangprint BKS',true)">
         <div class="preview-frame-wrap">
-          <div class="preview-offline-screen">
-            <svg viewBox="0 0 24 24"><path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
-            <span>OFFLINE</span>
-          </div>
+          <iframe id="prev-iframe-BKS" src="" data-src="ruangtv-player.html?branch=BKS" loading="lazy"></iframe>
         </div>
         <div class="preview-card-foot">
-          <span class="preview-branch-code" style="color:var(--red)">BKS</span>
+          <span class="preview-branch-code">BKS</span>
           <span class="preview-branch-name">Ruangprint BKS</span>
-          <span class="preview-dot offline"></span>
+          <span class="preview-dot online"></span>
+          <div class="preview-fullscreen-btn" onclick="event.stopPropagation();openPreview('BKS','Ruangprint BKS',true)">
+            <svg viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+          </div>
         </div>
       </div>
 
@@ -1439,7 +1439,7 @@
         <button class="preview-modal-tab" onclick="switchPreview('CTR','Ruangprint CTR')">CTR</button>
         <button class="preview-modal-tab" onclick="switchPreview('GDS','Ruangprint GDS')">GDS</button>
         <button class="preview-modal-tab" onclick="switchPreview('CGK','Ruangprint CGK')">CGK</button>
-        <button class="preview-modal-tab offline-tab">BKS (Offline)</button>
+        <button class="preview-modal-tab" onclick="switchPreview('BKS','Ruangprint BKS')">BKS</button>
       </div>
     </div>
 
