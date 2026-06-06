@@ -1872,6 +1872,100 @@
   }
   try { applyTheme(localStorage.getItem(THEME_KEY) || 'dark'); } catch(e){ applyTheme('dark'); }
 
+  // ── PENGATURAN MODAL ──────────────────────────────────────────
+  function showSettings() {
+    const user = API.getUser ? API.getUser() : (()=>{ try{return JSON.parse(localStorage.getItem('ruangtv_user'));}catch{return null;} })();
+    if (user) {
+      const el = document.getElementById('set-username');
+      const er = document.getElementById('set-role');
+      if (el) el.textContent = user.username || '-';
+      if (er) er.textContent = user.role || '-';
+    }
+    document.getElementById('settings-modal').style.display = 'flex';
+  }
+
+  function closeSettings() {
+    document.getElementById('settings-modal').style.display = 'none';
+    document.getElementById('set-pw-msg').textContent = '';
+    document.getElementById('set-cur-pw').value = '';
+    document.getElementById('set-new-pw').value = '';
+    document.getElementById('set-con-pw').value = '';
+  }
+
+  async function savePassword() {
+    const cur = document.getElementById('set-cur-pw').value.trim();
+    const nw  = document.getElementById('set-new-pw').value.trim();
+    const con = document.getElementById('set-con-pw').value.trim();
+    const msg = document.getElementById('set-pw-msg');
+    if (!cur || !nw || !con) { msg.style.color='var(--red)'; msg.textContent='Semua kolom wajib diisi.'; return; }
+    if (nw !== con) { msg.style.color='var(--red)'; msg.textContent='Password baru tidak cocok.'; return; }
+    if (nw.length < 6) { msg.style.color='var(--red)'; msg.textContent='Password minimal 6 karakter.'; return; }
+    try {
+      await fetch(location.origin + '/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + API.getToken() },
+        body: JSON.stringify({ currentPassword: cur, newPassword: nw })
+      }).then(async r => { const d = await r.json(); if (!r.ok) throw new Error(d.error); });
+      msg.style.color='var(--green)'; msg.textContent='✓ Password berhasil diubah!';
+      document.getElementById('set-cur-pw').value = '';
+      document.getElementById('set-new-pw').value = '';
+      document.getElementById('set-con-pw').value = '';
+    } catch(e) {
+      msg.style.color='var(--red)'; msg.textContent = e.message || 'Gagal mengubah password.';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const sm = document.getElementById('settings-modal');
+    if (sm) sm.addEventListener('click', e => { if (e.target === sm) closeSettings(); });
+  });
+
 </script>
+
+<!-- SETTINGS MODAL -->
+<div id="settings-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px)" class="settings-overlay">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;width:100%;max-width:460px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.5)">
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;letter-spacing:.04em;color:#fff">Pengaturan</div>
+      <div onclick="closeSettings()" style="cursor:pointer;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:rgba(255,255,255,.06);color:var(--text2);font-size:16px">✕</div>
+    </div>
+
+    <!-- Info Akun -->
+    <div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:20px">
+      <div style="font-size:10px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px">Info Akun</div>
+      <div style="display:flex;gap:16px">
+        <div style="flex:1">
+          <div style="font-size:10px;color:var(--text3);margin-bottom:3px">Username</div>
+          <div id="set-username" style="font-size:14px;font-weight:600;color:#fff">—</div>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:10px;color:var(--text3);margin-bottom:3px">Role</div>
+          <div id="set-role" style="font-size:14px;font-weight:600;color:var(--yellow)">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ganti Password -->
+    <div style="margin-bottom:20px">
+      <div style="font-size:10px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px">Ganti Password</div>
+      <input id="set-cur-pw" type="password" placeholder="Password saat ini" style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:#fff;font-size:13px;margin-bottom:8px;box-sizing:border-box">
+      <input id="set-new-pw" type="password" placeholder="Password baru" style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:#fff;font-size:13px;margin-bottom:8px;box-sizing:border-box">
+      <input id="set-con-pw" type="password" placeholder="Konfirmasi password baru" style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:#fff;font-size:13px;margin-bottom:8px;box-sizing:border-box">
+      <div id="set-pw-msg" style="font-size:12px;min-height:16px;margin-bottom:8px"></div>
+      <button onclick="savePassword()" style="width:100%;background:var(--yellow);color:#000;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:700;cursor:pointer">Simpan Password</button>
+    </div>
+
+    <!-- Tampilan -->
+    <div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:16px">
+      <div style="font-size:10px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px">Tampilan</div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:13px;color:var(--text2)">Mode Gelap / Terang</span>
+        <button onclick="toggleTheme()" style="background:rgba(255,255,255,.08);border:1px solid var(--border);border-radius:8px;padding:6px 14px;color:var(--text2);font-size:12px;cursor:pointer">Toggle Tema</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
