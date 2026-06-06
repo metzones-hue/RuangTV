@@ -774,6 +774,18 @@
     var grid = document.getElementById('lib-grid');
     if (!grid) return;
     var SERVER = 'https://ruangtv.up.railway.app';
+
+    // Update tab counts dari data asli
+    var cAll   = list.length;
+    var cLive  = list.filter(function(c){ return c.status === 'live'; }).length;
+    var cSched = list.filter(function(c){ return c.status === 'scheduled'; }).length;
+    var cDraft = list.filter(function(c){ return c.status === 'draft'; }).length;
+    var tabs = document.querySelectorAll('.tabs .tab');
+    if (tabs[0]) tabs[0].textContent = 'Semua (' + cAll + ')';
+    if (tabs[1]) tabs[1].textContent = 'Live (' + cLive + ')';
+    if (tabs[2]) tabs[2].textContent = 'Terjadwal (' + cSched + ')';
+    if (tabs[3]) tabs[3].textContent = 'Draft (' + cDraft + ')';
+
     var filtered = filterStatus === 'all' ? list : list.filter(function(c){ return c.status === filterStatus; });
 
     if (filtered.length === 0) {
