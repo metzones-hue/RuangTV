@@ -7,10 +7,11 @@ const crypto = require('crypto');
 const { query, run, get, hashPassword, newId } = require('./database');
 const { signToken, requireAuth, generateTvKey } = require('./auth');
 const { pushContentToAll, pushContentToTv, getOnlineBranches, isTvOnline, registerHO } = require('./websocket');
+const { uploadToDrive, deleteFromDrive } = require('./gdrive');
 
 const router = express.Router();
 
-// ── File upload config ────────────────────────────────────────────────────────
+// ── File upload config (temp dir sebelum upload ke GDrive) ───────────────────
 const UPLOAD_DIR = path.join(__dirname, '..', 'uploads');
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
@@ -201,18 +202,35 @@ router.get('/contents/:id', requireAuth, (req, res) => {
 });
 
 // POST /api/contents/upload — upload file + create content record
-router.post('/contents/upload', requireAuth, upload.single('file'), (req, res) => {
+router.post('/contents/upload', requireAuth, upload.single('file'), async (req, res) => {
   const { name, category, duration, resolution, targets, notes } = req.body;
   if (!name || !category) return res.status(400).json({ error: 'Nama dan kategori wajib diisi' });
 
   const id = newId();
-  const filename = req.file ? req.file.filename : null;
-  const fileUrl = req.file ? `/uploads/${req.file.filename}` : null;
-  const fileSize = req.file ? req.file.size : 0;
+  let fileUrl = null;
+  let filename = null;
+  let fileSize = 0;
+  let gdriveId = null;
+
+  if (req.file) {
+    fileSize = req.file.size;
+    filename = req.file.filename;
+    try {
+      const result = await uploadToDrive(req.file.path, req.file.originalname, req.file.mimetype);
+      fileUrl = result.directUrl;
+      gdriveId = result.fileId;
+      // Hapus file temp setelah upload ke GDrive
+      fs.unlink(req.file.path, () => {});
+    } catch (e) {
+      console.error('GDrive upload error:', e.message);
+      // Fallback ke local jika GDrive gagal
+      fileUrl = `/uploads/${req.file.filename}`;
+    }
+  }
 
   run(`INSERT INTO contents (id,name,category,filename,file_url,duration,resolution,file_size,targets,notes,status)
        VALUES (?,?,?,?,?,?,?,?,?,?,'draft')`,
-    [id, name, category, filename, fileUrl, duration || 30, resolution || '1920x1080', fileSize, targets || 'ALL', notes || '']);
+    [id, name, category, gdriveId || filename, fileUrl, duration || 30, resolution || '1920x1080', fileSize, targets || 'ALL', notes || '']);
 
   res.status(201).json(get(`SELECT * FROM contents WHERE id = ?`, [id]));
 });
