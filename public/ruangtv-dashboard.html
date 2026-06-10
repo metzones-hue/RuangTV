@@ -1874,6 +1874,7 @@
       if (er) er.textContent = user.role || '-';
     }
     document.getElementById('settings-modal').style.display = 'flex';
+    loadRunningText();
   }
 
   function closeSettings() {
@@ -1907,13 +1908,69 @@
     }
   }
 
+  // ── RUNNING TEXT ──────────────────────────────────────────
+  // Konversi kecepatan slider (1-10) <-> durasi animasi (detik). Makin cepat = durasi kecil.
+  const speedToSecs = v => 90 - (parseInt(v) || 7) * 8;       // 1→82s, 10→10s
+  const secsToSpeed = s => Math.min(10, Math.max(1, Math.round((90 - (parseFloat(s) || 35)) / 8)));
+
+  async function loadRunningText() {
+    try {
+      const r = await fetch(location.origin + '/api/settings?_t=' + Date.now(), { cache: 'no-store' });
+      const s = await r.json();
+      if (s.ticker_text  != null) document.getElementById('set-ticker-text').value  = s.ticker_text;
+      if (s.ticker_color)         document.getElementById('set-ticker-color').value = s.ticker_color;
+      if (s.ticker_bg)            document.getElementById('set-ticker-bg').value    = s.ticker_bg;
+      document.getElementById('set-ticker-speed').value = secsToSpeed(s.ticker_speed);
+    } catch (e) { /* abaikan */ }
+    updateTickerPreview();
+  }
+
+  function updateTickerPreview() {
+    const txt   = document.getElementById('set-ticker-text').value || 'Preview teks berjalan…';
+    const color = document.getElementById('set-ticker-color').value;
+    const bg    = document.getElementById('set-ticker-bg').value;
+    const secs  = speedToSecs(document.getElementById('set-ticker-speed').value);
+    const prev  = document.getElementById('set-ticker-preview');
+    const bar   = document.getElementById('set-ticker-preview-bar');
+    prev.textContent = txt;
+    prev.style.color = color;
+    bar.style.background = bg;
+    prev.style.animation = `dash-ticker ${secs}s linear infinite`;
+  }
+
+  async function saveRunningText() {
+    const msg = document.getElementById('set-ticker-msg');
+    const body = {
+      ticker_text:  document.getElementById('set-ticker-text').value,
+      ticker_color: document.getElementById('set-ticker-color').value,
+      ticker_bg:    document.getElementById('set-ticker-bg').value,
+      ticker_speed: String(speedToSecs(document.getElementById('set-ticker-speed').value)),
+    };
+    try {
+      await fetch(location.origin + '/api/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + API.getToken() },
+        body: JSON.stringify(body),
+      }).then(async r => { const d = await r.json(); if (!r.ok) throw new Error(d.error); });
+      msg.style.color = 'var(--green)'; msg.textContent = '✓ Running text tersimpan & terkirim ke TV!';
+    } catch (e) {
+      msg.style.color = 'var(--red)'; msg.textContent = e.message || 'Gagal menyimpan.';
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     const sm = document.getElementById('settings-modal');
     if (sm) sm.addEventListener('click', e => { if (e.target === sm) closeSettings(); });
+    // Live preview saat input berubah
+    ['set-ticker-text','set-ticker-color','set-ticker-bg','set-ticker-speed'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', updateTickerPreview);
+    });
   });
 
 </script>
 
+<style>@keyframes dash-ticker { from { transform: translateX(100%); } to { transform: translateX(-100%); } }</style>
 <!-- SETTINGS MODAL -->
 <div id="settings-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px)" class="settings-overlay">
   <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;width:100%;max-width:460px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.5)">
@@ -1949,12 +2006,44 @@
     </div>
 
     <!-- Tampilan -->
-    <div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:16px">
+    <div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:20px">
       <div style="font-size:10px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px">Tampilan</div>
       <div style="display:flex;align-items:center;justify-content:space-between">
         <span style="font-size:13px;color:var(--text2)">Mode Gelap / Terang</span>
         <button onclick="toggleTheme()" style="background:rgba(255,255,255,.08);border:1px solid var(--border);border-radius:8px;padding:6px 14px;color:var(--text2);font-size:12px;cursor:pointer">Toggle Tema</button>
       </div>
+    </div>
+
+    <!-- Running Text -->
+    <div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:16px">
+      <div style="font-size:10px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px">Running Text (semua cabang)</div>
+
+      <div style="font-size:11px;color:var(--text3);margin-bottom:4px">Teks berjalan</div>
+      <textarea id="set-ticker-text" rows="3" placeholder="Tulis teks yang berjalan di TV…" style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:#fff;font-size:13px;margin-bottom:12px;box-sizing:border-box;resize:vertical;font-family:inherit"></textarea>
+
+      <div style="display:flex;gap:12px;margin-bottom:12px">
+        <div style="flex:1">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:4px">Warna teks</div>
+          <input id="set-ticker-color" type="color" value="#ffffff" style="width:100%;height:36px;background:transparent;border:1px solid var(--border);border-radius:8px;cursor:pointer;padding:2px">
+        </div>
+        <div style="flex:1">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:4px">Warna background bar</div>
+          <input id="set-ticker-bg" type="color" value="#000000" style="width:100%;height:36px;background:transparent;border:1px solid var(--border);border-radius:8px;cursor:pointer;padding:2px">
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:4px">Kecepatan teks <span style="color:var(--text3)">(kiri = lambat, kanan = cepat)</span></div>
+        <input id="set-ticker-speed" type="range" min="1" max="10" step="1" value="7" style="width:100%;cursor:pointer">
+      </div>
+
+      <!-- Preview -->
+      <div style="overflow:hidden;white-space:nowrap;border-radius:6px;padding:8px 0;margin-bottom:12px" id="set-ticker-preview-bar">
+        <span id="set-ticker-preview" style="display:inline-block;font-size:12px;white-space:nowrap">Preview teks berjalan…</span>
+      </div>
+
+      <div id="set-ticker-msg" style="font-size:12px;min-height:16px;margin-bottom:8px"></div>
+      <button onclick="saveRunningText()" style="width:100%;background:var(--yellow);color:#000;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:700;cursor:pointer">Simpan Running Text</button>
     </div>
   </div>
 </div>

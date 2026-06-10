@@ -106,6 +106,27 @@ async function initDb() {
     )
   `);
 
+  // Key-value settings (running text, dll) — global untuk semua cabang
+  db.run(`
+    CREATE TABLE IF NOT EXISTS settings (
+      key         TEXT PRIMARY KEY,
+      value       TEXT,
+      updated_at  TEXT DEFAULT (datetime('now','localtime'))
+    )
+  `);
+
+  // Default running-text settings (INSERT OR IGNORE — tidak menimpa yang sudah ada)
+  const tickerDefaults = {
+    ticker_text:  '🖨️ Ruangprint — Solusi Cetak Profesional   ✅ Cetak Banner, Spanduk, Poster, Dokumen   ⚡ Pengerjaan Cepat 1–3 Jam   🏷️ Berbagai Promo Menarik Tersedia   🕐 Buka Setiap Hari 08:00–21:00 WIB',
+    ticker_color: '#ffffff',
+    ticker_bg:    '#000000',
+    ticker_speed: '35',
+  };
+  const sstmt = db.prepare(`INSERT OR IGNORE INTO settings (key,value) VALUES (?,?)`);
+  Object.entries(tickerDefaults).forEach(([k, v]) => sstmt.run([k, v]));
+  sstmt.free();
+  saveDb();
+
   // ── MIGRATION: add manual_override column if missing ─────────────────────────
   try {
     const cols = db.exec("PRAGMA table_info(branches)")[0];

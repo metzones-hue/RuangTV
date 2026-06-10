@@ -194,7 +194,8 @@
   <div id="media-container">
     <div class="dot-bg"></div>
     <img id="media-img" alt="konten">
-    <video id="media-video" muted playsinline></video>
+    <video id="media-video" muted playsinline preload="auto"></video>
+    <video id="media-preload" muted playsinline preload="auto" style="display:none"></video>
     <div id="media-text">
       <div class="text-eyebrow" id="text-eyebrow">Ruangprint</div>
       <div class="text-headline" id="text-headline">Selamat Datang</div>
@@ -287,13 +288,20 @@
       const data = await res.json();
 
       if (data.playlist && data.playlist.length > 0) {
-        playlist = data.playlist.map(c => ({
-          id:      c.id,
-          name:    c.name,
-          dur:     Math.max(5, c.duration || 10),
-          fileUrl: c.file_url ? SERVER + c.file_url : null,
-          ext:     c.file_url ? c.file_url.split('.').pop().toLowerCase() : null,
-        }));
+        playlist = data.playlist.map(c => {
+          // URL absolut (http...) dipakai apa adanya; relatif → prepend SERVER.
+          const raw = c.file_url || '';
+          const url = raw ? (/^https?:\/\//i.test(raw) ? raw : SERVER + raw) : null;
+          // Ekstensi diambil dari path (abaikan query string).
+          const clean = raw.split('?')[0];
+          return {
+            id:      c.id,
+            name:    c.name,
+            dur:     Math.max(5, c.duration || 10),
+            fileUrl: url,
+            ext:     clean ? clean.split('.').pop().toLowerCase() : null,
+          };
+        });
 
         console.log('✅ Playlist:', playlist.length, 'konten untuk', BRANCH);
         document.getElementById('loading').style.display = 'none';
@@ -353,6 +361,17 @@
     }
 
     document.getElementById('slide-counter').textContent = (idx + 1) + ' / ' + playlist.length;
+    preloadNext(idx);
+  }
+
+  // Pre-buffer video slide berikutnya supaya transisi tanpa jeda
+  function preloadNext(idx) {
+    if (playlist.length < 2) return;
+    const next = playlist[(idx + 1) % playlist.length];
+    if (!next || !next.fileUrl) return;
+    const isVid = ['mp4','mov','webm','avi','mkv'].includes(next.ext);
+    const pre = document.getElementById('media-preload');
+    if (isVid && pre && pre.src !== next.fileUrl) { pre.src = next.fileUrl; pre.load(); }
   }
 
   function showTextSlide(c) {
@@ -432,6 +451,7 @@
         try {
           const msg = JSON.parse(e.data);
           if (msg.type === 'PLAYLIST_UPDATE' || msg.type === 'PUSH_CONTENT') fetchPlaylist();
+          if (msg.type === 'SETTINGS_UPDATE') fetchSettings();
           if (msg.type === 'COMMAND') {
             if (msg.command === 'RELOAD')   location.reload();
             if (msg.command === 'NEXT')     nextSlide();
@@ -538,10 +558,33 @@
     }, 1000);
   });
 
+  // ── RUNNING TEXT SETTINGS ────────────────────────────────
+  function applyTickerSettings(s) {
+    const el = document.getElementById('ticker-text');
+    if (!el) return;
+    if (s.ticker_text)  el.textContent = s.ticker_text;
+    if (s.ticker_color) el.style.color = s.ticker_color;
+    if (s.ticker_speed) el.style.animationDuration = (parseFloat(s.ticker_speed) || 35) + 's';
+    if (s.ticker_bg) {
+      const bar = document.querySelector('.bottom-bar');
+      if (bar) bar.style.background = s.ticker_bg;
+    }
+  }
+
+  async function fetchSettings() {
+    try {
+      const res = await fetch(`${SERVER}/api/settings?_t=${Date.now()}`, { cache: 'no-store' });
+      if (!res.ok) return;
+      applyTickerSettings(await res.json());
+    } catch (e) { /* abaikan, pakai default HTML */ }
+  }
+
   // ── INIT ─────────────────────────────────────────────────
   fetchPlaylist();
+  fetchSettings();
   connectWS();
   setInterval(fetchPlaylist, REFRESH);
+  setInterval(fetchSettings, REFRESH);
 </script>
 </body>
 </html>

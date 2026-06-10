@@ -176,6 +176,14 @@ function pushContentToTv(branchCode, contentData) {
   });
 }
 
+// Kirim pesan mentah (apa adanya) ke semua TV — tidak dibungkus PUSH_CONTENT
+function broadcastToTvs(message) {
+  const payload = JSON.stringify(message);
+  tvConnections.forEach(ws => {
+    if (ws.readyState === WebSocket.OPEN) ws.send(payload);
+  });
+}
+
 function pushContentToAll(contentData, targetBranches = null) {
   const results = {};
   const targets = targetBranches || Array.from(tvConnections.keys());
@@ -222,6 +230,7 @@ module.exports = {
   sendToTv,
   pushContentToTv,
   pushContentToAll,
+  broadcastToTvs,
   broadcastToHO,
   registerHO,
   getOnlineBranches,

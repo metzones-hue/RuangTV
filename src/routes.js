@@ -6,8 +6,8 @@ const crypto = require('crypto');
 
 const { query, run, get, hashPassword, newId } = require('./database');
 const { signToken, requireAuth, generateTvKey } = require('./auth');
-const { pushContentToAll, pushContentToTv, getOnlineBranches, isTvOnline, registerHO } = require('./websocket');
-const { uploadToDrive, deleteFromDrive } = require('./gdrive');
+const { pushContentToAll, pushContentToTv, broadcastToTvs, getOnlineBranches, isTvOnline, registerHO } = require('./websocket');
+const { uploadToDrive, deleteFromDrive, streamFromDrive } = require('./gdrive');
 
 const router = express.Router();
 
@@ -217,8 +217,12 @@ router.post('/contents/upload', requireAuth, upload.single('file'), async (req, 
     filename = req.file.filename;
     try {
       const result = await uploadToDrive(req.file.path, req.file.originalname, req.file.mimetype);
-      fileUrl = result.directUrl;
       gdriveId = result.fileId;
+      // Pakai proxy stream sendiri (Range-capable) — bukan link uc?export=download
+      // yang lambat/buffer. URL relatif → player prepend SERVER otomatis.
+      // Ekstensi disisipkan agar player bisa deteksi tipe (gambar/video).
+      const ext = path.extname(req.file.originalname).toLowerCase(); // termasuk titik, mis ".mp4"
+      fileUrl = `/api/stream/${gdriveId}${ext}`;
       // Hapus file temp setelah upload ke GDrive
       fs.unlink(req.file.path, () => {});
     } catch (e) {
@@ -503,6 +507,68 @@ router.get('/stats', requireAuth, (req, res) => {
 // GET /api/tv/ws-upgrade — handle HO dashboard WS connection
 router.get('/tv/ho-connect', requireAuth, (req, res) => {
   res.json({ message: 'Connect via WebSocket at /ws?type=ho', token: req.headers.authorization?.slice(7) });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SETTINGS ROUTES (running text dll — global semua cabang)
+// ─────────────────────────────────────────────────────────────────────────────
+
+// GET /api/settings — public (player butuh tanpa login)
+router.get('/settings', (req, res) => {
+  const rows = query(`SELECT key, value FROM settings`);
+  const obj = {};
+  rows.forEach(r => { obj[r.key] = r.value; });
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+  res.json(obj);
+});
+
+// PUT /api/settings — update satu/lebih key (admin)
+router.put('/settings', requireAuth, (req, res) => {
+  const allowed = ['ticker_text', 'ticker_color', 'ticker_bg', 'ticker_speed'];
+  const updates = Object.entries(req.body || {}).filter(([k]) => allowed.includes(k));
+  if (updates.length === 0) return res.status(400).json({ error: 'Tidak ada setting valid untuk disimpan' });
+
+  updates.forEach(([k, v]) => {
+    run(`INSERT INTO settings (key, value, updated_at) VALUES (?, ?, datetime('now','localtime'))
+         ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`,
+      [k, String(v)]);
+  });
+
+  // Beri tahu semua TV agar refresh running text seketika
+  broadcastToTvs({ type: 'SETTINGS_UPDATE', timestamp: new Date().toISOString() });
+
+  const rows = query(`SELECT key, value FROM settings`);
+  const obj = {};
+  rows.forEach(r => { obj[r.key] = r.value; });
+  res.json(obj);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STREAM PROXY — serve video Google Drive via Range request (anti-buffer)
+// ─────────────────────────────────────────────────────────────────────────────
+
+// GET /api/stream/:id — public
+router.get('/stream/:id', async (req, res) => {
+  try {
+    // Strip ekstensi opsional (mis. "<id>.mp4" → "<id>"); ID Drive tak mengandung titik.
+    const fileId = req.params.id.split('.')[0];
+    const driveRes = await streamFromDrive(fileId, req.headers.range);
+    if (!driveRes.ok && driveRes.status !== 206) {
+      return res.status(driveRes.status).json({ error: 'File tidak dapat diakses' });
+    }
+    // Teruskan header penting untuk streaming/seek
+    res.status(driveRes.status);
+    ['content-type', 'content-length', 'content-range', 'accept-ranges'].forEach(h => {
+      const v = driveRes.headers.get(h);
+      if (v) res.set(h, v);
+    });
+    if (!driveRes.headers.get('accept-ranges')) res.set('Accept-Ranges', 'bytes');
+    res.set('Cache-Control', 'public, max-age=3600');
+    driveRes.body.pipe(res);
+  } catch (e) {
+    console.error('Stream proxy error:', e.message);
+    res.status(500).json({ error: 'Gagal streaming file' });
+  }
 });
 
 module.exports = router;

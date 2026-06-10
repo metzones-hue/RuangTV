@@ -79,6 +79,15 @@ async function uploadToDrive(filePath, fileName, mimeType) {
   return { fileId, directUrl };
 }
 
+// Stream file dari Drive lewat API (alt=media) — mendukung Range request
+// supaya video bisa di-seek/buffer mulus (tidak seperti uc?export=download).
+async function streamFromDrive(fileId, range) {
+  const token = await getToken();
+  const headers = { Authorization: `Bearer ${token}` };
+  if (range) headers.Range = range;
+  return fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, { headers });
+}
+
 async function deleteFromDrive(fileId) {
   try {
     const token = await getToken();
@@ -91,4 +100,4 @@ async function deleteFromDrive(fileId) {
   }
 }
 
-module.exports = { uploadToDrive, deleteFromDrive };
+module.exports = { uploadToDrive, deleteFromDrive, streamFromDrive };
