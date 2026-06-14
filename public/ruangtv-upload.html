@@ -660,6 +660,32 @@
     document.getElementById('progress-fill').style.width = '0%';
   }
 
+  // ── Reset form upload ke kondisi kosong ──────────────────
+  function resetUploadForm() {
+    // Nama Konten
+    const nameInput = document.querySelector('input[type="text"].form-input');
+    if (nameInput) nameInput.value = '';
+    // Kategori & Resolusi (kedua select) — kembali ke opsi pertama
+    document.querySelectorAll('select.form-select').forEach(sel => { sel.selectedIndex = 0; });
+    // Distribusi ke Cabang — uncheck semua
+    document.querySelectorAll('.checkbox-item input[type="checkbox"]').forEach(cb => { cb.checked = false; });
+    // Durasi — kembali ke 30 dtk
+    const durRange = document.getElementById('dur-range');
+    if (durRange) { durRange.value = 30; }
+    const durVal = document.getElementById('dur-val');
+    if (durVal) durVal.textContent = '30 dtk';
+    // Keterangan
+    const textarea = document.querySelector('textarea.form-textarea');
+    if (textarea) textarea.value = '';
+    // File & progress
+    const fileInput = document.getElementById('file-input');
+    if (fileInput) fileInput.value = '';
+    const prog = document.getElementById('upload-progress');
+    if (prog) prog.style.display = 'none';
+    const fname = document.getElementById('up-filename');
+    if (fname) fname.textContent = 'Belum ada file dipilih';
+  }
+
   // ── Real Upload ──────────────────────────────────────────
   async function doRealUpload() {
     const fileInput = document.getElementById('file-input');
@@ -705,17 +731,7 @@
         API.toast(`${content.name} berhasil diupload!`, 'success');
         setTimeout(() => loadContents(), 500);
         if (btn) { btn.disabled = false; btn.textContent = 'Upload & Simpan ke Library'; }
-        // Reset form
-        const nameInput = document.querySelector('input[type="text"].form-input');
-        if (nameInput) nameInput.value = '';
-        const catSelect = document.querySelector('select.form-select');
-        if (catSelect) catSelect.value = catSelect.options[0]?.value || '';
-        const durRange = document.getElementById('dur-range');
-        if (durRange) { durRange.value = 30; document.getElementById('dur-val').textContent = '30 dtk'; }
-        document.querySelectorAll('.checkbox-item input[type="checkbox"]').forEach(cb => { cb.checked = false; });
-        if (fileInput) fileInput.value = '';
-        document.getElementById('upload-progress').style.display = 'none';
-        document.getElementById('up-filename').textContent = 'Belum ada file dipilih';
+        resetUploadForm();
       } catch(e) {
         clearInterval(iv);
         API.toast('Upload gagal: ' + e.message, 'error');
@@ -727,10 +743,7 @@
         await API.contents.create({ name, category: category||'promo', duration: durVal, targets });
         API.toast(`${name} ditambahkan ke library!`, 'success');
         loadContents();
-        // Reset form
-        const nameInput = document.querySelector('input[type="text"].form-input');
-        if (nameInput) nameInput.value = '';
-        document.querySelectorAll('.checkbox-item input[type="checkbox"]').forEach(cb => { cb.checked = false; });
+        resetUploadForm();
       } catch(e) { API.toast(e.message, 'error'); }
     }
   }
