@@ -101,7 +101,15 @@
 
   /* ── TICKER ── */
   .ticker-wrap { overflow: hidden; white-space: nowrap; margin-bottom: 10px; }
-  .ticker-inner { display: inline-block; animation: ticker 35s linear infinite; font-size: 12px; color: rgba(255,255,255,.4); }
+  .ticker-inner {
+    display: inline-block; animation: ticker 35s linear infinite;
+    font-size: 12px; color: #fff; font-weight: 600;
+    /* Outline gelap agar teks tetap terbaca di atas video terang maupun gelap */
+    text-shadow:
+      -1px -1px 0 rgba(0,0,0,.85), 1px -1px 0 rgba(0,0,0,.85),
+      -1px  1px 0 rgba(0,0,0,.85), 1px  1px 0 rgba(0,0,0,.85),
+       0    0   4px rgba(0,0,0,.9);
+  }
   @keyframes ticker { from{transform:translateX(100vw);} to{transform:translateX(-100%);} }
 
   /* ── LOADING ── */
@@ -218,16 +226,16 @@
 
   <!-- CONTROLS -->
   <div class="controls">
-    <div class="ctrl-btn" onclick="prevSlide()"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></div>
-    <div class="ctrl-btn" onclick="togglePause()" id="pause-btn"><svg viewBox="0 0 24 24" id="pause-icon"><path d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
-    <div class="ctrl-btn" onclick="nextSlide()"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
-    <div class="ctrl-btn" onclick="toggleMute()" id="mute-btn" title="Mute/Unmute">
+    <div class="ctrl-btn" onclick="prevSlide()" title="Konten Sebelumnya"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></div>
+    <div class="ctrl-btn" onclick="togglePause()" id="pause-btn" title="Jeda / Putar"><svg viewBox="0 0 24 24" id="pause-icon"><path d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+    <div class="ctrl-btn" onclick="nextSlide()" title="Konten Berikutnya"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+    <div class="ctrl-btn" onclick="toggleMute()" id="mute-btn" title="Bisukan / Suara">
       <svg id="mute-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M15.536 8.464a5 5 0 010 7.072M12 6v12l-5-4H4V10h3l5-4zM18.364 5.636a9 9 0 010 12.728"/></svg>
     </div>
   </div>
 
   <!-- THEME TOGGLE -->
-  <div class="player-theme-btn" onclick="toggleTheme()">
+  <div class="player-theme-btn" onclick="toggleTheme()" title="Mode Terang / Gelap">
     <svg id="theme-icon" viewBox="0 0 24 24"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
   </div>
 

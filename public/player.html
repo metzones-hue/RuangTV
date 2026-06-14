@@ -104,7 +104,14 @@
 
   /* ── TICKER ── */
   .ticker-wrap { overflow: hidden; white-space: nowrap; margin-bottom: 10px; }
-  .ticker-inner { display: inline-block; animation: ticker 35s linear infinite; font-size: 12px; color: rgba(255,255,255,.4); }
+  .ticker-inner {
+    display: inline-block; animation: ticker 35s linear infinite;
+    font-size: 12px; color: #fff; font-weight: 600;
+    text-shadow:
+      -1px -1px 0 rgba(0,0,0,.85), 1px -1px 0 rgba(0,0,0,.85),
+      -1px  1px 0 rgba(0,0,0,.85), 1px  1px 0 rgba(0,0,0,.85),
+       0    0   4px rgba(0,0,0,.9);
+  }
   @keyframes ticker { from{transform:translateX(100vw);} to{transform:translateX(-100%);} }
 
   /* ── LOADING ── */
