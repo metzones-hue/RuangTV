@@ -419,7 +419,7 @@
     border: 1px solid var(--border-y);
     color: var(--yellow);
   }
-  .cst-live { background: rgba(34,197,94,.1); color: var(--green); border: 1px solid rgba(34,197,94,.2); font-size: 10px; padding: 3px 9px; border-radius: 20px; font-weight: 600; white-space: nowrap; }
+  .cst-live { background: rgba(239,68,68,.1); color: var(--red); border: 1px solid rgba(239,68,68,.3); font-size: 10px; padding: 3px 9px; border-radius: 20px; font-weight: 600; white-space: nowrap; }
   .cst-sched { background: rgba(99,102,241,.1); color: #818cf8; border: 1px solid rgba(99,102,241,.2); font-size: 10px; padding: 3px 9px; border-radius: 20px; font-weight: 600; white-space: nowrap; }
   .cst-draft { background: var(--bg3); color: var(--text3); border: 1px solid var(--border); font-size: 10px; padding: 3px 9px; border-radius: 20px; font-weight: 600; white-space: nowrap; }
 
@@ -512,6 +512,52 @@
     transform-origin: top left;
     border: none;
     pointer-events: none;
+  }
+  /* ── Mini live-preview (gambar konten yang sedang tayang) ── */
+  .live-thumb {
+    position: absolute; inset: 0;
+    background-size: cover; background-position: center;
+    background-color: #0c0c0c;
+    transition: background-image .4s ease;
+  }
+  .live-thumb .lt-card {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px; text-align: center; padding: 8px;
+  }
+  .live-thumb .lt-card svg { width: 26px; height: 26px; fill: rgba(255,255,255,.85); }
+  .live-thumb .lt-title {
+    font-size: 12px; font-weight: 700; color: #fff; line-height: 1.2;
+    text-shadow: 0 1px 3px rgba(0,0,0,.6); max-width: 90%;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .live-thumb .lt-label {
+    position: absolute; left: 8px; bottom: 8px; right: 8px;
+    font-size: 11px; font-weight: 700; color: #fff;
+    text-shadow: 0 1px 4px rgba(0,0,0,.9), 0 0 2px rgba(0,0,0,.9);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .live-thumb .lt-badge {
+    position: absolute; right: 8px; top: 8px;
+    display: flex; align-items: center; gap: 4px;
+    background: rgba(239,68,68,.9); color: #fff;
+    font-size: 9px; font-weight: 800; letter-spacing: .04em;
+    padding: 2px 7px; border-radius: 5px;
+  }
+  .live-thumb .lt-badge .lt-dot {
+    width: 5px; height: 5px; border-radius: 50%; background: #fff;
+    animation: pulse-dot 1.4s infinite;
+  }
+  @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.3} }
+  .live-thumb .lt-count {
+    position: absolute; right: 8px; bottom: 8px;
+    background: rgba(0,0,0,.6); color: rgba(255,255,255,.9);
+    font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 4px;
+  }
+  .live-thumb .lt-empty {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; color: rgba(255,255,255,.3); letter-spacing: .05em;
   }
   .preview-offline-screen {
     position: absolute;
@@ -923,15 +969,15 @@
         <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor"><circle cx="4" cy="4" r="4"/></svg>
         <span>4 Cabang Siaran</span>
       </div>
-      <button class="btn btn-outline">
+      <button class="btn btn-outline" onclick="API.toast('Notifikasi — Fitur segera hadir', 'info')" title="Notifikasi">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
         Notifikasi
       </button>
-      <button class="btn btn-outline">
+      <button class="btn btn-outline" onclick="window.location.href='ruangtv-upload.html'" title="Upload Konten Baru">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
         Upload Konten
       </button>
-      <button class="btn btn-yellow">
+      <button class="btn btn-yellow" onclick="window.location.href='ruangtv-schedule.html'" title="Jadwalkan Konten">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4v16m8-8H4"/></svg>
         Jadwalkan Konten
       </button>
@@ -1343,7 +1389,7 @@
       <!-- DMB -->
       <div class="preview-card" onclick="openPreview('DMB','Ruangprint DMB',true)">
         <div class="preview-frame-wrap">
-          <iframe id="prev-iframe-DMB" src="" data-src="ruangtv-player.html?branch=DMB" loading="lazy"></iframe>
+          <div class="live-thumb" id="live-thumb-DMB"><div class="lt-empty">Memuat…</div></div>
         </div>
         <div class="preview-card-foot">
           <span class="preview-branch-code">DMB</span>
@@ -1358,7 +1404,7 @@
       <!-- CTR -->
       <div class="preview-card" onclick="openPreview('CTR','Ruangprint CTR',true)">
         <div class="preview-frame-wrap">
-          <iframe id="prev-iframe-CTR" src="" data-src="ruangtv-player.html?branch=CTR" loading="lazy"></iframe>
+          <div class="live-thumb" id="live-thumb-CTR"><div class="lt-empty">Memuat…</div></div>
         </div>
         <div class="preview-card-foot">
           <span class="preview-branch-code">CTR</span>
@@ -1373,7 +1419,7 @@
       <!-- GDS -->
       <div class="preview-card" onclick="openPreview('GDS','Ruangprint GDS',true)">
         <div class="preview-frame-wrap">
-          <iframe id="prev-iframe-GDS" src="" data-src="ruangtv-player.html?branch=GDS" loading="lazy"></iframe>
+          <div class="live-thumb" id="live-thumb-GDS"><div class="lt-empty">Memuat…</div></div>
         </div>
         <div class="preview-card-foot">
           <span class="preview-branch-code">GDS</span>
@@ -1388,7 +1434,7 @@
       <!-- CGK -->
       <div class="preview-card" onclick="openPreview('CGK','Ruangprint CGK',true)">
         <div class="preview-frame-wrap">
-          <iframe id="prev-iframe-CGK" src="" data-src="ruangtv-player.html?branch=CGK" loading="lazy"></iframe>
+          <div class="live-thumb" id="live-thumb-CGK"><div class="lt-empty">Memuat…</div></div>
         </div>
         <div class="preview-card-foot">
           <span class="preview-branch-code">CGK</span>
@@ -1403,7 +1449,7 @@
       <!-- BKS -->
       <div class="preview-card" onclick="openPreview('BKS','Ruangprint BKS',true)">
         <div class="preview-frame-wrap">
-          <iframe id="prev-iframe-BKS" src="" data-src="ruangtv-player.html?branch=BKS" loading="lazy"></iframe>
+          <div class="live-thumb" id="live-thumb-BKS"><div class="lt-empty">Memuat…</div></div>
         </div>
         <div class="preview-card-foot">
           <span class="preview-branch-code">BKS</span>
@@ -1538,6 +1584,14 @@
       const branches = await API.branches.list();
       renderTvGrid(branches);
       renderBranchList(branches);
+      // Sinkronkan status online ke preview live (hindari hardcode usang)
+      if (typeof BRANCHES !== 'undefined') {
+        branches.forEach(b => {
+          const ref = BRANCHES.find(x => x.code === b.code);
+          if (ref) ref.online = (b.status === 'online');
+        });
+        if (typeof loadPreviewThumbs === 'function') loadPreviewThumbs();
+      }
     } catch(e) { console.warn('Branches load failed:', e.message); }
   }
 
@@ -1608,14 +1662,17 @@
   }
 
   // ── Load Contents ────────────────────────────────────────
+  let _allContents = [];
   async function loadContents() {
     try {
-      const list = await API.contents.list();
-      renderContentLibrary(list);
+      _allContents = await API.contents.list();
+      const activeTab = document.querySelector('.panel .tab.active');
+      const filter = activeTab ? activeTab.textContent.trim().toLowerCase() : 'semua';
+      renderContentLibrary(_allContents, filter);
     } catch(e) { console.warn('Contents load failed:', e.message); }
   }
 
-  function renderContentLibrary(list) {
+  function renderContentLibrary(list, filter) {
     const panel = document.querySelectorAll('.panel')[1];
     if (!panel) return;
     const existing = panel.querySelectorAll('.content-row');
@@ -1630,10 +1687,15 @@
     const catClass = { promo:'ct-promo', discount:'ct-disc', menu:'ct-menu', info:'ct-info' };
     const statusEl = { live:'<span class="cst-live">Live</span>', scheduled:'<span class="cst-sched">Terjadwal</span>', draft:'<span class="cst-draft">Draft</span>' };
 
-    list.slice(0, 6).forEach(c => {
+    let filtered = list;
+    if (filter === 'live') filtered = list.filter(c => c.status === 'live');
+    else if (filter === 'draft') filtered = list.filter(c => c.status === 'draft');
+    else if (filter === 'terjadwal') filtered = list.filter(c => c.status === 'scheduled');
+
+    (filtered.length ? filtered : list).slice(0, 6).forEach(c => {
       const row = document.createElement('div');
       row.className = 'content-row';
-      const targets = (c.targets || 'ALL').split(',').map(t => `<span class="target-pill">${t.trim()}</span>`).join('');
+      const targets = (c.targets || 'ALL').split(',').map(t => `<span class="target-pill" title="Target cabang tayang">${t.trim()}</span>`).join('');
       row.innerHTML = `
         <div class="content-thumb ${catClass[c.category] || 'ct-info'}">
           ${catIcon[c.category] || catIcon.info}
@@ -1642,7 +1704,7 @@
           <div class="content-name-txt">${c.name}</div>
           <div class="content-meta-txt">${c.duration} dtk · ${c.resolution || '1920×1080'}</div>
         </div>
-        <div class="content-targets">${targets}</div>
+        <div class="content-targets" title="Klik untuk edit konten ini" style="cursor:pointer" onclick="window.location.href='ruangtv-upload.html'">${targets}</div>
         ${statusEl[c.status] || statusEl.draft}`;
       panel.appendChild(row);
     });
@@ -1731,14 +1793,104 @@
   ];
   var currentPreviewBranch = null;
 
-  // Lazy load iframes when section scrolls into view
-  function loadPreviewIframes() {
-    BRANCHES.forEach(function(b) {
-      if (!b.online) return;
-      var iframe = document.getElementById('prev-iframe-' + b.code);
-      if (iframe && !iframe.src) {
-        iframe.src = SERVER + '/ruangtv-player.html?branch=' + b.code;
+  // ── Mini live-preview: tampilkan konten yang sedang tayang per cabang ──
+  var IMG_EXT = ['jpg','jpeg','png','gif','webp'];
+  var VID_EXT = ['mp4','mov','webm','m4v','ogg'];
+  var CAT_GRAD = {
+    promo:    'linear-gradient(135deg,#7c2d12,#b45309)',
+    discount: 'linear-gradient(135deg,#831843,#be185d)',
+    menu:     'linear-gradient(135deg,#14532d,#15803d)',
+    info:     'linear-gradient(135deg,#1e3a8a,#2563eb)'
+  };
+  var PLAY_SVG = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+  var _prevState = {};   // { CODE: { items, idx, timer } }
+
+  function mediaUrl(raw) {
+    if (!raw) return null;
+    return /^https?:\/\//i.test(raw) ? raw : SERVER + raw;
+  }
+  function extOf(raw) {
+    if (!raw) return null;
+    return raw.split('?')[0].split('.').pop().toLowerCase();
+  }
+
+  function renderThumbSlide(code) {
+    var st = _prevState[code];
+    var el = document.getElementById('live-thumb-' + code);
+    if (!st || !el) return;
+    if (!st.items.length) {
+      el.style.backgroundImage = '';
+      el.innerHTML = '<div class="lt-empty">Tidak ada konten Live</div>';
+      return;
+    }
+    var c = st.items[st.idx];
+    var ext = extOf(c.file_url);
+    var isImg = IMG_EXT.indexOf(ext) !== -1;
+    var isVid = VID_EXT.indexOf(ext) !== -1;
+    var url = mediaUrl(c.file_url);
+    var badge = '<div class="lt-badge"><span class="lt-dot"></span>LIVE</div>';
+    var count = st.items.length > 1 ? '<div class="lt-count">' + (st.idx + 1) + '/' + st.items.length + '</div>' : '';
+    var label = '<div class="lt-label">' + (c.name || '-') + '</div>';
+    if (isImg && url) {
+      el.style.background = '#0c0c0c';
+      el.style.backgroundImage = "url('" + url + "')";
+      el.innerHTML = badge + label + count;
+    } else if (isVid && url) {
+      // Video → putar langsung (muted, loop) supaya preview benar-benar "running"
+      el.style.background = '#000';
+      el.style.backgroundImage = '';
+      el.innerHTML =
+        '<video src="' + url + '" autoplay muted loop playsinline preload="auto" ' +
+        'style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" ' +
+        'onerror="this.remove()"></video>' +
+        badge + label + count;
+    } else {
+      // Tanpa file/gambar → kartu gradien berwarna + nama konten (bukan hitam)
+      el.style.backgroundImage = '';
+      el.style.background = (CAT_GRAD[c.category] || CAT_GRAD.info);
+      el.innerHTML = badge +
+        '<div class="lt-card">' + PLAY_SVG + '<div class="lt-title">' + (c.name || '-') + '</div></div>' +
+        count;
+    }
+  }
+
+  function rotateThumb(code) {
+    var st = _prevState[code];
+    if (!st || st.items.length <= 1) return;
+    st.idx = (st.idx + 1) % st.items.length;
+    renderThumbSlide(code);
+    var dur = Math.max(4, st.items[st.idx].duration || 8);
+    st.timer = setTimeout(function(){ rotateThumb(code); }, dur * 1000);
+  }
+
+  async function loadBranchThumb(code) {
+    var el = document.getElementById('live-thumb-' + code);
+    if (!el) return;
+    try {
+      var r = await fetch(SERVER + '/api/tv/' + code + '/playlist?_t=' + Date.now(), { cache: 'no-store' });
+      var data = await r.json();
+      if (_prevState[code] && _prevState[code].timer) clearTimeout(_prevState[code].timer);
+      _prevState[code] = { items: data.playlist || [], idx: 0, timer: null };
+      el.style.background = '#0c0c0c';
+      renderThumbSlide(code);
+      var st = _prevState[code];
+      if (st.items.length > 1) {
+        var dur = Math.max(4, st.items[0].duration || 8);
+        st.timer = setTimeout(function(){ rotateThumb(code); }, dur * 1000);
       }
+    } catch(e) {
+      el.innerHTML = '<div class="lt-empty">Gagal memuat</div>';
+    }
+  }
+
+  function loadPreviewThumbs() {
+    BRANCHES.forEach(function(b) {
+      if (!b.online) {
+        var el = document.getElementById('live-thumb-' + b.code);
+        if (el) { el.style.background = '#111'; el.innerHTML = '<div class="lt-empty">OFFLINE</div>'; }
+        return;
+      }
+      loadBranchThumb(b.code);
     });
   }
 
@@ -1748,15 +1900,17 @@
     var previewObs = new IntersectionObserver(function(entries) {
       entries.forEach(function(entry) {
         if (entry.isIntersecting) {
-          loadPreviewIframes();
+          loadPreviewThumbs();
           previewObs.disconnect();
         }
       });
     }, { threshold: 0.1 });
     previewObs.observe(previewGrid);
   } else if (previewGrid) {
-    setTimeout(loadPreviewIframes, 1500);
+    setTimeout(loadPreviewThumbs, 1500);
   }
+  // Refresh konten preview tiap 60 detik agar mengikuti perubahan playlist
+  setInterval(loadPreviewThumbs, 60000);
 
   function openPreview(code, name, online) {
     if (!online) return;
@@ -1834,6 +1988,8 @@
     tab.addEventListener('click', function() {
       this.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       this.classList.add('active');
+      const filter = this.textContent.trim().toLowerCase();
+      renderContentLibrary(_allContents, filter);
     });
   });
 
@@ -1934,7 +2090,11 @@
     const bar   = document.getElementById('set-ticker-preview-bar');
     prev.textContent = txt;
     prev.style.color = color;
-    bar.style.background = bg;
+    // Semi-transparan agar konsisten dengan tampilan di TV (video tetap terlihat)
+    const m = String(bg).match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
+    bar.style.background = m
+      ? `rgba(${parseInt(m[1],16)},${parseInt(m[2],16)},${parseInt(m[3],16)},.55)`
+      : bg;
     prev.style.animation = `dash-ticker ${secs}s linear infinite`;
   }
 
