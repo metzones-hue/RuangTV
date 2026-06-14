@@ -923,15 +923,15 @@
         <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor"><circle cx="4" cy="4" r="4"/></svg>
         <span>4 Cabang Siaran</span>
       </div>
-      <button class="btn btn-outline">
+      <button class="btn btn-outline" onclick="API.toast('Notifikasi — Fitur segera hadir', 'info')" title="Notifikasi">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
         Notifikasi
       </button>
-      <button class="btn btn-outline">
+      <button class="btn btn-outline" onclick="window.location.href='ruangtv-upload.html'" title="Upload Konten Baru">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
         Upload Konten
       </button>
-      <button class="btn btn-yellow">
+      <button class="btn btn-yellow" onclick="window.location.href='ruangtv-schedule.html'" title="Jadwalkan Konten">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4v16m8-8H4"/></svg>
         Jadwalkan Konten
       </button>
@@ -1608,14 +1608,17 @@
   }
 
   // ── Load Contents ────────────────────────────────────────
+  let _allContents = [];
   async function loadContents() {
     try {
-      const list = await API.contents.list();
-      renderContentLibrary(list);
+      _allContents = await API.contents.list();
+      const activeTab = document.querySelector('.panel .tab.active');
+      const filter = activeTab ? activeTab.textContent.trim().toLowerCase() : 'semua';
+      renderContentLibrary(_allContents, filter);
     } catch(e) { console.warn('Contents load failed:', e.message); }
   }
 
-  function renderContentLibrary(list) {
+  function renderContentLibrary(list, filter) {
     const panel = document.querySelectorAll('.panel')[1];
     if (!panel) return;
     const existing = panel.querySelectorAll('.content-row');
@@ -1630,10 +1633,15 @@
     const catClass = { promo:'ct-promo', discount:'ct-disc', menu:'ct-menu', info:'ct-info' };
     const statusEl = { live:'<span class="cst-live">Live</span>', scheduled:'<span class="cst-sched">Terjadwal</span>', draft:'<span class="cst-draft">Draft</span>' };
 
-    list.slice(0, 6).forEach(c => {
+    let filtered = list;
+    if (filter === 'live') filtered = list.filter(c => c.status === 'live');
+    else if (filter === 'draft') filtered = list.filter(c => c.status === 'draft');
+    else if (filter === 'terjadwal') filtered = list.filter(c => c.status === 'scheduled');
+
+    (filtered.length ? filtered : list).slice(0, 6).forEach(c => {
       const row = document.createElement('div');
       row.className = 'content-row';
-      const targets = (c.targets || 'ALL').split(',').map(t => `<span class="target-pill">${t.trim()}</span>`).join('');
+      const targets = (c.targets || 'ALL').split(',').map(t => `<span class="target-pill" title="Target cabang tayang">${t.trim()}</span>`).join('');
       row.innerHTML = `
         <div class="content-thumb ${catClass[c.category] || 'ct-info'}">
           ${catIcon[c.category] || catIcon.info}
@@ -1642,7 +1650,7 @@
           <div class="content-name-txt">${c.name}</div>
           <div class="content-meta-txt">${c.duration} dtk · ${c.resolution || '1920×1080'}</div>
         </div>
-        <div class="content-targets">${targets}</div>
+        <div class="content-targets" title="Klik untuk edit konten ini" style="cursor:pointer" onclick="window.location.href='ruangtv-upload.html'">${targets}</div>
         ${statusEl[c.status] || statusEl.draft}`;
       panel.appendChild(row);
     });
@@ -1834,6 +1842,8 @@
     tab.addEventListener('click', function() {
       this.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       this.classList.add('active');
+      const filter = this.textContent.trim().toLowerCase();
+      renderContentLibrary(_allContents, filter);
     });
   });
 

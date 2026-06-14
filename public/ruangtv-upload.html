@@ -705,6 +705,17 @@
         API.toast(`${content.name} berhasil diupload!`, 'success');
         setTimeout(() => loadContents(), 500);
         if (btn) { btn.disabled = false; btn.textContent = 'Upload & Simpan ke Library'; }
+        // Reset form
+        const nameInput = document.querySelector('input[type="text"].form-input');
+        if (nameInput) nameInput.value = '';
+        const catSelect = document.querySelector('select.form-select');
+        if (catSelect) catSelect.value = catSelect.options[0]?.value || '';
+        const durRange = document.getElementById('dur-range');
+        if (durRange) { durRange.value = 30; document.getElementById('dur-val').textContent = '30 dtk'; }
+        document.querySelectorAll('.checkbox-item input[type="checkbox"]').forEach(cb => { cb.checked = false; });
+        if (fileInput) fileInput.value = '';
+        document.getElementById('upload-progress').style.display = 'none';
+        document.getElementById('up-filename').textContent = 'Belum ada file dipilih';
       } catch(e) {
         clearInterval(iv);
         API.toast('Upload gagal: ' + e.message, 'error');
@@ -716,6 +727,10 @@
         await API.contents.create({ name, category: category||'promo', duration: durVal, targets });
         API.toast(`${name} ditambahkan ke library!`, 'success');
         loadContents();
+        // Reset form
+        const nameInput = document.querySelector('input[type="text"].form-input');
+        if (nameInput) nameInput.value = '';
+        document.querySelectorAll('.checkbox-item input[type="checkbox"]').forEach(cb => { cb.checked = false; });
       } catch(e) { API.toast(e.message, 'error'); }
     }
   }
