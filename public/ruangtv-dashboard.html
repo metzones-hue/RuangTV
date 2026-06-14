@@ -513,6 +513,52 @@
     border: none;
     pointer-events: none;
   }
+  /* ── Mini live-preview (gambar konten yang sedang tayang) ── */
+  .live-thumb {
+    position: absolute; inset: 0;
+    background-size: cover; background-position: center;
+    background-color: #0c0c0c;
+    transition: background-image .4s ease;
+  }
+  .live-thumb .lt-card {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px; text-align: center; padding: 8px;
+  }
+  .live-thumb .lt-card svg { width: 26px; height: 26px; fill: rgba(255,255,255,.85); }
+  .live-thumb .lt-title {
+    font-size: 12px; font-weight: 700; color: #fff; line-height: 1.2;
+    text-shadow: 0 1px 3px rgba(0,0,0,.6); max-width: 90%;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .live-thumb .lt-label {
+    position: absolute; left: 8px; bottom: 8px; right: 8px;
+    font-size: 11px; font-weight: 700; color: #fff;
+    text-shadow: 0 1px 4px rgba(0,0,0,.9), 0 0 2px rgba(0,0,0,.9);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .live-thumb .lt-badge {
+    position: absolute; right: 8px; top: 8px;
+    display: flex; align-items: center; gap: 4px;
+    background: rgba(239,68,68,.9); color: #fff;
+    font-size: 9px; font-weight: 800; letter-spacing: .04em;
+    padding: 2px 7px; border-radius: 5px;
+  }
+  .live-thumb .lt-badge .lt-dot {
+    width: 5px; height: 5px; border-radius: 50%; background: #fff;
+    animation: pulse-dot 1.4s infinite;
+  }
+  @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.3} }
+  .live-thumb .lt-count {
+    position: absolute; right: 8px; bottom: 8px;
+    background: rgba(0,0,0,.6); color: rgba(255,255,255,.9);
+    font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 4px;
+  }
+  .live-thumb .lt-empty {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; color: rgba(255,255,255,.3); letter-spacing: .05em;
+  }
   .preview-offline-screen {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -1343,7 +1389,7 @@
       <!-- DMB -->
       <div class="preview-card" onclick="openPreview('DMB','Ruangprint DMB',true)">
         <div class="preview-frame-wrap">
-          <iframe id="prev-iframe-DMB" src="" data-src="ruangtv-player.html?branch=DMB" loading="lazy"></iframe>
+          <div class="live-thumb" id="live-thumb-DMB"><div class="lt-empty">Memuat…</div></div>
         </div>
         <div class="preview-card-foot">
           <span class="preview-branch-code">DMB</span>
@@ -1358,7 +1404,7 @@
       <!-- CTR -->
       <div class="preview-card" onclick="openPreview('CTR','Ruangprint CTR',true)">
         <div class="preview-frame-wrap">
-          <iframe id="prev-iframe-CTR" src="" data-src="ruangtv-player.html?branch=CTR" loading="lazy"></iframe>
+          <div class="live-thumb" id="live-thumb-CTR"><div class="lt-empty">Memuat…</div></div>
         </div>
         <div class="preview-card-foot">
           <span class="preview-branch-code">CTR</span>
@@ -1373,7 +1419,7 @@
       <!-- GDS -->
       <div class="preview-card" onclick="openPreview('GDS','Ruangprint GDS',true)">
         <div class="preview-frame-wrap">
-          <iframe id="prev-iframe-GDS" src="" data-src="ruangtv-player.html?branch=GDS" loading="lazy"></iframe>
+          <div class="live-thumb" id="live-thumb-GDS"><div class="lt-empty">Memuat…</div></div>
         </div>
         <div class="preview-card-foot">
           <span class="preview-branch-code">GDS</span>
@@ -1388,7 +1434,7 @@
       <!-- CGK -->
       <div class="preview-card" onclick="openPreview('CGK','Ruangprint CGK',true)">
         <div class="preview-frame-wrap">
-          <iframe id="prev-iframe-CGK" src="" data-src="ruangtv-player.html?branch=CGK" loading="lazy"></iframe>
+          <div class="live-thumb" id="live-thumb-CGK"><div class="lt-empty">Memuat…</div></div>
         </div>
         <div class="preview-card-foot">
           <span class="preview-branch-code">CGK</span>
@@ -1403,7 +1449,7 @@
       <!-- BKS -->
       <div class="preview-card" onclick="openPreview('BKS','Ruangprint BKS',true)">
         <div class="preview-frame-wrap">
-          <iframe id="prev-iframe-BKS" src="" data-src="ruangtv-player.html?branch=BKS" loading="lazy"></iframe>
+          <div class="live-thumb" id="live-thumb-BKS"><div class="lt-empty">Memuat…</div></div>
         </div>
         <div class="preview-card-foot">
           <span class="preview-branch-code">BKS</span>
@@ -1538,6 +1584,14 @@
       const branches = await API.branches.list();
       renderTvGrid(branches);
       renderBranchList(branches);
+      // Sinkronkan status online ke preview live (hindari hardcode usang)
+      if (typeof BRANCHES !== 'undefined') {
+        branches.forEach(b => {
+          const ref = BRANCHES.find(x => x.code === b.code);
+          if (ref) ref.online = (b.status === 'online');
+        });
+        if (typeof loadPreviewThumbs === 'function') loadPreviewThumbs();
+      }
     } catch(e) { console.warn('Branches load failed:', e.message); }
   }
 
@@ -1739,14 +1793,91 @@
   ];
   var currentPreviewBranch = null;
 
-  // Lazy load iframes when section scrolls into view
-  function loadPreviewIframes() {
-    BRANCHES.forEach(function(b) {
-      if (!b.online) return;
-      var iframe = document.getElementById('prev-iframe-' + b.code);
-      if (iframe && !iframe.src) {
-        iframe.src = SERVER + '/ruangtv-player.html?branch=' + b.code;
+  // ── Mini live-preview: tampilkan konten yang sedang tayang per cabang ──
+  var IMG_EXT = ['jpg','jpeg','png','gif','webp'];
+  var CAT_GRAD = {
+    promo:    'linear-gradient(135deg,#7c2d12,#b45309)',
+    discount: 'linear-gradient(135deg,#831843,#be185d)',
+    menu:     'linear-gradient(135deg,#14532d,#15803d)',
+    info:     'linear-gradient(135deg,#1e3a8a,#2563eb)'
+  };
+  var PLAY_SVG = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+  var _prevState = {};   // { CODE: { items, idx, timer } }
+
+  function mediaUrl(raw) {
+    if (!raw) return null;
+    return /^https?:\/\//i.test(raw) ? raw : SERVER + raw;
+  }
+  function extOf(raw) {
+    if (!raw) return null;
+    return raw.split('?')[0].split('.').pop().toLowerCase();
+  }
+
+  function renderThumbSlide(code) {
+    var st = _prevState[code];
+    var el = document.getElementById('live-thumb-' + code);
+    if (!st || !el) return;
+    if (!st.items.length) {
+      el.style.backgroundImage = '';
+      el.innerHTML = '<div class="lt-empty">Tidak ada konten Live</div>';
+      return;
+    }
+    var c = st.items[st.idx];
+    var isImg = IMG_EXT.indexOf(extOf(c.file_url)) !== -1;
+    var url = mediaUrl(c.file_url);
+    var badge = '<div class="lt-badge"><span class="lt-dot"></span>LIVE</div>';
+    var count = st.items.length > 1 ? '<div class="lt-count">' + (st.idx + 1) + '/' + st.items.length + '</div>' : '';
+    var label = '<div class="lt-label">' + (c.name || '-') + '</div>';
+    if (isImg && url) {
+      el.style.backgroundImage = "url('" + url + "')";
+      el.innerHTML = badge + label + count;
+    } else {
+      // Video / tanpa gambar → kartu gradien berwarna + nama konten (bukan hitam)
+      el.style.backgroundImage = '';
+      el.style.background = (CAT_GRAD[c.category] || CAT_GRAD.info);
+      el.innerHTML = badge +
+        '<div class="lt-card">' + PLAY_SVG + '<div class="lt-title">' + (c.name || '-') + '</div></div>' +
+        count;
+    }
+  }
+
+  function rotateThumb(code) {
+    var st = _prevState[code];
+    if (!st || st.items.length <= 1) return;
+    st.idx = (st.idx + 1) % st.items.length;
+    renderThumbSlide(code);
+    var dur = Math.max(4, st.items[st.idx].duration || 8);
+    st.timer = setTimeout(function(){ rotateThumb(code); }, dur * 1000);
+  }
+
+  async function loadBranchThumb(code) {
+    var el = document.getElementById('live-thumb-' + code);
+    if (!el) return;
+    try {
+      var r = await fetch(SERVER + '/api/tv/' + code + '/playlist?_t=' + Date.now(), { cache: 'no-store' });
+      var data = await r.json();
+      if (_prevState[code] && _prevState[code].timer) clearTimeout(_prevState[code].timer);
+      _prevState[code] = { items: data.playlist || [], idx: 0, timer: null };
+      el.style.background = '#0c0c0c';
+      renderThumbSlide(code);
+      var st = _prevState[code];
+      if (st.items.length > 1) {
+        var dur = Math.max(4, st.items[0].duration || 8);
+        st.timer = setTimeout(function(){ rotateThumb(code); }, dur * 1000);
       }
+    } catch(e) {
+      el.innerHTML = '<div class="lt-empty">Gagal memuat</div>';
+    }
+  }
+
+  function loadPreviewThumbs() {
+    BRANCHES.forEach(function(b) {
+      if (!b.online) {
+        var el = document.getElementById('live-thumb-' + b.code);
+        if (el) { el.style.background = '#111'; el.innerHTML = '<div class="lt-empty">OFFLINE</div>'; }
+        return;
+      }
+      loadBranchThumb(b.code);
     });
   }
 
@@ -1756,15 +1887,17 @@
     var previewObs = new IntersectionObserver(function(entries) {
       entries.forEach(function(entry) {
         if (entry.isIntersecting) {
-          loadPreviewIframes();
+          loadPreviewThumbs();
           previewObs.disconnect();
         }
       });
     }, { threshold: 0.1 });
     previewObs.observe(previewGrid);
   } else if (previewGrid) {
-    setTimeout(loadPreviewIframes, 1500);
+    setTimeout(loadPreviewThumbs, 1500);
   }
+  // Refresh konten preview tiap 60 detik agar mengikuti perubahan playlist
+  setInterval(loadPreviewThumbs, 60000);
 
   function openPreview(code, name, online) {
     if (!online) return;
