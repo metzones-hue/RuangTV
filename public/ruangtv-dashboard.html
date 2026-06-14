@@ -1795,6 +1795,7 @@
 
   // ── Mini live-preview: tampilkan konten yang sedang tayang per cabang ──
   var IMG_EXT = ['jpg','jpeg','png','gif','webp'];
+  var VID_EXT = ['mp4','mov','webm','m4v','ogg'];
   var CAT_GRAD = {
     promo:    'linear-gradient(135deg,#7c2d12,#b45309)',
     discount: 'linear-gradient(135deg,#831843,#be185d)',
@@ -1823,16 +1824,28 @@
       return;
     }
     var c = st.items[st.idx];
-    var isImg = IMG_EXT.indexOf(extOf(c.file_url)) !== -1;
+    var ext = extOf(c.file_url);
+    var isImg = IMG_EXT.indexOf(ext) !== -1;
+    var isVid = VID_EXT.indexOf(ext) !== -1;
     var url = mediaUrl(c.file_url);
     var badge = '<div class="lt-badge"><span class="lt-dot"></span>LIVE</div>';
     var count = st.items.length > 1 ? '<div class="lt-count">' + (st.idx + 1) + '/' + st.items.length + '</div>' : '';
     var label = '<div class="lt-label">' + (c.name || '-') + '</div>';
     if (isImg && url) {
+      el.style.background = '#0c0c0c';
       el.style.backgroundImage = "url('" + url + "')";
       el.innerHTML = badge + label + count;
+    } else if (isVid && url) {
+      // Video → putar langsung (muted, loop) supaya preview benar-benar "running"
+      el.style.background = '#000';
+      el.style.backgroundImage = '';
+      el.innerHTML =
+        '<video src="' + url + '" autoplay muted loop playsinline preload="auto" ' +
+        'style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" ' +
+        'onerror="this.remove()"></video>' +
+        badge + label + count;
     } else {
-      // Video / tanpa gambar → kartu gradien berwarna + nama konten (bukan hitam)
+      // Tanpa file/gambar → kartu gradien berwarna + nama konten (bukan hitam)
       el.style.backgroundImage = '';
       el.style.background = (CAT_GRAD[c.category] || CAT_GRAD.info);
       el.innerHTML = badge +
