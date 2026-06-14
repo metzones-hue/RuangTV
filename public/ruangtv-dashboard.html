@@ -1944,7 +1944,11 @@
     const bar   = document.getElementById('set-ticker-preview-bar');
     prev.textContent = txt;
     prev.style.color = color;
-    bar.style.background = bg;
+    // Semi-transparan agar konsisten dengan tampilan di TV (video tetap terlihat)
+    const m = String(bg).match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
+    bar.style.background = m
+      ? `rgba(${parseInt(m[1],16)},${parseInt(m[2],16)},${parseInt(m[3],16)},.55)`
+      : bg;
     prev.style.animation = `dash-ticker ${secs}s linear infinite`;
   }
 

@@ -560,6 +560,14 @@
   });
 
   // ── RUNNING TEXT SETTINGS ────────────────────────────────
+  // Ubah hex (#rrggbb) jadi {r,g,b}. Kembalikan null kalau bukan hex valid.
+  function hexToRgb(hex) {
+    if (!hex) return null;
+    const m = String(hex).trim().match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
+    if (!m) return null;
+    return { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16) };
+  }
+
   function applyTickerSettings(s) {
     const el = document.getElementById('ticker-text');
     if (!el) return;
@@ -568,7 +576,13 @@
     if (s.ticker_speed) el.style.animationDuration = (parseFloat(s.ticker_speed) || 35) + 's';
     if (s.ticker_bg) {
       const bar = document.querySelector('.bottom-bar');
-      if (bar) bar.style.background = s.ticker_bg;
+      if (bar) {
+        const rgb = hexToRgb(s.ticker_bg);
+        // Pakai gradasi semi-transparan agar video tetap terlihat (tidak tertutup kotak solid)
+        bar.style.background = rgb
+          ? `linear-gradient(to top, rgba(${rgb.r},${rgb.g},${rgb.b},.55), transparent)`
+          : s.ticker_bg;
+      }
     }
   }
 
